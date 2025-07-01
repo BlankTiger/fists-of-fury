@@ -10,6 +10,7 @@ const int SCREEN_WIDTH  = 100;
 const int SCREEN_HEIGHT = 64;
 const int WINDOW_WIDTH  = 1000;
 const int WINDOW_HEIGHT = 640;
+const f32 FPS_MAX       = 144.0;
 
 struct Img {
     SDL_Texture* img;
@@ -26,12 +27,17 @@ struct Entity {
 };
 
 struct Game {
-    SDL_Window*         window;
-    SDL_Renderer*       renderer;
-    Img                 bg;
-    Img                 entity_shadow;
+    SDL_Window*   window;
+    SDL_Renderer* renderer;
+
+    Img bg;
+    Img entity_shadow;
+
     Entity              player;
     std::vector<Entity> enemies;
+
+    // delta time
+    u64 dt;
 };
 
 static Game g = {};
@@ -142,7 +148,7 @@ static void draw_entity(SDL_Renderer* r, Entity e) {
 static void update_enemy(Entity* e) {}
 
 static void update_player(Entity* p) {
-    p->x = std::fmod(p->x + 1, (f32)SCREEN_WIDTH);
+    p->x = std::fmod(p->x + 0.01 * g.dt, (f32)SCREEN_WIDTH);
 }
 
 static void update() {
@@ -170,9 +176,11 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    bool quit = false;
-    SDL_Event e;
+    bool quit  = false;
+    u64  a     = SDL_GetTicks();
+    u64  b     = SDL_GetTicks();
 
+    SDL_Event e;
     while (!quit) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_EVENT_QUIT) {
@@ -180,8 +188,14 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        update();
-        draw();
+        a       = SDL_GetTicks();
+        g.dt    = a - b;
+
+        if (g.dt > 1000 / FPS_MAX) {
+            b = a;
+            update();
+            draw();
+        }
     }
 
     return 0;
