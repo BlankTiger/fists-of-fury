@@ -145,6 +145,26 @@ static void update_player(Entity* p) {
     p->x = std::fmod(p->x + 1, (f32)SCREEN_WIDTH);
 }
 
+static void update() {
+    for (int idx = 0; idx < g.enemies.size(); idx++) {
+        update_enemy(&g.enemies[idx]);
+    }
+    update_player(&g.player);
+}
+
+static void draw() {
+    SDL_RenderClear(g.renderer);
+
+    draw_background(g.renderer);
+
+    for (int idx = 0; idx < g.enemies.size(); idx++) {
+        draw_entity(g.renderer, g.enemies[idx]);
+    }
+    draw_entity(g.renderer, g.player);
+
+    SDL_RenderPresent(g.renderer);
+}
+
 int main(int argc, char* argv[]) {
     if (!init()) {
         return 1;
@@ -160,18 +180,8 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        SDL_RenderClear(g.renderer);
-        draw_background(g.renderer);
-
-        for (int idx = 0; idx < g.enemies.size(); idx++) {
-            update_enemy(&g.enemies[idx]);
-            draw_entity(g.renderer, g.enemies[idx]);
-        }
-
-        update_player(&g.player);
-        draw_entity(g.renderer, g.player);
-
-        SDL_RenderPresent(g.renderer);
+        update();
+        draw();
     }
 
     return 0;
