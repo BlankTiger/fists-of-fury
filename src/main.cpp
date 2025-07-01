@@ -145,14 +145,17 @@ static void draw_entity(SDL_Renderer* r, Entity e) {
     SDL_RenderTexture(r, g.entity_shadow.img, NULL, &dst);
 }
 
-static void update_enemy(Entity* e) {}
+static void update_enemy(Entity* e) {
+    // TODO: remove this
+    e->health = e->health;
+}
 
 static void update_player(Entity* p) {
     p->x = std::fmod(p->x + 0.01 * g.dt, (f32)SCREEN_WIDTH);
 }
 
 static void update() {
-    for (int idx = 0; idx < g.enemies.size(); idx++) {
+    for (u64 idx = 0; idx < g.enemies.size(); idx++) {
         update_enemy(&g.enemies[idx]);
     }
     update_player(&g.player);
@@ -163,7 +166,7 @@ static void draw() {
 
     draw_background(g.renderer);
 
-    for (int idx = 0; idx < g.enemies.size(); idx++) {
+    for (u64 idx = 0; idx < g.enemies.size(); idx++) {
         draw_entity(g.renderer, g.enemies[idx]);
     }
     draw_entity(g.renderer, g.player);
@@ -171,7 +174,7 @@ static void draw() {
     SDL_RenderPresent(g.renderer);
 }
 
-int main(int argc, char* argv[]) {
+int main() {
     if (!init()) {
         return 1;
     }
