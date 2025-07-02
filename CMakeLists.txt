@@ -14,7 +14,10 @@ endif()
 add_subdirectory(vendor/SDL)
 add_subdirectory(vendor/SDL_image)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME}
+    src/main.cpp
+    src/sprite.cpp
+)
 
 target_link_libraries(
     ${PROJECT_NAME}

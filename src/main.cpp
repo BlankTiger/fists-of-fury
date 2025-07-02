@@ -1,10 +1,12 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-#include <SDL3_image/SDL_image.h>
+
 #include <iostream>
-#include "number_types.h"
 #include <vector>
 #include <cmath>
+
+#include "number_types.h"
+#include "sprite.h"
 
 const int SCREEN_WIDTH  = 100;
 const int SCREEN_HEIGHT = 64;
@@ -12,16 +14,10 @@ const int WINDOW_WIDTH  = 1000;
 const int WINDOW_HEIGHT = 640;
 const f32 FPS_MAX       = 144.0;
 
-struct Img {
-    SDL_Texture* img;
-    f32          width;
-    f32          height;
-};
-
 struct Entity {
     int health = 100;
-    int damage = 20;
-    f32 speed  = 1;
+    int damage = 12;
+    f32 speed  = 0.01;
     f32 x;
     f32 y;
 };
@@ -41,31 +37,6 @@ struct Game {
 };
 
 static Game g = {};
-
-// Has to be called after initializing the renderer.
-//
-// returns null on error
-static bool load_img(const char* path, Img& i) {
-    i.img = IMG_LoadTexture(g.renderer, path);
-    if (i.img == nullptr) {
-        SDL_Log("Could not load img! SDL err: %s\n", SDL_GetError());
-        return false;
-    }
-
-    bool ok = SDL_GetTextureSize(i.img, &i.width, &i.height);
-    if (!ok) {
-        SDL_Log("Could not load img size! SDL err: %s\n", SDL_GetError());
-        return false;
-    }
-
-    ok = SDL_SetTextureScaleMode(i.img, SDL_SCALEMODE_NEAREST);
-    if (!ok) {
-        SDL_Log("Could not set texture scaling to nearest neighbor! SDL err: %s\n", SDL_GetError());
-        return false;
-    }
-
-    return true;
-}
 
 static bool init() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -107,7 +78,7 @@ static bool init() {
     }
 
     {
-        bool ok = load_img("assets/art/backgrounds/street-background.png", g.bg);
+        bool ok = img_load(g.bg, g.renderer, "assets/art/backgrounds/street-background.png");
         if (!ok) {
             SDL_Log("Failed to load bg img! SDL err: %s\n", SDL_GetError());
             return false;
@@ -115,7 +86,7 @@ static bool init() {
     }
 
     {
-        bool ok = load_img("assets/art/characters/shadow.png", g.entity_shadow);
+        bool ok = img_load(g.entity_shadow, g.renderer, "assets/art/characters/shadow.png");
         if (!ok) {
             SDL_Log("Failed to load shadow img! SDL err: %s\n", SDL_GetError());
             return false;
@@ -151,7 +122,7 @@ static void update_enemy(Entity* e) {
 }
 
 static void update_player(Entity* p) {
-    p->x = std::fmod(p->x + 0.01 * g.dt, (f32)SCREEN_WIDTH);
+    p->x = std::fmod(p->x + p->speed * g.dt, (f32)SCREEN_WIDTH);
 }
 
 static void update() {
