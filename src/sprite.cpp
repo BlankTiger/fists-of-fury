@@ -46,7 +46,7 @@ Src_Rect_With_Size sprite_get_src_rect(const Sprite& s, u32 row, u32 col) {
     };
 }
 
-bool sprite_draw_at_dst(const Sprite& s, SDL_Renderer* r, f32 x_dst, f32 y_dst, u64 row, u64 col) {
+bool sprite_draw_at_dst(const Sprite& s, SDL_Renderer* r, f32 x_dst, f32 y_dst, u64 row, u64 col, SDL_FlipMode flip = SDL_FLIP_NONE) {
     assert(row < s.frames_in_each_row.size());
     assert(col < s.frames_in_each_row[row]);
 
@@ -56,5 +56,5 @@ bool sprite_draw_at_dst(const Sprite& s, SDL_Renderer* r, f32 x_dst, f32 y_dst, 
     const f32 y = row * height;
     const SDL_FRect src = {x, y, width, height};
     const SDL_FRect dst = {x_dst, y_dst, width, height};
-    return SDL_RenderTexture(r, s.img.img, &src, &dst);
+    return SDL_RenderTextureRotated(r, s.img.img, &src, &dst, 0., NULL, flip);
 }
