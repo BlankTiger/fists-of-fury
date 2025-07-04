@@ -39,4 +39,4 @@ struct Src_Rect_With_Size {
 
 Src_Rect_With_Size sprite_get_src_rect(const Sprite& s, u32 row, u32 col);
 
-bool sprite_draw_at_dst(const Sprite& s, SDL_Renderer* r, f32 x_dst, f32 y_dst, u32 row, u32 col);
+bool sprite_draw_at_dst(const Sprite& s, SDL_Renderer* r, f32 x_dst, f32 y_dst, u64 row, u64 col);
