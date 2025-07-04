@@ -29,6 +29,13 @@ struct Game {
     Img bg;
     Img entity_shadow;
 
+    static constexpr u32 sprite_player_frames[] = { 4, 8, 4, 3, 6, 6, 5, 3, 3, 0 };
+    Sprite sprite_player = {
+        .img                     = {},
+        .max_frames_in_row_count = 10,
+        .frames_in_each_row      = std::span{sprite_player_frames},
+    };
+
     Entity              player;
     std::vector<Entity> enemies;
 
@@ -94,6 +101,14 @@ static bool init() {
     }
 
     {
+        bool ok = sprite_load(g.sprite_player, g.renderer, "assets/art/characters/player.png");
+        if (!ok) {
+            SDL_Log("Failed to load player sprite! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+    }
+
+    {
         // player setup
         g.player.x = SCREEN_WIDTH  / 2;
         g.player.y = SCREEN_HEIGHT / 2;
@@ -121,8 +136,16 @@ static void update_enemy(Entity* e) {
     e->health = e->health;
 }
 
+static void draw_player(SDL_Renderer* r, const Entity& p) {
+    bool ok = sprite_draw_at_dst(g.sprite_player, r, p.x, p.y, 1, 7);
+    if (!ok) {
+        SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
+    }
+}
+
 static void update_player(Entity* p) {
     p->x = std::fmod(p->x + p->speed * g.dt, (f32)SCREEN_WIDTH);
+    p->y = (f32)SCREEN_HEIGHT / 16;
 }
 
 static void update() {
@@ -140,7 +163,7 @@ static void draw() {
     for (u64 idx = 0; idx < g.enemies.size(); idx++) {
         draw_entity(g.renderer, g.enemies[idx]);
     }
-    draw_entity(g.renderer, g.player);
+    draw_player(g.renderer, g.player);
 
     SDL_RenderPresent(g.renderer);
 }
@@ -150,11 +173,11 @@ int main() {
         return 1;
     }
 
-    bool quit  = false;
-    u64  a     = SDL_GetTicks();
-    u64  b     = SDL_GetTicks();
+    bool quit = false;
+    u64  a    = SDL_GetTicks();
+    u64  b    = SDL_GetTicks();
 
-    SDL_Event e;
+    SDL_Event              e;
     while (!quit) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_EVENT_QUIT) {
@@ -162,14 +185,15 @@ int main() {
             }
         }
 
-        a       = SDL_GetTicks();
-        g.dt    = a - b;
+        a    = SDL_GetTicks();
+        g.dt = a - b;
 
         if (g.dt > 1000 / FPS_MAX) {
             b = a;
             update();
             draw();
         }
+
     }
 
     return 0;
