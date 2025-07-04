@@ -20,6 +20,7 @@ struct Entity {
     f32 speed  = 0.01;
     f32 x;
     f32 y;
+    u32 idx_anim;
 };
 
 struct Game {
@@ -136,8 +137,22 @@ static void update_enemy(Entity* e) {
     e->health = e->health;
 }
 
+enum struct Player_Anim : u32 {
+    Standing      = 0,
+    Running       = 1,
+    PunchingLeft  = 2,
+    PunchingRight = 3,
+    KickingLeft   = 4,
+    KickingRight  = 5,
+    KickingLow    = 6,
+    Glow          = 7,
+    Fallover      = 8
+};
+
 static void draw_player(SDL_Renderer* r, const Entity& p) {
-    bool ok = sprite_draw_at_dst(g.sprite_player, r, p.x, p.y, 1, 7);
+    u64 ticks = SDL_GetTicks() / 100;
+    u64 idx = ticks % g.sprite_player.frames_in_each_row[p.idx_anim];
+    bool ok = sprite_draw_at_dst(g.sprite_player, r, p.x, p.y, p.idx_anim, idx);
     if (!ok) {
         SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
     }
@@ -146,6 +161,7 @@ static void draw_player(SDL_Renderer* r, const Entity& p) {
 static void update_player(Entity* p) {
     p->x = std::fmod(p->x + p->speed * g.dt, (f32)SCREEN_WIDTH);
     p->y = (f32)SCREEN_HEIGHT / 16;
+    if (SDL_GetTicks() > 1000) p->idx_anim = (u32)Player_Anim::PunchingLeft;
 }
 
 static void update() {
