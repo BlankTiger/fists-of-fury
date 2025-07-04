@@ -1,5 +1,4 @@
-#ifndef NUMBER_TYPES_H
-#define NUMBER_TYPES_H
+#pragma once
 
 #include <cstdint>
 #include <cstddef>
@@ -22,5 +21,3 @@ typedef std::ptrdiff_t isize;
 
 typedef std::uintptr_t uptr;
 typedef std::intptr_t  iptr;
-
-#endif // NUMBER_TYPES_H

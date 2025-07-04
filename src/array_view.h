@@ -1,5 +1,6 @@
-#ifndef ARRAY_VIEW_H
-#define ARRAY_VIEW_H
+#pragma once
+
+#include <vector>
 
 template<typename T>
 struct Array_View {
@@ -8,9 +9,7 @@ struct Array_View {
 };
 
 template<typename T>
-Array_View<T> array_view_from(std::vector<T> vec);
+Array_View<T> array_view_from(std::vector<T>* vec);
 
 template<typename T>
 Array_View<T> array_view_from(T* data[], usize len);
-
-#endif // ARRAY_VIEW_H
