@@ -11,6 +11,9 @@ enum struct Level : usize {
     Count // KEEP THIS LAST
 };
 
+static_assert((usize)Level::Street == 0);
+static_assert((usize)Level::Bar    == 1);
+
 struct Box {
     f32 x, y, width, height;
 };
