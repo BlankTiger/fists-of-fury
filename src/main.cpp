@@ -32,7 +32,8 @@ struct Entity {
     u32       idx_anim;
     Direction dir;
     // this will be relative to the player position
-    SDL_FRect  collision_box_offsets;
+    SDL_FRect collision_box_offsets;
+    SDL_FRect shadow_offset;
 
     u32 current_frame      = 0;     // Current frame in the animation
     u64 last_frame_time    = 0;     // When the last frame was shown
@@ -196,10 +197,11 @@ static bool init() {
 
     {
         // player setup
-        g.player.x = SCREEN_WIDTH  / 16;
-        g.player.y = SCREEN_HEIGHT / 16;
+        g.player.x                     = SCREEN_WIDTH  / 16;
+        g.player.y                     = SCREEN_HEIGHT / 16;
         g.player.collision_box_offsets = {14, 40, 20, 8};
-        g.player.default_anim = (u32)Player_Anim::Standing;
+        g.player.shadow_offset         = {17, 48, 14, 2};
+        g.player.default_anim          = (u32)Player_Anim::Standing;
         start_animation(&g.player, (u32)Player_Anim::Standing, true);
     }
 
@@ -244,12 +246,12 @@ static void update_enemy(Entity* e) {
     e->health = e->health;
 }
 
-static SDL_FRect player_get_collision_box(const Entity& p) {
+internal SDL_FRect player_get_offset_box(const Entity& p, const SDL_FRect& box) {
     return {
-        p.collision_box_offsets.x + p.x,
-        p.collision_box_offsets.y + p.y,
-        p.collision_box_offsets.w,
-        p.collision_box_offsets.h
+        box.x + p.x,
+        box.y + p.y,
+        box.w,
+        box.h
     };
 }
 
@@ -258,8 +260,11 @@ static void draw_player(SDL_Renderer* r, const Entity& p) {
     bool ok = sprite_draw_at_dst(g.sprite_player, r, p.x, p.y, p.idx_anim, p.current_frame, flip);
     if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
 
+    const SDL_FRect dst = player_get_offset_box(p, p.shadow_offset);
+    ok = SDL_RenderTexture(r, g.entity_shadow.img, NULL, &dst);
+
     #if SHOW_COLLISION_BOXES
-    const SDL_FRect collision_box = player_get_collision_box(p);
+    const SDL_FRect collision_box = player_get_collision_box(p, p.collision_box);
     draw_collision_box(r, collision_box);
     #endif
 }
@@ -352,7 +357,7 @@ static void update_player(Entity* p) {
 
         bool in_bounds = true;
         for (const auto& box : level_info_boxes(g.curr_level_info)) {
-            const SDL_FRect collision_box = player_get_collision_box(*p);
+            const SDL_FRect collision_box = player_get_offset_box(*p, p->collision_box_offsets);
             if (SDL_HasRectIntersectionFloat(&box, &collision_box)) {
                 in_bounds = false;
                 break;
