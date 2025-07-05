@@ -77,6 +77,7 @@ struct Game {
     std::vector<Entity> enemies;
 
     Level_Info curr_level_info;
+    SDL_FRect  camera;
     u64        dt;
 };
 
@@ -172,6 +173,7 @@ internal bool init() {
 
     {
         g.curr_level_info = level_data[0];
+        g.camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
         bool ok = img_load(g.bg, g.renderer, g.curr_level_info.bg_path);
         if (!ok) {
             SDL_Log("Failed to load bg img! SDL err: %s\n", SDL_GetError());
@@ -227,8 +229,8 @@ internal void draw_collision_box(SDL_Renderer* r, const SDL_FRect& box) {
 }
 
 internal void draw_level(SDL_Renderer* r) {
-    const SDL_FRect dst = {0, 0, g.bg.width, g.bg.height};
-    SDL_RenderTexture(r, g.bg.img, NULL, &dst);
+    const SDL_FRect dst = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    SDL_RenderTexture(r, g.bg.img, &g.camera, &dst);
     #if SHOW_COLLISION_BOXES
     for (const auto& box : level_info_boxes(g.curr_level_info)) {
         draw_collision_box(r, box);
@@ -386,12 +388,15 @@ internal void update_player(Entity* p) {
     update_animation(p);
 }
 
-static void update() {
+internal void update_camera(const Entity& player) {
+}
+
 internal void update() {
     for (u64 idx = 0; idx < g.enemies.size(); idx++) {
         update_enemy(&g.enemies[idx]);
     }
     update_player(&g.player);
+    update_camera(g.player);
 
     g.input_prev  = g.input;
     g.input.punch = false;
@@ -441,8 +446,6 @@ int main() {
     bool quit = false;
     u64  a    = SDL_GetTicks();
     u64  b    = SDL_GetTicks();
-
-    std::cout << level_info_boxes(g.curr_level_info).size() << '\n';
 
     SDL_Event e;
     while (!quit) {
