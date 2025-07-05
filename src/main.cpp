@@ -343,22 +343,25 @@ static void update_player(Entity* p) {
         }
     }
 
-    f32 x_old = p->x;
-    f32 y_old = p->y;
-    p->x += x_vel * g.dt;
-    p->y += y_vel * g.dt;
+    // handle collisions and position change
+    {
+        f32 x_old = p->x;
+        f32 y_old = p->y;
+        p->x += x_vel * g.dt;
+        p->y += y_vel * g.dt;
 
-    bool in_bounds = true;
-    for (const auto& box : level_info_boxes(g.curr_level_info)) {
-        const SDL_FRect collision_box = player_get_collision_box(*p);
-        if (SDL_HasRectIntersectionFloat(&box, &collision_box)) {
-            in_bounds = false;
-            break;
+        bool in_bounds = true;
+        for (const auto& box : level_info_boxes(g.curr_level_info)) {
+            const SDL_FRect collision_box = player_get_collision_box(*p);
+            if (SDL_HasRectIntersectionFloat(&box, &collision_box)) {
+                in_bounds = false;
+                break;
+            }
         }
-    }
-    if (!in_bounds) {
-        p->x = x_old;
-        p->y = y_old;
+        if (!in_bounds) {
+            p->x = x_old;
+            p->y = y_old;
+        }
     }
 
     if (!p->animation_playing || p->animation_loop) {
