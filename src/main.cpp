@@ -42,7 +42,7 @@ struct Entity {
     u32 default_anim       = 0;     // Animation to return to when current finishes
 };
 
-enum struct Kick_State { Left, Right, Low };
+enum struct Kick_State { Left, Right, Drop };
 
 struct Input_State {
     bool left  = false;
@@ -88,7 +88,7 @@ enum struct Player_Anim : u32 {
     Punching_Right = 3,
     Kicking_Left   = 4,
     Kicking_Right  = 5,
-    Kicking_Low    = 6,
+    Kicking_Drop   = 6,
     Got_Hit        = 7,
     Fallover       = 8
 };
@@ -279,8 +279,8 @@ static void update_player(Entity* p) {
     if (input_pressed(in.kick, in_prev.kick)) {
         if (!p->animation_playing || p->animation_loop) {
             switch (g.input.last_kick) {
-                case Kick_State::Low: {
-                    start_animation(p, (u32)Player_Anim::Kicking_Low, false, 80);
+                case Kick_State::Drop: {
+                    start_animation(p, (u32)Player_Anim::Kicking_Drop, false, 80);
                     g.input.last_kick = Kick_State::Left;
                     break;
                 }
@@ -293,7 +293,7 @@ static void update_player(Entity* p) {
 
                 case Kick_State::Right: {
                     start_animation(p, (u32)Player_Anim::Kicking_Right, false, 50);
-                    g.input.last_kick = Kick_State::Low;
+                    g.input.last_kick = Kick_State::Drop;
                     break;
                 }
             }
