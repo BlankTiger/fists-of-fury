@@ -102,11 +102,11 @@ static void start_animation(Entity* e, u32 anim_idx, bool should_loop = false, u
     e->last_frame_time   = SDL_GetTicks();
 }
 
-static bool is_animation_finished(const Entity& e) {
-    if (!e.animation_playing) return true;
-    if (e.animation_loop) return false;
-    return e.current_frame >= g.sprite_player.frames_in_each_row[e.idx_anim] - 1;
-}
+// static bool is_animation_finished(const Entity& e) {
+//     if (!e.animation_playing) return true;
+//     if (e.animation_loop) return false;
+//     return e.current_frame >= g.sprite_player.frames_in_each_row[e.idx_anim] - 1;
+// }
 
 static void update_animation(Entity* e) {
     if (!e->animation_playing) return;
@@ -256,9 +256,9 @@ static bool input_pressed(bool curr, bool prev) {
     return curr && !prev;
 }
 
-static bool input_released(bool curr, bool prev) {
-    return !curr && prev;
-}
+// static bool input_released(bool curr, bool prev) {
+//     return !curr && prev;
+// }
 
 static void update_player(Entity* p) {
     const auto& in      = g.input;
