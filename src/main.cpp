@@ -38,6 +38,8 @@ struct Entity {
     u32 default_anim       = 0;     // Animation to return to when current finishes
 };
 
+enum struct Kick_State { Left, Right, Low };
+
 struct Input_State {
     bool left  = false;
     bool right = false;
@@ -46,8 +48,8 @@ struct Input_State {
     bool punch = false;
     bool kick  = false;
 
+    Kick_State last_kick     = Kick_State::Left;
     bool last_punch_was_left = true;
-    bool last_kick_was_left  = true;
 };
 
 struct Game {
@@ -251,12 +253,24 @@ static void update_player(Entity* p) {
 
     if (input_pressed(in.kick, in_prev.kick)) {
         if (!p->animation_playing || p->animation_loop) {
-            if (g.input.last_kick_was_left) {
-                start_animation(p, (u32)Player_Anim::Kicking_Right, false, 50);
-                g.input.last_kick_was_left = false;
-            } else {
-                start_animation(p, (u32)Player_Anim::Kicking_Left, false, 50);
-                g.input.last_kick_was_left = true;
+            switch (g.input.last_kick) {
+                case Kick_State::Low: {
+                    start_animation(p, (u32)Player_Anim::Kicking_Low, false, 80);
+                    g.input.last_kick = Kick_State::Left;
+                    break;
+                }
+
+                case Kick_State::Left: {
+                    start_animation(p, (u32)Player_Anim::Kicking_Left, false, 50);
+                    g.input.last_kick = Kick_State::Right;
+                    break;
+                }
+
+                case Kick_State::Right: {
+                    start_animation(p, (u32)Player_Anim::Kicking_Right, false, 50);
+                    g.input.last_kick = Kick_State::Low;
+                    break;
+                }
             }
         }
     }
