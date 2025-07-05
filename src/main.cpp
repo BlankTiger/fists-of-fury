@@ -383,7 +383,7 @@ int main() {
     u64  a    = SDL_GetTicks();
     u64  b    = SDL_GetTicks();
 
-    std::cout << g.curr_level_info.collision_boxes.size() << '\n';
+    std::cout << level_info_boxes(g.curr_level_info).size() << '\n';
 
     SDL_Event e;
     while (!quit) {
