@@ -210,13 +210,26 @@ static bool init() {
     return true;
 }
 
+static void draw_collision_box(SDL_Renderer* r, const SDL_FRect& box) {
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(r, 255, 2, 0, 200);
+    bool ok = SDL_RenderRect(r, &box);
+    if (!ok) SDL_Log("Failed to draw background collision box! SDL err: %s\n", SDL_GetError());
+
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(r, 150, 0, 0, 100);
+    ok = SDL_RenderFillRect(r, &box);
+    if (!ok) SDL_Log("Failed to draw background collision box! SDL err: %s\n", SDL_GetError());
+
+    SDL_SetRenderDrawColor(r, 0, 0, 0, SDL_ALPHA_OPAQUE);
+}
+
 static void draw_level(SDL_Renderer* r) {
     const SDL_FRect dst = {0, 0, g.bg.width, g.bg.height};
     SDL_RenderTexture(r, g.bg.img, NULL, &dst);
     #if SHOW_COLLISION_BOXES
     for (const auto& box : level_info_boxes(g.curr_level_info)) {
-        bool ok = SDL_RenderRect(r, &box);
-        if (!ok) SDL_Log("Failed to draw background collision box! SDL err: %s\n", SDL_GetError());
+        draw_collision_box(r, box);
     }
     #endif
 }
@@ -247,8 +260,7 @@ static void draw_player(SDL_Renderer* r, const Entity& p) {
 
     #if SHOW_COLLISION_BOXES
     const SDL_FRect collision_box = player_get_collision_box(p);
-    ok = SDL_RenderRect(r, &collision_box);
-    if (!ok) SDL_Log("Failed to draw player collision box! SDL err: %s\n", SDL_GetError());
+    draw_collision_box(r, collision_box);
     #endif
 }
 
