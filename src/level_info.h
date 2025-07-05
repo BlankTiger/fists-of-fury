@@ -7,6 +7,7 @@
 
 enum struct Level : usize {
     Street,
+    Bar,
     Count // KEEP THIS LAST
 };
 
@@ -42,6 +43,14 @@ constexpr std::array<Level_Info, (usize)Level::Count> level_data = []() {
 
     data[(usize)Level::Street] = make_level_info(
         "assets/art/backgrounds/street-background.png",
+        {
+            {10, 20, 50, 30},
+            {100, 150, 40, 60}
+        }
+    );
+
+    data[(usize)Level::Bar] = make_level_info(
+        "assets/art/backgrounds/bar-background.png",
         {
             {10, 20, 50, 30},
             {100, 150, 40, 60}
