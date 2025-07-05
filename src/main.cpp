@@ -8,6 +8,7 @@
 #include "number_types.h"
 #include "sprite.h"
 #include "level_info.h"
+#include "settings.h"
 
 const int SCREEN_WIDTH  = 100;
 const int SCREEN_HEIGHT = 64;
@@ -30,6 +31,8 @@ struct Entity {
     f32       y;
     u32       idx_anim;
     Direction dir;
+    // this will be relative to the player position
+    SDL_FRect  collision_box_offsets;
 
     u32 current_frame      = 0;     // Current frame in the animation
     u64 last_frame_time    = 0;     // When the last frame was shown
@@ -72,9 +75,8 @@ struct Game {
 
     std::vector<Entity> enemies;
 
-    Level_Info curr_level_info = level_data[0];
-    // delta time
-    u64 dt;
+    Level_Info curr_level_info;
+    u64        dt;
 };
 
 static Game g = {};
@@ -168,7 +170,8 @@ static bool init() {
     }
 
     {
-        bool ok = img_load(g.bg, g.renderer, "assets/art/backgrounds/street-background.png");
+        g.curr_level_info = level_data[0];
+        bool ok = img_load(g.bg, g.renderer, g.curr_level_info.bg_path);
         if (!ok) {
             SDL_Log("Failed to load bg img! SDL err: %s\n", SDL_GetError());
             return false;
@@ -195,6 +198,7 @@ static bool init() {
         // player setup
         g.player.x = SCREEN_WIDTH  / 16;
         g.player.y = SCREEN_HEIGHT / 16;
+        g.player.collision_box_offsets = {14, 40, 20, 8};
         g.player.default_anim = (u32)Player_Anim::Standing;
         start_animation(&g.player, (u32)Player_Anim::Standing, true);
     }
@@ -206,9 +210,15 @@ static bool init() {
     return true;
 }
 
-static void draw_background(SDL_Renderer* r) {
+static void draw_level(SDL_Renderer* r) {
     const SDL_FRect dst = {0, 0, g.bg.width, g.bg.height};
     SDL_RenderTexture(r, g.bg.img, NULL, &dst);
+    #if SHOW_COLLISION_BOXES
+    for (const auto& box : level_info_boxes(g.curr_level_info)) {
+        bool ok = SDL_RenderRect(r, &box);
+        if (!ok) SDL_Log("Failed to draw background collision box! SDL err: %s\n", SDL_GetError());
+    }
+    #endif
 }
 
 static void draw_entity(SDL_Renderer* r, Entity e) {
@@ -221,12 +231,25 @@ static void update_enemy(Entity* e) {
     e->health = e->health;
 }
 
+static SDL_FRect player_get_collision_box(const Entity& p) {
+    return {
+        p.collision_box_offsets.x + p.x,
+        p.collision_box_offsets.y + p.y,
+        p.collision_box_offsets.w,
+        p.collision_box_offsets.h
+    };
+}
+
 static void draw_player(SDL_Renderer* r, const Entity& p) {
     SDL_FlipMode flip = (p.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     bool ok = sprite_draw_at_dst(g.sprite_player, r, p.x, p.y, p.idx_anim, p.current_frame, flip);
-    if (!ok) {
-        SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
-    }
+    if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
+
+    #if SHOW_COLLISION_BOXES
+    const SDL_FRect collision_box = player_get_collision_box(p);
+    ok = SDL_RenderRect(r, &collision_box);
+    if (!ok) SDL_Log("Failed to draw player collision box! SDL err: %s\n", SDL_GetError());
+    #endif
 }
 
 static bool input_pressed(bool curr, bool prev) {
@@ -308,8 +331,23 @@ static void update_player(Entity* p) {
         }
     }
 
+    f32 x_old = p->x;
+    f32 y_old = p->y;
     p->x += x_vel * g.dt;
     p->y += y_vel * g.dt;
+
+    bool in_bounds = true;
+    for (const auto& box : level_info_boxes(g.curr_level_info)) {
+        const SDL_FRect collision_box = player_get_collision_box(*p);
+        if (SDL_HasRectIntersectionFloat(&box, &collision_box)) {
+            in_bounds = false;
+            break;
+        }
+    }
+    if (!in_bounds) {
+        p->x = x_old;
+        p->y = y_old;
+    }
 
     if (!p->animation_playing || p->animation_loop) {
         if (is_moving) {
@@ -342,7 +380,7 @@ static void update() {
 static void draw() {
     SDL_RenderClear(g.renderer);
 
-    draw_background(g.renderer);
+    draw_level(g.renderer);
 
     for (u64 idx = 0; idx < g.enemies.size(); idx++) {
         draw_entity(g.renderer, g.enemies[idx]);
