@@ -355,21 +355,21 @@ static void draw() {
 static void handle_input(const SDL_Event& e) {
     if (e.type == SDL_EVENT_KEY_DOWN) {
         switch (e.key.key) {
-            case SDLK_LEFT:   g.input.left  = true; break;
-            case SDLK_RIGHT:  g.input.right = true; break;
-            case SDLK_UP:     g.input.up    = true; break;
-            case SDLK_DOWN:   g.input.down  = true; break;
-            case SDLK_RETURN: g.input.punch = true; break;
-            case SDLK_SPACE:  g.input.kick  = true; break;
+            case SDLK_A: g.input.left  = true; break;
+            case SDLK_D: g.input.right = true; break;
+            case SDLK_W: g.input.up    = true; break;
+            case SDLK_S: g.input.down  = true; break;
+            case SDLK_J: g.input.punch = true; break;
+            case SDLK_K: g.input.kick  = true; break;
         }
     }
 
     if (e.type == SDL_EVENT_KEY_UP) {
         switch (e.key.key) {
-            case SDLK_LEFT:  g.input.left  = false; break;
-            case SDLK_RIGHT: g.input.right = false; break;
-            case SDLK_UP:    g.input.up    = false; break;
-            case SDLK_DOWN:  g.input.down  = false; break;
+            case SDLK_A: g.input.left  = false; break;
+            case SDLK_D: g.input.right = false; break;
+            case SDLK_W: g.input.up    = false; break;
+            case SDLK_S: g.input.down  = false; break;
         }
     }
 }
