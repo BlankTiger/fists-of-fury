@@ -7,6 +7,7 @@
 
 #include "number_types.h"
 #include "sprite.h"
+#include "level_info.h"
 
 const int SCREEN_WIDTH  = 100;
 const int SCREEN_HEIGHT = 64;
@@ -71,6 +72,7 @@ struct Game {
 
     std::vector<Entity> enemies;
 
+    Level_Info curr_level_info = level_data[0];
     // delta time
     u64 dt;
 };
@@ -380,6 +382,8 @@ int main() {
     bool quit = false;
     u64  a    = SDL_GetTicks();
     u64  b    = SDL_GetTicks();
+
+    std::cout << g.curr_level_info.collision_boxes.size() << '\n';
 
     SDL_Event e;
     while (!quit) {
