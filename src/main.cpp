@@ -279,25 +279,31 @@ static void update_player(Entity* p) {
     f32 x_vel = 0., y_vel = 0.;
 
     if (in.left) {
-        x_vel -= p->speed;
+        x_vel -= 1.0f;
         p->dir = Direction::Left;
         is_moving = true;
     }
-
     if (in.right) {
-        x_vel += p->speed;
+        x_vel += 1.0f;
         p->dir = Direction::Right;
         is_moving = true;
     }
-
     if (in.up) {
-        y_vel -= p->speed;
+        y_vel -= 1.0f;
+        is_moving = true;
+    }
+    if (in.down) {
+        y_vel += 1.0f;
         is_moving = true;
     }
 
-    if (in.down) {
-        y_vel += p->speed;
-        is_moving = true;
+    // Normalize the velocity vector for diagonal movement
+    if (is_moving) {
+        f32 length = sqrt(x_vel * x_vel + y_vel * y_vel);
+        if (length > 0.0f) {
+            x_vel = (x_vel / length) * p->speed;
+            y_vel = (y_vel / length) * p->speed;
+        }
     }
 
     p->x += x_vel * g.dt;
