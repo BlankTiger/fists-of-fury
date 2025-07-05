@@ -94,7 +94,7 @@ enum struct Player_Anim : u32 {
     Fallover       = 8
 };
 
-static void start_animation(Entity* e, u32 anim_idx, bool should_loop = false, u64 frame_time = 100) {
+internal void start_animation(Entity* e, u32 anim_idx, bool should_loop = false, u64 frame_time = 100) {
     e->idx_anim          = anim_idx;
     e->current_frame     = 0;
     e->animation_playing = true;
@@ -103,13 +103,13 @@ static void start_animation(Entity* e, u32 anim_idx, bool should_loop = false, u
     e->last_frame_time   = SDL_GetTicks();
 }
 
-// static bool is_animation_finished(const Entity& e) {
+// internal bool is_animation_finished(const Entity& e) {
 //     if (!e.animation_playing) return true;
 //     if (e.animation_loop) return false;
 //     return e.current_frame >= g.sprite_player.frames_in_each_row[e.idx_anim] - 1;
 // }
 
-static void update_animation(Entity* e) {
+internal void update_animation(Entity* e) {
     if (!e->animation_playing) return;
 
     u64 current_time = SDL_GetTicks();
@@ -131,7 +131,7 @@ static void update_animation(Entity* e) {
 }
 
 
-static bool init() {
+internal bool init() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("SDL could not initialize! SDL err: %s\n", SDL_GetError());
         return false;
@@ -212,7 +212,7 @@ static bool init() {
     return true;
 }
 
-static void draw_collision_box(SDL_Renderer* r, const SDL_FRect& box) {
+internal void draw_collision_box(SDL_Renderer* r, const SDL_FRect& box) {
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(r, 255, 2, 0, 200);
     bool ok = SDL_RenderRect(r, &box);
@@ -226,7 +226,7 @@ static void draw_collision_box(SDL_Renderer* r, const SDL_FRect& box) {
     SDL_SetRenderDrawColor(r, 0, 0, 0, SDL_ALPHA_OPAQUE);
 }
 
-static void draw_level(SDL_Renderer* r) {
+internal void draw_level(SDL_Renderer* r) {
     const SDL_FRect dst = {0, 0, g.bg.width, g.bg.height};
     SDL_RenderTexture(r, g.bg.img, NULL, &dst);
     #if SHOW_COLLISION_BOXES
@@ -236,12 +236,12 @@ static void draw_level(SDL_Renderer* r) {
     #endif
 }
 
-static void draw_entity(SDL_Renderer* r, Entity e) {
+internal void draw_entity(SDL_Renderer* r, Entity e) {
     const SDL_FRect dst = {e.x, e.y, g.entity_shadow.width, g.entity_shadow.height};
     SDL_RenderTexture(r, g.entity_shadow.img, NULL, &dst);
 }
 
-static void update_enemy(Entity* e) {
+internal void update_enemy(Entity* e) {
     // TODO: remove this
     e->health = e->health;
 }
@@ -255,7 +255,7 @@ internal SDL_FRect player_get_offset_box(const Entity& p, const SDL_FRect& box) 
     };
 }
 
-static void draw_player(SDL_Renderer* r, const Entity& p) {
+internal void draw_player(SDL_Renderer* r, const Entity& p) {
     SDL_FlipMode flip = (p.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     bool ok = sprite_draw_at_dst(g.sprite_player, r, p.x, p.y, p.idx_anim, p.current_frame, flip);
     if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
@@ -269,19 +269,19 @@ static void draw_player(SDL_Renderer* r, const Entity& p) {
     #endif
 }
 
-static bool input_pressed(bool curr, bool prev) {
+internal bool input_pressed(bool curr, bool prev) {
     return curr && !prev;
 }
 
-// static bool input_released(bool curr, bool prev) {
+// internal bool input_released(bool curr, bool prev) {
 //     return !curr && prev;
 // }
 
-static void update_player(Entity* p) {
+internal void update_player(Entity* p) {
     const auto& in      = g.input;
     const auto& in_prev = g.input_prev;
 
-        if (input_pressed(in.punch, in_prev.punch)) {
+    if (input_pressed(in.punch, in_prev.punch)) {
         if (!p->animation_playing || p->animation_loop) {
             if (g.input.last_punch_was_left) {
                 start_animation(p, (u32)Player_Anim::Punching_Right, false, 50);
@@ -387,6 +387,7 @@ static void update_player(Entity* p) {
 }
 
 static void update() {
+internal void update() {
     for (u64 idx = 0; idx < g.enemies.size(); idx++) {
         update_enemy(&g.enemies[idx]);
     }
@@ -397,7 +398,7 @@ static void update() {
     g.input.kick  = false;
 }
 
-static void draw() {
+internal void draw() {
     SDL_RenderClear(g.renderer);
 
     draw_level(g.renderer);
@@ -410,7 +411,7 @@ static void draw() {
     SDL_RenderPresent(g.renderer);
 }
 
-static void handle_input(const SDL_Event& e) {
+internal void handle_input(const SDL_Event& e) {
     if (e.type == SDL_EVENT_KEY_DOWN) {
         switch (e.key.key) {
             case SDLK_S: g.input.left  = true; break;
