@@ -3,7 +3,6 @@
 #include <span>
 
 #include "number_types.h"
-#include "array_view.h"
 
 // forward declaration to omit including SDL3
 struct SDL_Texture;
