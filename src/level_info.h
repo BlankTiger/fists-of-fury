@@ -15,16 +15,18 @@ struct Box {
 };
 
 struct Level_Info {
+    const char*         bg_path;
     std::array<Box, 10> collision_boxes;
-    usize box_count;
+    usize               box_count;
 };
 
 std::span<const Box> level_info_boxes(const Level_Info& li) {
     return std::span(li.collision_boxes.data(), li.box_count);
 }
 
-constexpr Level_Info make_level_info(std::initializer_list<Box> boxes) {
+constexpr Level_Info make_level_info(const char* path, std::initializer_list<Box> boxes) {
     Level_Info info{};
+    info.bg_path = path;
     info.box_count = boxes.size();
 
     usize i = 0;
@@ -38,10 +40,13 @@ constexpr Level_Info make_level_info(std::initializer_list<Box> boxes) {
 constexpr std::array<Level_Info, (usize)Level::Count> level_data = []() {
     std::array<Level_Info, (usize)Level::Count> data{};
 
-    data[(usize)Level::Street] = make_level_info({
-        {10, 20, 50, 30},
-        {100, 150, 40, 60}
-    });
+    data[(usize)Level::Street] = make_level_info(
+        "assets/art/backgrounds/street-background.png",
+        {
+            {10, 20, 50, 30},
+            {100, 150, 40, 60}
+        }
+    );
 
     return data;
 }();
