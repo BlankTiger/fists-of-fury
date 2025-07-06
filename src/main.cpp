@@ -232,15 +232,29 @@ internal void draw_level(SDL_Renderer* r) {
     const SDL_FRect dst = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
     SDL_RenderTexture(r, g.bg.img, &g.camera, &dst);
     #if SHOW_COLLISION_BOXES
-    for (const auto& box : level_info_boxes(g.curr_level_info)) {
-        draw_collision_box(r, box);
+    for (const auto& box : level_info_get_collision_boxes(g.curr_level_info)) {
+        // Draw collision boxes relative to camera
+        SDL_FRect screen_box = {
+            box.x - g.camera.x,
+            box.y - g.camera.y,
+            box.w,
+            box.h
+        };
+        draw_collision_box(r, screen_box);
     }
     #endif
 }
 
 internal void draw_entity(SDL_Renderer* r, Entity e) {
-    const SDL_FRect dst = {e.x, e.y, g.entity_shadow.width, g.entity_shadow.height};
+    // Draw entity relative to camera position
+    f32 screen_x = e.x - g.camera.x;
+    f32 screen_y = e.y - g.camera.y;
+
+    const SDL_FRect dst = {screen_x, screen_y, g.entity_shadow.width, g.entity_shadow.height};
     SDL_RenderTexture(r, g.entity_shadow.img, NULL, &dst);
+    #if SHOW_COLLISION_BOXES
+    // TODO: Add collision box drawing with camera offset
+    #endif
 }
 
 internal void update_enemy(Entity* e) {
@@ -258,15 +272,30 @@ internal SDL_FRect player_get_offset_box(const Entity& p, const SDL_FRect& box) 
 }
 
 internal void draw_player(SDL_Renderer* r, const Entity& p) {
+    // Draw player relative to camera position
+    f32 screen_x = p.x - g.camera.x;
+    f32 screen_y = p.y - g.camera.y;
+
     SDL_FlipMode flip = (p.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    bool ok = sprite_draw_at_dst(g.sprite_player, r, p.x, p.y, p.idx_anim, p.current_frame, flip);
+    bool ok = sprite_draw_at_dst(g.sprite_player, r, screen_x, screen_y, p.idx_anim, p.current_frame, flip);
     if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
 
-    const SDL_FRect dst = player_get_offset_box(p, p.shadow_offset);
-    ok = SDL_RenderTexture(r, g.entity_shadow.img, NULL, &dst);
+    // Draw shadow at screen coordinates too
+    SDL_FRect shadow_screen = {
+        p.shadow_offset.x + screen_x,
+        p.shadow_offset.y + screen_y,
+        p.shadow_offset.w,
+        p.shadow_offset.h
+    };
+    ok = SDL_RenderTexture(r, g.entity_shadow.img, NULL, &shadow_screen);
 
     #if SHOW_COLLISION_BOXES
-    const SDL_FRect collision_box = player_get_collision_box(p, p.collision_box);
+    SDL_FRect collision_box = {
+        p.collision_box_offsets.x + screen_x,
+        p.collision_box_offsets.y + screen_y,
+        p.collision_box_offsets.w,
+        p.collision_box_offsets.h
+    };
     draw_collision_box(r, collision_box);
     #endif
 }
@@ -358,7 +387,7 @@ internal void update_player(Entity* p) {
         p->y += y_vel * g.dt;
 
         bool in_bounds = true;
-        for (const auto& box : level_info_boxes(g.curr_level_info)) {
+        for (const auto& box : level_info_get_collision_boxes(g.curr_level_info)) {
             const SDL_FRect collision_box = player_get_offset_box(*p, p->collision_box_offsets);
             if (SDL_HasRectIntersectionFloat(&box, &collision_box)) {
                 in_bounds = false;
@@ -388,7 +417,46 @@ internal void update_player(Entity* p) {
     update_animation(p);
 }
 
+void update_borders_for_curr_level() {
+    auto new_left   = level_info_get_collision_box(g.curr_level_info, Border::Left);
+    auto new_top    = level_info_get_collision_box(g.curr_level_info, Border::Top);
+    auto new_bottom = level_info_get_collision_box(g.curr_level_info, Border::Bottom);
+    new_left.x      = g.camera.x - 1;
+    new_top.x       = g.camera.x - 1;
+    new_bottom.x    = g.camera.x - 1;
+    level_info_update_collision_box(g.curr_level_info, Border::Left,   new_left);
+    level_info_update_collision_box(g.curr_level_info, Border::Top,    new_top);
+    level_info_update_collision_box(g.curr_level_info, Border::Bottom, new_bottom);
+}
+
+const f32 w_half_screen = SCREEN_WIDTH / 2;
+
 internal void update_camera(const Entity& player) {
+    // Use the player's sprite center position
+    f32 player_sprite_width = 48.;
+    f32 x_player = player.x + (player_sprite_width / 2.);
+    f32 player_screen_pos = x_player - g.camera.x;
+
+    // Only move camera right when player crosses halfway point
+    if (player_screen_pos > w_half_screen) {
+        g.camera.x = x_player - w_half_screen;
+
+        // this is to ensure that the player cant go back to the left,
+        // and that borders on the top and bottom move with the player
+        update_borders_for_curr_level();
+    }
+
+    // Clamp camera to level boundaries
+    {
+        if (g.camera.x < 0) {
+            g.camera.x = 0;
+        }
+
+        f32 max_camera_x = g.bg.width - SCREEN_WIDTH;
+        if (g.camera.x > max_camera_x) {
+            g.camera.x = max_camera_x;
+        }
+    }
 }
 
 internal void update() {
