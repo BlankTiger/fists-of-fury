@@ -59,3 +59,7 @@ constexpr std::array<Level_Info, (usize)Level::Count> level_data = []() {
 
     return data;
 }();
+
+Level_Info level_data_get_level(Level level) {
+    return level_data[(usize)level];
+}

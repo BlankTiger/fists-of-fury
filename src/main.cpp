@@ -172,7 +172,7 @@ internal bool init() {
     }
 
     {
-        g.curr_level_info = level_data[0];
+        g.curr_level_info = level_data_get_level(Level::Street);
         g.camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
         bool ok = img_load(g.bg, g.renderer, g.curr_level_info.bg_path);
         if (!ok) {
