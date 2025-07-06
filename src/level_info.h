@@ -45,7 +45,7 @@ constexpr std::array<Level_Info, (usize)Level::Count> level_data = []() {
 
     data[(usize)Level::Street] = {};
     data[(usize)Level::Street].bg_path  = "assets/art/backgrounds/street-background.png";
-    data[(usize)Level::Street].collision_boxes[(usize)Border::Top]    = {0,   0,  150, 32};
+    data[(usize)Level::Street].collision_boxes[(usize)Border::Top]    = {0,   0,  150, 30};
     data[(usize)Level::Street].collision_boxes[(usize)Border::Bottom] = {0,   64, 150, 10};
     data[(usize)Level::Street].collision_boxes[(usize)Border::Left]   = {-1,  0,  1,   64};
     data[(usize)Level::Street].collision_boxes[(usize)Border::Right]  = {400, 0,  1,   64};

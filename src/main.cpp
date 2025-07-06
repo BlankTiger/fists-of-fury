@@ -201,7 +201,7 @@ internal bool init() {
         // player setup
         g.player.x                     = SCREEN_WIDTH  / 16;
         g.player.y                     = SCREEN_HEIGHT / 16;
-        g.player.collision_box_offsets = {14, 40, 20, 8};
+        g.player.collision_box_offsets = {18, 45, 12, 5};
         g.player.shadow_offset         = {17, 48, 14, 2};
         g.player.default_anim          = (u32)Player_Anim::Standing;
         start_animation(&g.player, (u32)Player_Anim::Standing, true);
