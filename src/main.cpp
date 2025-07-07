@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <functional>
 
 #include "number_types.h"
 #include "sprite.h"
@@ -60,6 +61,7 @@ struct Input_State {
 struct Game {
     SDL_Window*   window;
     SDL_Renderer* renderer;
+    std::vector<std::function<void(SDL_Renderer*, const Entity&)>> draw_queue;
 
     Img bg;
     Img entity_shadow;
