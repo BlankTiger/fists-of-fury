@@ -18,7 +18,5 @@ enum struct Player_Anim : u32 {
 };
 
 void start_animation(Entity& e, u32 anim_idx, bool should_loop = false, u64 frame_time = 100);
-void update_player(Entity& p, Game& g);
-void update_camera(const Entity& p, Game& g);
-
-void draw_player(SDL_Renderer* r, const Entity& p, const Game& g);
+void player_update(Entity& p, Game& g);
+void player_draw(SDL_Renderer* r, const Entity& p, const Game& g);

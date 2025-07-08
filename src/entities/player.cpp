@@ -64,7 +64,7 @@ void update_borders_for_curr_level(Game& g) {
 
 const f32 w_half_screen = SCREEN_WIDTH / 2;
 
-void update_camera(const Entity& player, Game& g) {
+internal void camera_update(const Entity& player, Game& g) {
     // Use the player's sprite center position
     f32 player_sprite_width = 48.;
     f32 x_player = player.x + (player_sprite_width / 2.);
@@ -100,7 +100,7 @@ internal bool input_pressed(bool curr, bool prev) {
 //     return !curr && prev;
 // }
 
-void update_player(Entity& p, Game& g) {
+void player_update(Entity& p, Game& g) {
     const auto& in      = g.input;
     const auto& in_prev = g.input_prev;
 
@@ -207,9 +207,10 @@ void update_player(Entity& p, Game& g) {
     }
 
     update_animation(p, g);
+    camera_update(p, g);
 }
 
-void draw_player(SDL_Renderer* r, const Entity& p, const Game& g) {
+void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
     // Draw player relative to camera position
     f32 screen_x = p.x - g.camera.x;
     f32 screen_y = p.y - g.camera.y;

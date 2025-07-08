@@ -116,17 +116,17 @@ internal bool init() {
 internal void update_entity(Entity& e) {
     switch (e.type) {
         case Entity_Type::Player: {
-            update_player(e, g);
+            player_update(e, g);
             break;
         }
 
         case Entity_Type::Enemy: {
-            update_enemy(e);
+            enemy_update(e);
             break;
         }
 
         case Entity_Type::Barrel: {
-            update_barrel(e);
+            barrel_update(e);
             break;
         }
     }
@@ -149,7 +149,6 @@ internal void update(Game& g) {
     for (u64 idx = 0; idx < g.entities.size(); idx++) {
         update_entity(g.entities[idx]);
     }
-    update_camera(get_player(), g);
     y_sort_entities(g);
 
     g.input_prev  = g.input;
@@ -160,17 +159,17 @@ internal void update(Game& g) {
 internal void draw_entity(SDL_Renderer* r, Entity e) {
     switch (e.type) {
         case Entity_Type::Player: {
-            draw_player(r, e, g);
+            player_draw(r, e, g);
             break;
         }
 
         case Entity_Type::Enemy: {
-            draw_enemy(r, e, g);
+            enemy_draw(r, e, g);
             break;
         }
 
         case Entity_Type::Barrel: {
-            draw_barrel(r, e, g);
+            barrel_draw(r, e, g);
             break;
         }
     }
