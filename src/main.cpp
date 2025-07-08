@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#include <algorithm>
 #include <variant>
 #include <iostream>
 #include <vector>
@@ -32,8 +33,6 @@ enum struct Entity_Type : u8 {
 };
 
 struct Entity {
-    Entity_Type type;
-
     int health = 100;
     int damage = 12;
     f32 speed  = 0.03;
@@ -51,6 +50,8 @@ struct Entity {
     bool animation_playing = false;
     bool animation_loop    = true;  // Whether this animation should loop
     u32 default_anim       = 0;     // Animation to return to when current finishes
+
+    Entity_Type type;
 
     struct Player_Data { };
     struct Enemy_Data  { };
@@ -233,8 +234,8 @@ internal bool init() {
         player.collision_box_offsets = {18, 45, 12, 5};
         player.shadow_offset         = {17, 48, 14, 2};
         player.default_anim          = (u32)Player_Anim::Standing;
-        g.entities.push_back(player);
         start_animation(player, (u32)Player_Anim::Standing, true);
+        g.entities.push_back(player);
     }
 
     {
@@ -462,12 +463,25 @@ internal void update_entity(Entity& e) {
     }
 }
 
+internal void y_sort_entities(Game& g) {
+    if (g.sorted_indices.size() != g.entities.size()) {
+        g.sorted_indices.clear();
+        g.sorted_indices.reserve(g.entities.size());
+        for (u32 idx = 0; idx < g.entities.size(); idx++) {
+            g.sorted_indices.push_back(idx);
+        }
+    }
+
+    auto sort_fn = [g](u32 a, u32 b) { return g.entities[a].y < g.entities[b].y; };
+    std::sort(g.sorted_indices.begin(), g.sorted_indices.end(), sort_fn);
+}
+
 internal void update(Game& g) {
     for (u64 idx = 0; idx < g.entities.size(); idx++) {
         update_entity(g.entities[idx]);
     }
-    // update_player(&g.player);
     update_camera(get_player());
+    y_sort_entities(g);
 
     g.input_prev  = g.input;
     g.input.punch = false;
