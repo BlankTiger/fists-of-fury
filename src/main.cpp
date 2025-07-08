@@ -548,8 +548,8 @@ internal void draw(const Game& g) {
 
     draw_level(g.renderer);
 
-    for (u64 idx = 0; idx < g.entities.size(); idx++) {
-        draw_entity(g.renderer, g.entities[idx]);
+    for (u32 idx_sorted : g.sorted_indices) {
+        draw_entity(g.renderer, g.entities[idx_sorted]);
     }
 
     SDL_RenderPresent(g.renderer);
