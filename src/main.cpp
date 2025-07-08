@@ -1,8 +1,10 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#include <variant>
 #include <iostream>
 #include <vector>
+#include <queue>
 #include <cmath>
 #include <functional>
 
@@ -24,15 +26,22 @@ enum struct Direction {
     Right
 };
 
+enum struct Entity_Type : u8 {
+    Player,
+    Enemy
+};
+
 struct Entity {
-    int       health = 100;
-    int       damage = 12;
-    f32       speed  = 0.03;
-    f32       x;
-    f32       y;
-    u32       idx_anim;
+    Entity_Type type;
+
+    int health = 100;
+    int damage = 12;
+    f32 speed  = 0.03;
+    f32 x;
+    f32 y;
+    u32 idx_anim;
     Direction dir;
-    // this will be relative to the player position
+    // this should be relative to the player position
     SDL_FRect collision_box_offsets;
     SDL_FRect shadow_offset;
 
@@ -42,6 +51,11 @@ struct Entity {
     bool animation_playing = false;
     bool animation_loop    = true;  // Whether this animation should loop
     u32 default_anim       = 0;     // Animation to return to when current finishes
+
+    struct Player_Data { };
+    struct Enemy_Data  { };
+
+    std::variant<Player_Data, Enemy_Data> extra;
 };
 
 enum struct Kick_State { Left, Right, Drop };
@@ -58,10 +72,15 @@ struct Input_State {
     bool last_punch_was_left = true;
 };
 
+struct Draw_Call {
+    std::function<void(SDL_Renderer*, const Entity&)> fn;
+    const Entity& entity;
+};
+
 struct Game {
-    SDL_Window*   window;
-    SDL_Renderer* renderer;
-    std::vector<std::function<void(SDL_Renderer*, const Entity&)>> draw_queue;
+    SDL_Window*           window;
+    SDL_Renderer*         renderer;
+    std::queue<Draw_Call> draw_queue;
 
     Img bg;
     Img entity_shadow;
@@ -72,11 +91,13 @@ struct Game {
         .max_frames_in_row_count = 10,
         .frames_in_each_row      = std::span{sprite_player_frames},
     };
-    Entity player;
+
     Input_State input;
     Input_State input_prev; // for detecting press -> release
 
-    std::vector<Entity> enemies;
+    std::vector<Entity> entities;
+    std::vector<u32>    sorted_indices; // for y-sorting when drawing
+    u32 idx_player = 0;
 
     Level_Info curr_level_info;
     SDL_FRect  camera;
@@ -97,13 +118,17 @@ enum struct Player_Anim : u32 {
     Fallover       = 8
 };
 
-internal void start_animation(Entity* e, u32 anim_idx, bool should_loop = false, u64 frame_time = 100) {
-    e->idx_anim          = anim_idx;
-    e->current_frame     = 0;
-    e->animation_playing = true;
-    e->animation_loop    = should_loop;
-    e->frame_duration_ms = frame_time;
-    e->last_frame_time   = SDL_GetTicks();
+internal Entity& get_player() {
+    return g.entities[g.idx_player];
+}
+
+internal void start_animation(Entity& e, u32 anim_idx, bool should_loop = false, u64 frame_time = 100) {
+    e.idx_anim          = anim_idx;
+    e.current_frame     = 0;
+    e.animation_playing = true;
+    e.animation_loop    = should_loop;
+    e.frame_duration_ms = frame_time;
+    e.last_frame_time   = SDL_GetTicks();
 }
 
 // internal bool is_animation_finished(const Entity& e) {
@@ -112,22 +137,22 @@ internal void start_animation(Entity* e, u32 anim_idx, bool should_loop = false,
 //     return e.current_frame >= g.sprite_player.frames_in_each_row[e.idx_anim] - 1;
 // }
 
-internal void update_animation(Entity* e) {
-    if (!e->animation_playing) return;
+internal void update_animation(Entity& e) {
+    if (!e.animation_playing) return;
 
     u64 current_time = SDL_GetTicks();
-    if (current_time - e->last_frame_time >= e->frame_duration_ms) {
-        e->current_frame++;
-        e->last_frame_time = current_time;
+    if (current_time - e.last_frame_time >= e.frame_duration_ms) {
+        e.current_frame++;
+        e.last_frame_time = current_time;
 
         // Check if animation finished
-        if (e->current_frame >= g.sprite_player.frames_in_each_row[e->idx_anim]) {
-            if (e->animation_loop) {
-                e->current_frame = 0; // Loop back to start
+        if (e.current_frame >= g.sprite_player.frames_in_each_row[e.idx_anim]) {
+            if (e.animation_loop) {
+                e.current_frame = 0; // Loop back to start
             } else {
                 // Animation finished - return to default
-                e->animation_playing = false;
-                start_animation(e, e->default_anim, true);
+                e.animation_playing = false;
+                start_animation(e, e.default_anim, true);
             }
         }
     }
@@ -199,14 +224,17 @@ internal bool init() {
         }
     }
 
+    // player setup
     {
-        // player setup
-        g.player.x                     = SCREEN_WIDTH  / 16;
-        g.player.y                     = SCREEN_HEIGHT / 16;
-        g.player.collision_box_offsets = {18, 45, 12, 5};
-        g.player.shadow_offset         = {17, 48, 14, 2};
-        g.player.default_anim          = (u32)Player_Anim::Standing;
-        start_animation(&g.player, (u32)Player_Anim::Standing, true);
+        Entity player{};
+        player.type                  = Entity_Type::Player;
+        player.x                     = SCREEN_WIDTH  / 16;
+        player.y                     = SCREEN_HEIGHT / 16;
+        player.collision_box_offsets = {18, 45, 12, 5};
+        player.shadow_offset         = {17, 48, 14, 2};
+        player.default_anim          = (u32)Player_Anim::Standing;
+        g.entities.push_back(player);
+        start_animation(player, (u32)Player_Anim::Standing, true);
     }
 
     {
@@ -247,23 +275,6 @@ internal void draw_level(SDL_Renderer* r) {
     #endif
 }
 
-internal void draw_entity(SDL_Renderer* r, Entity e) {
-    // Draw entity relative to camera position
-    f32 screen_x = e.x - g.camera.x;
-    f32 screen_y = e.y - g.camera.y;
-
-    const SDL_FRect dst = {screen_x, screen_y, g.entity_shadow.width, g.entity_shadow.height};
-    SDL_RenderTexture(r, g.entity_shadow.img, NULL, &dst);
-    #if SHOW_COLLISION_BOXES
-    // TODO: Add collision box drawing with camera offset
-    #endif
-}
-
-internal void update_enemy(Entity* e) {
-    // TODO: remove this
-    e->health = e->health;
-}
-
 internal SDL_FRect player_get_offset_box(const Entity& p, const SDL_FRect& box) {
     return {
         box.x + p.x,
@@ -273,35 +284,6 @@ internal SDL_FRect player_get_offset_box(const Entity& p, const SDL_FRect& box) 
     };
 }
 
-internal void draw_player(SDL_Renderer* r, const Entity& p) {
-    // Draw player relative to camera position
-    f32 screen_x = p.x - g.camera.x;
-    f32 screen_y = p.y - g.camera.y;
-
-    SDL_FlipMode flip = (p.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    bool ok = sprite_draw_at_dst(g.sprite_player, r, screen_x, screen_y, p.idx_anim, p.current_frame, flip);
-    if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
-
-    // Draw shadow at screen coordinates too
-    SDL_FRect shadow_screen = {
-        p.shadow_offset.x + screen_x,
-        p.shadow_offset.y + screen_y,
-        p.shadow_offset.w,
-        p.shadow_offset.h
-    };
-    ok = SDL_RenderTexture(r, g.entity_shadow.img, NULL, &shadow_screen);
-
-    #if SHOW_COLLISION_BOXES
-    SDL_FRect collision_box = {
-        p.collision_box_offsets.x + screen_x,
-        p.collision_box_offsets.y + screen_y,
-        p.collision_box_offsets.w,
-        p.collision_box_offsets.h
-    };
-    draw_collision_box(r, collision_box);
-    #endif
-}
-
 internal bool input_pressed(bool curr, bool prev) {
     return curr && !prev;
 }
@@ -309,115 +291,6 @@ internal bool input_pressed(bool curr, bool prev) {
 // internal bool input_released(bool curr, bool prev) {
 //     return !curr && prev;
 // }
-
-internal void update_player(Entity* p) {
-    const auto& in      = g.input;
-    const auto& in_prev = g.input_prev;
-
-    if (input_pressed(in.punch, in_prev.punch)) {
-        if (!p->animation_playing || p->animation_loop) {
-            if (g.input.last_punch_was_left) {
-                start_animation(p, (u32)Player_Anim::Punching_Right, false, 50);
-                g.input.last_punch_was_left = false;
-            } else {
-                start_animation(p, (u32)Player_Anim::Punching_Left, false, 50);
-                g.input.last_punch_was_left = true;
-            }
-        }
-    }
-
-    if (input_pressed(in.kick, in_prev.kick)) {
-        if (!p->animation_playing || p->animation_loop) {
-            switch (g.input.last_kick) {
-                case Kick_State::Drop: {
-                    start_animation(p, (u32)Player_Anim::Kicking_Drop, false, 80);
-                    g.input.last_kick = Kick_State::Left;
-                    break;
-                }
-
-                case Kick_State::Left: {
-                    start_animation(p, (u32)Player_Anim::Kicking_Left, false, 50);
-                    g.input.last_kick = Kick_State::Right;
-                    break;
-                }
-
-                case Kick_State::Right: {
-                    start_animation(p, (u32)Player_Anim::Kicking_Right, false, 50);
-                    g.input.last_kick = Kick_State::Drop;
-                    break;
-                }
-            }
-        }
-    }
-
-    bool is_moving = false;
-    f32 x_vel = 0., y_vel = 0.;
-
-    if (in.left) {
-        x_vel -= 1.0f;
-        p->dir = Direction::Left;
-        is_moving = true;
-    }
-    if (in.right) {
-        x_vel += 1.0f;
-        p->dir = Direction::Right;
-        is_moving = true;
-    }
-    if (in.up) {
-        y_vel -= 1.0f;
-        is_moving = true;
-    }
-    if (in.down) {
-        y_vel += 1.0f;
-        is_moving = true;
-    }
-
-    // Normalize the velocity vector for diagonal movement
-    if (is_moving) {
-        f32 length = sqrt(x_vel * x_vel + y_vel * y_vel);
-        if (length > 0.0f) {
-            x_vel = (x_vel / length) * p->speed;
-            y_vel = (y_vel / length) * p->speed;
-        }
-    }
-
-    // handle collisions and position change
-    {
-        f32 x_old = p->x;
-        f32 y_old = p->y;
-        p->x += x_vel * g.dt;
-        p->y += y_vel * g.dt;
-
-        bool in_bounds = true;
-        for (const auto& box : level_info_get_collision_boxes(g.curr_level_info)) {
-            const SDL_FRect collision_box = player_get_offset_box(*p, p->collision_box_offsets);
-            if (SDL_HasRectIntersectionFloat(&box, &collision_box)) {
-                in_bounds = false;
-                break;
-            }
-        }
-        if (!in_bounds) {
-            p->x = x_old;
-            p->y = y_old;
-        }
-    }
-
-    if (!p->animation_playing || p->animation_loop) {
-        if (is_moving) {
-            if (p->default_anim != (u32)Player_Anim::Running) {
-                p->default_anim = (u32)Player_Anim::Running;
-                start_animation(p, (u32)Player_Anim::Running, true);
-            }
-        } else {
-            if (p->default_anim != (u32)Player_Anim::Standing) {
-                p->default_anim = (u32)Player_Anim::Standing;
-                start_animation(p, (u32)Player_Anim::Standing, true);
-            }
-        }
-    }
-
-    update_animation(p);
-}
 
 void update_borders_for_curr_level() {
     auto new_left   = level_info_get_collision_box(g.curr_level_info, Border::Left);
@@ -461,27 +334,209 @@ internal void update_camera(const Entity& player) {
     }
 }
 
-internal void update() {
-    for (u64 idx = 0; idx < g.enemies.size(); idx++) {
-        update_enemy(&g.enemies[idx]);
+internal void update_enemy(Entity& e) {
+    // TODO: remove this
+    e.health = e.health;
+}
+
+internal void update_player(Entity& p) {
+    const auto& in      = g.input;
+    const auto& in_prev = g.input_prev;
+
+    if (input_pressed(in.punch, in_prev.punch)) {
+        if (!p.animation_playing || p.animation_loop) {
+            if (g.input.last_punch_was_left) {
+                start_animation(p, (u32)Player_Anim::Punching_Right, false, 50);
+                g.input.last_punch_was_left = false;
+            } else {
+                start_animation(p, (u32)Player_Anim::Punching_Left, false, 50);
+                g.input.last_punch_was_left = true;
+            }
+        }
     }
-    update_player(&g.player);
-    update_camera(g.player);
+
+    if (input_pressed(in.kick, in_prev.kick)) {
+        if (!p.animation_playing || p.animation_loop) {
+            switch (g.input.last_kick) {
+                case Kick_State::Drop: {
+                    start_animation(p, (u32)Player_Anim::Kicking_Drop, false, 80);
+                    g.input.last_kick = Kick_State::Left;
+                    break;
+                }
+
+                case Kick_State::Left: {
+                    start_animation(p, (u32)Player_Anim::Kicking_Left, false, 50);
+                    g.input.last_kick = Kick_State::Right;
+                    break;
+                }
+
+                case Kick_State::Right: {
+                    start_animation(p, (u32)Player_Anim::Kicking_Right, false, 50);
+                    g.input.last_kick = Kick_State::Drop;
+                    break;
+                }
+            }
+        }
+    }
+
+    bool is_moving = false;
+    f32 x_vel = 0., y_vel = 0.;
+
+    if (in.left) {
+        x_vel -= 1.0f;
+        p.dir = Direction::Left;
+        is_moving = true;
+    }
+    if (in.right) {
+        x_vel += 1.0f;
+        p.dir = Direction::Right;
+        is_moving = true;
+    }
+    if (in.up) {
+        y_vel -= 1.0f;
+        is_moving = true;
+    }
+    if (in.down) {
+        y_vel += 1.0f;
+        is_moving = true;
+    }
+
+    // Normalize the velocity vector for diagonal movement
+    if (is_moving) {
+        f32 length = sqrt(x_vel * x_vel + y_vel * y_vel);
+        if (length > 0.0f) {
+            x_vel = (x_vel / length) * p.speed;
+            y_vel = (y_vel / length) * p.speed;
+        }
+    }
+
+    // handle collisions and position change
+    {
+        f32 x_old = p.x;
+        f32 y_old = p.y;
+        p.x += x_vel * g.dt;
+        p.y += y_vel * g.dt;
+
+        bool in_bounds = true;
+        for (const auto& box : level_info_get_collision_boxes(g.curr_level_info)) {
+            const SDL_FRect collision_box = player_get_offset_box(p, p.collision_box_offsets);
+            if (SDL_HasRectIntersectionFloat(&box, &collision_box)) {
+                in_bounds = false;
+                break;
+            }
+        }
+        if (!in_bounds) {
+            p.x = x_old;
+            p.y = y_old;
+        }
+    }
+
+    if (!p.animation_playing || p.animation_loop) {
+        if (is_moving) {
+            if (p.default_anim != (u32)Player_Anim::Running) {
+                p.default_anim = (u32)Player_Anim::Running;
+                start_animation(p, (u32)Player_Anim::Running, true);
+            }
+        } else {
+            if (p.default_anim != (u32)Player_Anim::Standing) {
+                p.default_anim = (u32)Player_Anim::Standing;
+                start_animation(p, (u32)Player_Anim::Standing, true);
+            }
+        }
+    }
+
+    update_animation(p);
+}
+
+internal void update_entity(Entity& e) {
+    switch (e.type) {
+        case Entity_Type::Player: {
+            update_player(e);
+            break;
+        }
+
+        case Entity_Type::Enemy: {
+            update_enemy(e);
+            break;
+        }
+    }
+}
+
+internal void update(Game& g) {
+    for (u64 idx = 0; idx < g.entities.size(); idx++) {
+        update_entity(g.entities[idx]);
+    }
+    // update_player(&g.player);
+    update_camera(get_player());
 
     g.input_prev  = g.input;
     g.input.punch = false;
     g.input.kick  = false;
 }
 
-internal void draw() {
+internal void draw_enemy(SDL_Renderer* r, const Entity& e) {
+    // Draw entity relative to camera position
+    f32 screen_x = e.x - g.camera.x;
+    f32 screen_y = e.y - g.camera.y;
+
+    const SDL_FRect dst = {screen_x, screen_y, g.entity_shadow.width, g.entity_shadow.height};
+    SDL_RenderTexture(r, g.entity_shadow.img, NULL, &dst);
+    #if SHOW_COLLISION_BOXES
+    // TODO: Add collision box drawing with camera offset
+    #endif
+}
+
+internal void draw_player(SDL_Renderer* r, const Entity& p) {
+    // Draw player relative to camera position
+    f32 screen_x = p.x - g.camera.x;
+    f32 screen_y = p.y - g.camera.y;
+
+    SDL_FlipMode flip = (p.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    bool ok = sprite_draw_at_dst(g.sprite_player, r, screen_x, screen_y, p.idx_anim, p.current_frame, flip);
+    if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
+
+    // Draw shadow at screen coordinates too
+    SDL_FRect shadow_screen = {
+        p.shadow_offset.x + screen_x,
+        p.shadow_offset.y + screen_y,
+        p.shadow_offset.w,
+        p.shadow_offset.h
+    };
+    ok = SDL_RenderTexture(r, g.entity_shadow.img, NULL, &shadow_screen);
+
+    #if SHOW_COLLISION_BOXES
+    SDL_FRect collision_box = {
+        p.collision_box_offsets.x + screen_x,
+        p.collision_box_offsets.y + screen_y,
+        p.collision_box_offsets.w,
+        p.collision_box_offsets.h
+    };
+    draw_collision_box(r, collision_box);
+    #endif
+}
+
+internal void draw_entity(SDL_Renderer* r, Entity e) {
+    switch (e.type) {
+        case Entity_Type::Player: {
+            draw_player(r, e);
+            break;
+        }
+
+        case Entity_Type::Enemy: {
+            draw_enemy(r, e);
+            break;
+        }
+    }
+}
+
+internal void draw(const Game& g) {
     SDL_RenderClear(g.renderer);
 
     draw_level(g.renderer);
 
-    for (u64 idx = 0; idx < g.enemies.size(); idx++) {
-        draw_entity(g.renderer, g.enemies[idx]);
+    for (u64 idx = 0; idx < g.entities.size(); idx++) {
+        draw_entity(g.renderer, g.entities[idx]);
     }
-    draw_player(g.renderer, g.player);
 
     SDL_RenderPresent(g.renderer);
 }
@@ -543,8 +598,8 @@ int main() {
 
         if (g.dt > 1000 / FPS_MAX) {
             b = a;
-            update();
-            draw();
+            update(g);
+            draw(g);
         }
     }
 
