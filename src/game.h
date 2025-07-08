@@ -23,6 +23,8 @@ struct Input_State {
     bool last_punch_was_left = true;
 };
 
+using Camera = SDL_FRect;
+
 struct Game {
     SDL_Window*   window;
     SDL_Renderer* renderer;
@@ -45,6 +47,6 @@ struct Game {
     u32 idx_player = 0;
 
     Level_Info curr_level_info;
-    SDL_FRect  camera;
+    Camera     camera;
     u64        dt;
 };
