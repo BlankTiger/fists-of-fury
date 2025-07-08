@@ -9,6 +9,8 @@
 #include <cmath>
 #include <functional>
 
+#include "entities/entity.h"
+
 #include "number_types.h"
 #include "sprite.h"
 #include "level_info.h"
