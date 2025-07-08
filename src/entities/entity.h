@@ -1,7 +1,7 @@
 #pragma once
 
 #include <variant>
-#include <SDL3/SDL_main.h>
+#include <SDL3/SDL.h>
 #include "../number_types.h"
 
 enum struct Direction {
@@ -43,3 +43,5 @@ struct Entity {
 
     std::variant<Player_Data, Enemy_Data> extra;
 };
+
+void start_animation(Entity& e, u32 anim_idx, bool should_loop, u64 frame_time);
