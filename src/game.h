@@ -3,7 +3,7 @@
 #include <span>
 #include <vector>
 
-#include <SDL3/SDL_main.h>
+#include <SDL3/SDL.h>
 
 #include "sprite.h"
 #include "level_info.h"

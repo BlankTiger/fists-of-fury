@@ -1,23 +1,14 @@
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
 
 #include <algorithm>
-#include <variant>
 #include <iostream>
-#include <vector>
-#include <queue>
-#include <cmath>
-#include <functional>
 
 #include "game.h"
 
 #include "number_types.h"
-#include "sprite.h"
-#include "level_info.h"
 #include "settings.h"
 #include "draw.h"
 
-#include "entities/entity.h"
 #include "entities/player.h"
 #include "entities/enemy.h"
 #include "entities/barrel.h"

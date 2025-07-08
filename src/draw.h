@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL3/SDL_main.h>
+#include <SDL3/SDL.h>
 #include "game.h"
 
 void draw_collision_box(SDL_Renderer* r, const SDL_FRect& box);
