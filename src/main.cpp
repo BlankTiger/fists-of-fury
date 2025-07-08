@@ -9,103 +9,20 @@
 #include <cmath>
 #include <functional>
 
-#include "entities/entity.h"
+#include "game.h"
 
 #include "number_types.h"
 #include "sprite.h"
 #include "level_info.h"
 #include "settings.h"
 
+#include "entities/entity.h"
+
 const int SCREEN_WIDTH  = 100;
 const int SCREEN_HEIGHT = 64;
 const int WINDOW_WIDTH  = 1000;
 const int WINDOW_HEIGHT = 640;
 const f32 FPS_MAX       = 144.0;
-
-enum struct Direction {
-    Up,
-    Down,
-    Left,
-    Right
-};
-
-enum struct Entity_Type : u8 {
-    Player,
-    Enemy
-};
-
-struct Entity {
-    int health = 100;
-    int damage = 12;
-    f32 speed  = 0.03;
-    f32 x;
-    f32 y;
-    u32 idx_anim;
-    Direction dir;
-    // this should be relative to the player position
-    SDL_FRect collision_box_offsets;
-    SDL_FRect shadow_offset;
-
-    u32 current_frame      = 0;     // Current frame in the animation
-    u64 last_frame_time    = 0;     // When the last frame was shown
-    u64 frame_duration_ms  = 100;   // Milliseconds per frame
-    bool animation_playing = false;
-    bool animation_loop    = true;  // Whether this animation should loop
-    u32 default_anim       = 0;     // Animation to return to when current finishes
-
-    Entity_Type type;
-
-    struct Player_Data { };
-    struct Enemy_Data  { };
-
-    std::variant<Player_Data, Enemy_Data> extra;
-};
-
-enum struct Kick_State { Left, Right, Drop };
-
-struct Input_State {
-    bool left  = false;
-    bool right = false;
-    bool up    = false;
-    bool down  = false;
-    bool punch = false;
-    bool kick  = false;
-
-    Kick_State last_kick     = Kick_State::Left;
-    bool last_punch_was_left = true;
-};
-
-struct Draw_Call {
-    std::function<void(SDL_Renderer*, const Entity&)> fn;
-    const Entity& entity;
-};
-
-struct Game {
-    SDL_Window*           window;
-    SDL_Renderer*         renderer;
-    std::queue<Draw_Call> draw_queue;
-
-    Img bg;
-    Img entity_shadow;
-
-    static constexpr u32 sprite_player_frames[] = { 4, 8, 4, 3, 6, 6, 5, 3, 3, 0 };
-    Sprite sprite_player = {
-        .img                     = {},
-        .max_frames_in_row_count = 10,
-        .frames_in_each_row      = std::span{sprite_player_frames},
-    };
-
-    Input_State input;
-    Input_State input_prev; // for detecting press -> release
-
-    std::vector<Entity> entities;
-    std::vector<u32>    sorted_indices; // for y-sorting when drawing
-    u32 idx_player = 0;
-
-    Level_Info curr_level_info;
-    SDL_FRect  camera;
-    u64        dt;
-};
 
 static Game g = {};
 
