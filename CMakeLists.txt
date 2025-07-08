@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(MSVC)
     add_compile_options(/W4 /WX)
 else()
-    add_compile_options(-Wall -Wextra -Wpedantic -Wcast-align -ggdb)
+    add_compile_options(-Wall -Wextra -Wpedantic -Wcast-align -ggdb -Werror=switch)
 endif()
 
 add_subdirectory(vendor/SDL)
