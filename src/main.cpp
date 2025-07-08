@@ -19,6 +19,7 @@
 
 #include "entities/entity.h"
 #include "entities/player.h"
+#include "entities/enemy.h"
 
 static Game g = {};
 
@@ -111,11 +112,6 @@ internal bool init() {
     return true;
 }
 
-internal void update_enemy(Entity& e) {
-    // TODO: remove this
-    e.health = e.health;
-}
-
 internal void update_entity(Entity& e) {
     switch (e.type) {
         case Entity_Type::Player: {
@@ -155,18 +151,6 @@ internal void update(Game& g) {
     g.input.kick  = false;
 }
 
-internal void draw_enemy(SDL_Renderer* r, const Entity& e) {
-    // Draw entity relative to camera position
-    f32 screen_x = e.x - g.camera.x;
-    f32 screen_y = e.y - g.camera.y;
-
-    const SDL_FRect dst = {screen_x, screen_y, g.entity_shadow.width, g.entity_shadow.height};
-    SDL_RenderTexture(r, g.entity_shadow.img, NULL, &dst);
-    #if SHOW_COLLISION_BOXES
-    // TODO: Add collision box drawing with camera offset
-    #endif
-}
-
 internal void draw_entity(SDL_Renderer* r, Entity e) {
     switch (e.type) {
         case Entity_Type::Player: {
@@ -175,7 +159,9 @@ internal void draw_entity(SDL_Renderer* r, Entity e) {
         }
 
         case Entity_Type::Enemy: {
-            draw_enemy(r, e);
+            draw_enemy(r, e, g);
+            break;
+        }
             break;
         }
     }

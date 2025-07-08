@@ -19,6 +19,7 @@ add_executable(${PROJECT_NAME}
     src/draw.cpp
     src/sprite.cpp
     src/level_info.cpp
+    src/entities/enemy.cpp
     src/entities/player.cpp
 )
 
