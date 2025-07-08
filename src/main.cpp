@@ -20,6 +20,7 @@
 #include "entities/entity.h"
 #include "entities/player.h"
 #include "entities/enemy.h"
+#include "entities/barrel.h"
 
 static Game g = {};
 
@@ -123,6 +124,11 @@ internal void update_entity(Entity& e) {
             update_enemy(e);
             break;
         }
+
+        case Entity_Type::Barrel: {
+            update_barrel(e);
+            break;
+        }
     }
 }
 
@@ -162,6 +168,9 @@ internal void draw_entity(SDL_Renderer* r, Entity e) {
             draw_enemy(r, e, g);
             break;
         }
+
+        case Entity_Type::Barrel: {
+            draw_barrel(r, e, g);
             break;
         }
     }
