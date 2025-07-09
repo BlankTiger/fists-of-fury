@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
+#include "entities/entity.h"
 #include "game.h"
 
 #include "number_types.h"
@@ -95,6 +96,23 @@ internal bool init() {
         player.default_anim          = (u32)Player_Anim::Standing;
         start_animation(player, (u32)Player_Anim::Standing, true);
         g.entities.push_back(player);
+    }
+
+    // props
+    {
+        bool ok = sprite_load(g.sprite_barrel, g.renderer, "assets/art/props/barrel.png");
+        if (!ok) {
+            SDL_Log("Failed to load barrel sprite! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+        Entity barrel{};
+        barrel.type = Entity_Type::Barrel;
+        barrel.x = SCREEN_WIDTH / 2;
+        barrel.y = SCREEN_HEIGHT / 5;
+        // TODO:
+        barrel.collision_box_offsets = {};
+        barrel.shadow_offset = {};
+        g.entities.push_back(barrel);
     }
 
     {

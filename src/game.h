@@ -39,6 +39,13 @@ struct Game {
         .frames_in_each_row      = std::span{sprite_player_frames},
     };
 
+    static constexpr u32 sprite_barrel_frames[] = { 2 };
+    Sprite sprite_barrel = {
+        .img = {},
+        .max_frames_in_row_count = 2,
+        .frames_in_each_row      = std::span{sprite_barrel_frames},
+    };
+
     Input_State input;
     Input_State input_prev; // for detecting press -> release
 
