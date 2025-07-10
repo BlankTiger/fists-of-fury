@@ -202,30 +202,22 @@ void player_update(Entity& p, Game& g) {
 }
 
 void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
-    // Draw player relative to camera position
-    f32 screen_x = p.x - g.camera.x;
-    f32 screen_y = p.y - g.camera.y;
+    Vec2<f32> screen_coords = game_get_screen_coords(g, {p.x, p.y});
 
     SDL_FlipMode flip = (p.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    bool ok = sprite_draw_at_dst(g.sprite_player, r, screen_x, screen_y, p.idx_anim, p.current_frame, flip);
+    bool ok = sprite_draw_at_dst(
+        g.sprite_player,
+        r,
+        screen_coords.x,
+        screen_coords.y,
+        p.idx_anim,
+        p.current_frame,
+        flip
+    );
     if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
 
-    // Draw shadow at screen coordinates too
-    SDL_FRect shadow_screen = {
-        p.shadow_offset.x + screen_x,
-        p.shadow_offset.y + screen_y,
-        p.shadow_offset.w,
-        p.shadow_offset.h
-    };
-    ok = SDL_RenderTexture(r, g.entity_shadow.img, NULL, &shadow_screen);
-
+    draw_shadow(r, screen_coords, p.shadow_offset, g);
     #if SHOW_COLLISION_BOXES
-    SDL_FRect collision_box = {
-        p.collision_box_offsets.x + screen_x,
-        p.collision_box_offsets.y + screen_y,
-        p.collision_box_offsets.w,
-        p.collision_box_offsets.h
-    };
-    draw_collision_box(r, collision_box);
+    draw_collision_box(r, screen_coords, p.collision_box_offsets);
     #endif
 }

@@ -46,6 +46,7 @@ Src_Rect_With_Size sprite_get_src_rect(const Sprite& s, u32 row, u32 col) {
     };
 }
 
+// provided x_dst and y_dst must be in screen coordinates (in other words relative to the camera), not world coordinates
 bool sprite_draw_at_dst(const Sprite& s, SDL_Renderer* r, f32 x_dst, f32 y_dst, u64 row, u64 col, SDL_FlipMode flip = SDL_FLIP_NONE) {
     assert(row < s.frames_in_each_row.size());
     assert(col < s.frames_in_each_row[row]);

@@ -1,7 +1,7 @@
 #include "draw.h"
 #include "settings.h"
 
-void draw_collision_box(SDL_Renderer* r, const SDL_FRect& box) {
+internal void _draw_collision_box(SDL_Renderer* r, const SDL_FRect& box) {
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(r, 255, 2, 0, 200);
     bool ok = SDL_RenderRect(r, &box);
@@ -27,7 +27,28 @@ void draw_level(SDL_Renderer* r, const Game& g) {
             box.w,
             box.h
         };
-        draw_collision_box(r, screen_box);
+        _draw_collision_box(r, screen_box);
     }
     #endif
+}
+
+void draw_collision_box(SDL_Renderer* r, const Vec2<f32>& screen_coords, const SDL_FRect& offsets) {
+    const SDL_FRect collision_box = {
+        offsets.x + screen_coords.x,
+        offsets.y + screen_coords.y,
+        offsets.w,
+        offsets.h
+    };
+    _draw_collision_box(r, collision_box);
+}
+
+void draw_shadow(SDL_Renderer* r, const Vec2<f32>& screen_coords, const SDL_FRect& offsets, const Game& g) {
+    const SDL_FRect shadow_screen = {
+        offsets.x + screen_coords.x,
+        offsets.y + screen_coords.y,
+        offsets.w,
+        offsets.h
+    };
+    bool ok = SDL_RenderTexture(r, g.entity_shadow.img, NULL, &shadow_screen);
+    if (!ok) SDL_Log("Failed to draw shadow! SDL err: %s\n", SDL_GetError());
 }
