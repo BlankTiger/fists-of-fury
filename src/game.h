@@ -8,6 +8,7 @@
 #include "sprite.h"
 #include "level_info.h"
 #include "entities/entity.h"
+#include "vec2.h"
 
 enum struct Kick_State { Left, Right, Drop };
 
@@ -57,3 +58,5 @@ struct Game {
     Camera     camera;
     u64        dt;
 };
+
+Vec2<f32> game_get_screen_coords(const Game& g, Vec2<f32> worlds_coords);

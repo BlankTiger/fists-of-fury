@@ -17,6 +17,7 @@ add_subdirectory(vendor/SDL_image)
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/draw.cpp
+    src/game.cpp
     src/sprite.cpp
     src/level_info.cpp
     src/entities/enemy.cpp
