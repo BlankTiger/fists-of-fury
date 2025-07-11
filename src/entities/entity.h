@@ -3,6 +3,7 @@
 #include <variant>
 #include <SDL3/SDL.h>
 #include "../number_types.h"
+#include "../vec2.h"
 
 enum struct Direction {
     Up,
@@ -23,6 +24,8 @@ struct Entity {
     f32 speed  = 0.03;
     f32 x;
     f32 y;
+    f32 sprite_frame_w;
+    f32 sprite_frame_h;
     u32 idx_anim;
     Direction dir;
     // this should be relative to the player position
@@ -45,3 +48,6 @@ struct Entity {
 };
 
 void start_animation(Entity& e, u32 anim_idx, bool should_loop, u64 frame_time);
+// gives coordinates such that when they are used to draw the center point of the bottom border
+// of the sprite is at the entity x, y
+Vec2<f32> entity_offset_to_bottom_center(const Entity& e);

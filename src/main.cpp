@@ -89,8 +89,10 @@ internal bool init() {
     {
         Entity player{};
         player.type                  = Entity_Type::Player;
-        player.x                     = SCREEN_WIDTH  / 16;
-        player.y                     = SCREEN_HEIGHT / 16;
+        player.x                     = 0;
+        player.y                     = SCREEN_HEIGHT / 2;
+        player.sprite_frame_w        = 48;
+        player.sprite_frame_h        = 48;
         player.collision_box_offsets = {18, 45, 12, 5};
         player.shadow_offset         = {17, 48, 14, 2};
         player.default_anim          = (u32)Player_Anim::Standing;
@@ -106,12 +108,14 @@ internal bool init() {
             return false;
         }
         Entity barrel{};
-        barrel.type = Entity_Type::Barrel;
-        barrel.x = SCREEN_WIDTH / 2;
-        barrel.y = SCREEN_HEIGHT / 5;
+        barrel.type                  = Entity_Type::Barrel;
+        barrel.x                     = SCREEN_WIDTH / 2;
+        barrel.y                     = 32;
+        barrel.sprite_frame_w        = 32;
+        barrel.sprite_frame_h        = 32;
         // TODO:
         barrel.collision_box_offsets = {};
-        barrel.shadow_offset = {};
+        barrel.shadow_offset         = {};
         g.entities.push_back(barrel);
     }
 

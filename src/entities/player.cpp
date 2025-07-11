@@ -45,6 +45,7 @@ void update_borders_for_curr_level(Game& g) {
     auto new_left   = level_info_get_collision_box(g.curr_level_info, Border::Left);
     auto new_top    = level_info_get_collision_box(g.curr_level_info, Border::Top);
     auto new_bottom = level_info_get_collision_box(g.curr_level_info, Border::Bottom);
+    // -1 to be 1 pixel off the screen to the left
     new_left.x      = g.camera.x - 1;
     new_top.x       = g.camera.x - 1;
     new_bottom.x    = g.camera.x - 1;
@@ -56,14 +57,11 @@ void update_borders_for_curr_level(Game& g) {
 const f32 w_half_screen = SCREEN_WIDTH / 2;
 
 internal void camera_update(const Entity& player, Game& g) {
-    // Use the player's sprite center position
-    f32 player_sprite_width = 48.;
-    f32 x_player = player.x + (player_sprite_width / 2.);
-    f32 player_screen_pos = x_player - g.camera.x;
+    f32 player_screen_pos = player.x - g.camera.x;
 
     // Only move camera right when player crosses halfway point
     if (player_screen_pos > w_half_screen) {
-        g.camera.x = x_player - w_half_screen;
+        g.camera.x = player.x - w_half_screen;
 
         // this is to ensure that the player cant go back to the left,
         // and that borders on the top and bottom move with the player
@@ -170,8 +168,9 @@ void player_update(Entity& p, Game& g) {
         p.y += y_vel * g.dt;
 
         bool in_bounds = true;
+        auto screen_coords = game_get_screen_coords(g, {p.x, p.y});
         for (const auto& box : level_info_get_collision_boxes(g.curr_level_info)) {
-            const SDL_FRect collision_box = player_get_offset_box(p, p.collision_box_offsets);
+            const SDL_FRect collision_box = player_get_offset_box(screen_coords, p.collision_box_offsets);
             if (SDL_HasRectIntersectionFloat(&box, &collision_box)) {
                 in_bounds = false;
                 break;
@@ -202,7 +201,8 @@ void player_update(Entity& p, Game& g) {
 }
 
 void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
-    Vec2<f32> screen_coords = game_get_screen_coords(g, {p.x, p.y});
+    Vec2<f32> drawing_coords = entity_offset_to_bottom_center(p);
+    Vec2<f32> screen_coords = game_get_screen_coords(g, drawing_coords);
 
     SDL_FlipMode flip = (p.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     bool ok = sprite_draw_at_dst(
