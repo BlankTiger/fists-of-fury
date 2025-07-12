@@ -117,7 +117,7 @@ internal bool init() {
         barrel.y                     = 45;
         barrel.sprite_frame_w        = barrel_w;
         barrel.sprite_frame_h        = barrel_h;
-        barrel.collision_box_offsets = {-barrel_w/3, -barrel_h*0.8, barrel_w*2/3, barrel_h*0.8};
+        barrel.collision_box_offsets = {-barrel_w/4.5, -6, barrel_w*2/4.5, 4};
         barrel.shadow_offsets        = {-barrel_w/5, -2, barrel_w*2/5, 3};
         g.entities.push_back(barrel);
     }
