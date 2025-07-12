@@ -1,5 +1,6 @@
 #include "barrel.h"
 #include "../draw.h"
+#include "../settings.h"
 
 void barrel_update(Entity& e) {
     // TODO: remove
