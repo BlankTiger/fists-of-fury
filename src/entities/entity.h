@@ -28,9 +28,12 @@ struct Entity {
     f32 sprite_frame_h;
     u32 idx_anim;
     Direction dir;
-    // this should be relative to the player position
+    // this should be relative to the player position (which is always
+    // considered to be where the center of the bottom border of the drawn
+    // sprite is)
     SDL_FRect collision_box_offsets;
-    SDL_FRect shadow_offset;
+    // same thing goes for shadow_offset
+    SDL_FRect shadow_offsets;
 
     u32 current_frame      = 0;     // Current frame in the animation
     u64 last_frame_time    = 0;     // When the last frame was shown
@@ -51,3 +54,5 @@ void start_animation(Entity& e, u32 anim_idx, bool should_loop, u64 frame_time);
 // gives coordinates such that when they are used to draw the center point of the bottom border
 // of the sprite is at the entity x, y
 Vec2<f32> entity_offset_to_bottom_center(const Entity& e);
+
+SDL_FRect entity_get_world_collision_box(const Entity& e);

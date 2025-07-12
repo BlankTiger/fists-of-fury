@@ -32,15 +32,6 @@ internal void update_animation(Entity& e, const Game& g) {
     }
 }
 
-internal SDL_FRect player_get_offset_box(const Entity& p, const SDL_FRect& box) {
-    return {
-        box.x + p.x,
-        box.y + p.y,
-        box.w,
-        box.h
-    };
-}
-
 void update_borders_for_curr_level(Game& g) {
     auto new_left   = level_info_get_collision_box(g.curr_level_info, Border::Left);
     auto new_top    = level_info_get_collision_box(g.curr_level_info, Border::Top);
@@ -168,10 +159,10 @@ void player_update(Entity& p, Game& g) {
         p.y += y_vel * g.dt;
 
         bool in_bounds = true;
-        auto screen_coords = game_get_screen_coords(g, {p.x, p.y});
+        SDL_FRect player_collision_box = entity_get_world_collision_box(p);
+
         for (const auto& box : level_info_get_collision_boxes(g.curr_level_info)) {
-            const SDL_FRect collision_box = player_get_offset_box(screen_coords, p.collision_box_offsets);
-            if (SDL_HasRectIntersectionFloat(&box, &collision_box)) {
+            if (SDL_HasRectIntersectionFloat(&box, &player_collision_box)) {
                 in_bounds = false;
                 break;
             }
@@ -201,10 +192,10 @@ void player_update(Entity& p, Game& g) {
 }
 
 void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
-    Vec2<f32> drawing_coords = entity_offset_to_bottom_center(p);
-    Vec2<f32> screen_coords = game_get_screen_coords(g, drawing_coords);
+    const Vec2<f32> drawing_coords = entity_offset_to_bottom_center(p);
+    const Vec2<f32> screen_coords = game_get_screen_coords(g, drawing_coords);
 
-    SDL_FlipMode flip = (p.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    const SDL_FlipMode flip = (p.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     bool ok = sprite_draw_at_dst(
         g.sprite_player,
         r,
@@ -216,8 +207,9 @@ void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
     );
     if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
 
-    draw_shadow(r, screen_coords, p.shadow_offset, g);
+    const Vec2<f32> world_coords = {p.x, p.y};
+    draw_shadow(r, world_coords, p.shadow_offsets, g);
     #if SHOW_COLLISION_BOXES
-    draw_collision_box(r, screen_coords, p.collision_box_offsets);
+    draw_collision_box(r, world_coords, p.collision_box_offsets, g);
     #endif
 }

@@ -32,23 +32,23 @@ void draw_level(SDL_Renderer* r, const Game& g) {
     #endif
 }
 
-void draw_collision_box(SDL_Renderer* r, const Vec2<f32>& screen_coords, const SDL_FRect& offsets) {
-    const SDL_FRect collision_box = {
-        offsets.x + screen_coords.x,
-        offsets.y + screen_coords.y,
+void draw_collision_box(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRect& offsets, const Game& g) {
+    const SDL_FRect collision_box_screen = {
+        (world_coords.x + offsets.x) - g.camera.x,
+        (world_coords.y + offsets.y) - g.camera.y,
         offsets.w,
         offsets.h
     };
-    _draw_collision_box(r, collision_box);
+    _draw_collision_box(r, collision_box_screen);
 }
 
-void draw_shadow(SDL_Renderer* r, const Vec2<f32>& screen_coords, const SDL_FRect& offsets, const Game& g) {
-    const SDL_FRect shadow_screen = {
-        offsets.x + screen_coords.x,
-        offsets.y + screen_coords.y,
+void draw_shadow(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRect& offsets, const Game& g) {
+    const SDL_FRect shadow_box_screen = {
+        (world_coords.x + offsets.x) - g.camera.x,
+        (world_coords.y + offsets.y) - g.camera.y,
         offsets.w,
         offsets.h
     };
-    bool ok = SDL_RenderTexture(r, g.entity_shadow.img, NULL, &shadow_screen);
+    bool ok = SDL_RenderTexture(r, g.entity_shadow.img, NULL, &shadow_box_screen);
     if (!ok) SDL_Log("Failed to draw shadow! SDL err: %s\n", SDL_GetError());
 }

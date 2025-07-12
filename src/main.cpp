@@ -87,14 +87,16 @@ internal bool init() {
 
     // player setup
     {
+        const auto sprite_frame_h = 48;
+        const auto sprite_frame_w = 48;
         Entity player{};
         player.type                  = Entity_Type::Player;
-        player.x                     = 0;
-        player.y                     = SCREEN_HEIGHT / 2;
+        player.x                     = 20;
+        player.y                     = 50;
         player.sprite_frame_w        = 48;
         player.sprite_frame_h        = 48;
-        player.collision_box_offsets = {18, 45, 12, 5};
-        player.shadow_offset         = {17, 48, 14, 2};
+        player.collision_box_offsets = {-sprite_frame_w/7, -4, 2*sprite_frame_w/7, 4};
+        player.shadow_offsets         = {-7, -1, 14, 2};
         player.default_anim          = (u32)Player_Anim::Standing;
         start_animation(player, (u32)Player_Anim::Standing, true);
         g.entities.push_back(player);
@@ -107,15 +109,16 @@ internal bool init() {
             SDL_Log("Failed to load barrel sprite! SDL err: %s\n", SDL_GetError());
             return false;
         }
+        const f32 barrel_w = 32;
+        const f32 barrel_h = 32;
         Entity barrel{};
         barrel.type                  = Entity_Type::Barrel;
         barrel.x                     = SCREEN_WIDTH / 2;
-        barrel.y                     = 32;
-        barrel.sprite_frame_w        = 32;
-        barrel.sprite_frame_h        = 32;
-        // TODO:
-        barrel.collision_box_offsets = {};
-        barrel.shadow_offset         = {};
+        barrel.y                     = 45;
+        barrel.sprite_frame_w        = barrel_w;
+        barrel.sprite_frame_h        = barrel_h;
+        barrel.collision_box_offsets = {-barrel_w/3, -barrel_h*0.8, barrel_w*2/3, barrel_h*0.8};
+        barrel.shadow_offsets        = {-barrel_w/5, -2, barrel_w*2/5, 3};
         g.entities.push_back(barrel);
     }
 

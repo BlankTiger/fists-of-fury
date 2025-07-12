@@ -13,8 +13,9 @@ void barrel_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
     bool ok = sprite_draw_at_dst(g.sprite_barrel, r, screen_coords.x, screen_coords.y, 0, 0, SDL_FLIP_NONE);
     if (!ok) SDL_Log("Failed to draw barrel sprite! SDL err: %s\n", SDL_GetError());
 
-    draw_shadow(r, screen_coords, e.shadow_offset, g);
+    const Vec2<f32> world_coords = {e.x, e.y};
+    draw_shadow(r, world_coords, e.shadow_offsets, g);
     #if SHOW_COLLISION_BOXES
-    draw_collision_box(r, screen_coords, e.collision_box_offsets);
+    draw_collision_box(r, world_coords, e.collision_box_offsets, g);
     #endif
 }

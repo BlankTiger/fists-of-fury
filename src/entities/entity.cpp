@@ -12,3 +12,12 @@ void start_animation(Entity& e, u32 anim_idx, bool should_loop, u64 frame_time) 
 Vec2<f32> entity_offset_to_bottom_center(const Entity& e) {
     return {e.x - e.sprite_frame_w / 2, e.y - e.sprite_frame_h};
 }
+
+SDL_FRect entity_get_world_collision_box(const Entity& e) {
+    return {
+        e.x + e.collision_box_offsets.x,
+        e.y + e.collision_box_offsets.y,
+        e.collision_box_offsets.w,
+        e.collision_box_offsets.h
+    };
+}
