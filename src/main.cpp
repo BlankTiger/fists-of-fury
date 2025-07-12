@@ -100,6 +100,7 @@ internal bool init() {
         player.default_anim          = (u32)Player_Anim::Standing;
         start_animation(player, (u32)Player_Anim::Standing, true);
         g.entities.push_back(player);
+        g.idx_player = g.entities.size() - 1;
     }
 
     // props

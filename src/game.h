@@ -52,7 +52,7 @@ struct Game {
 
     std::vector<Entity> entities;
     std::vector<u32>    sorted_indices; // for y-sorting when drawing
-    u32 idx_player = 0;
+    u32 idx_player;
 
     Level_Info curr_level_info;
     Camera     camera;
