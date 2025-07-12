@@ -167,6 +167,19 @@ void player_update(Entity& p, Game& g) {
                 break;
             }
         }
+
+        if (in_bounds) {
+            for (const auto& e : g.entities) {
+                if (e.type == Entity_Type::Player) continue;
+
+                const auto& e_box = entity_get_world_collision_box(e);
+                if (SDL_HasRectIntersectionFloat(&e_box, &player_collision_box)) {
+                    in_bounds = false;
+                    break;
+                }
+            }
+        }
+
         if (!in_bounds) {
             p.x = x_old;
             p.y = y_old;
