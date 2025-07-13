@@ -1,5 +1,6 @@
 #include <cmath>
 #include <cassert>
+#include <iostream>
 
 #include "player.h"
 #include "../game.h"
@@ -335,6 +336,17 @@ internal void handle_movement(Entity& p, const Game& g) {
     }
 }
 
+internal void handle_player_attack(Entity& p, Game& g) {
+    for (auto& e : g.entities) {
+        if (e.type == Entity_Type::Player) continue;
+
+        SDL_FRect player_hurtbox = entity_get_world_hurtbox(p);
+        SDL_FRect entity_hitbox = entity_get_world_hitbox(e);
+        if (SDL_HasRectIntersectionFloat(&entity_hitbox, &player_hurtbox)) {
+            std::cout << "Registered a hit\n";
+        }
+    }
+}
 
 internal void player_kick(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Kicking;
@@ -351,6 +363,8 @@ internal void player_kick(Entity& p, Game& g) {
             break;
         }
     }
+
+    handle_player_attack(p, g);
 }
 
 internal void player_punch(Entity& p, Game& g) {
@@ -362,6 +376,8 @@ internal void player_punch(Entity& p, Game& g) {
         start_animation(p, (u32)Player_Anim::Punching_Left, false, 60);
         g.input.last_punch_was_left = true;
     }
+
+    handle_player_attack(p, g);
 }
 
 internal void player_takeoff(Entity& p) {
@@ -380,9 +396,10 @@ internal void player_land(Entity& p) {
     start_animation(p, (u32)Player_Anim::Landing, false);
 }
 
-internal void player_drop_kick(Entity& p) {
+internal void player_drop_kick(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Kicking_Drop;
     start_animation(p, (u32)Player_Anim::Kicking_Drop, false, 80);
+    handle_player_attack(p, g);
 }
 
 internal void player_stand(Entity& p) {
@@ -494,7 +511,7 @@ void player_update(Entity& p, Game& g) {
 
         case Player_State::Jumping: {
             if (just_pressed(g, Action::Kick)) {
-                player_drop_kick(p);
+                player_drop_kick(p, g);
             }
             else if (is_animation_finished(p, g)) {
                 player_land(p);

@@ -98,3 +98,5 @@ void start_animation(Entity& e, u32 anim_idx, bool should_loop, u64 frame_time);
 Vec2<f32> entity_offset_to_bottom_center(const Entity& e);
 
 SDL_FRect entity_get_world_collision_box(const Entity& e);
+SDL_FRect entity_get_world_hitbox(const Entity& e);
+SDL_FRect entity_get_world_hurtbox(const Entity& e);

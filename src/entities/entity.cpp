@@ -21,3 +21,21 @@ SDL_FRect entity_get_world_collision_box(const Entity& e) {
         e.collision_box_offsets.h
     };
 }
+
+SDL_FRect entity_get_world_hurtbox(const Entity& e) {
+    return {
+        e.x + e.hurtbox_offsets.x,
+        e.y + e.hurtbox_offsets.y,
+        e.hurtbox_offsets.w,
+        e.hurtbox_offsets.h
+    };
+}
+
+SDL_FRect entity_get_world_hitbox(const Entity& e) {
+    return {
+        e.x + e.hitbox_offsets.x,
+        e.y + e.hitbox_offsets.y,
+        e.hitbox_offsets.w,
+        e.hitbox_offsets.h
+    };
+}
