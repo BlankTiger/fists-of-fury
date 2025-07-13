@@ -1,6 +1,5 @@
 #include <cmath>
 #include <cassert>
-#include <iostream>
 
 #include "player.h"
 #include "../game.h"
@@ -484,7 +483,6 @@ void player_update(Entity& p, Game& g) {
         case Player_State::Kicking_Drop: {
             // deal damage if in hitbox
 
-            std::cout << p.z << std::endl;
             if (p.z == GROUND_LEVEL) {
                 player_stand(p);
             }
