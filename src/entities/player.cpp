@@ -1,5 +1,6 @@
 #include <cmath>
 #include <cassert>
+#include <iostream>
 
 #include "player.h"
 #include "../game.h"
@@ -25,9 +26,9 @@ internal void update_animation(Entity& e, const Game& g) {
             if (e.animation_loop) {
                 e.current_frame = 0; // Loop back to start
             } else {
-                // Animation finished - return to default
                 e.animation_playing = false;
-                start_animation(e, (u32)e.extra_player.default_anim, true);
+                e.current_frame -= 1;
+                // start_animation(e, (u32)e.extra_player.default_anim, true);
             }
         }
     }
@@ -366,7 +367,7 @@ internal void handle_jump_physics(Entity& p, const Game& g) {
     if (p.z >= GROUND_LEVEL) {
         p.z = GROUND_LEVEL;
         p.z_vel = 0.0f;
-        if (p.extra_player.state == Player_State::Jumping || p.extra_player.state == Player_State::Kicking_Drop) {
+        if (p.extra_player.state == Player_State::Jumping) {
             player_land(p);
         }
     }
@@ -434,19 +435,6 @@ void player_update(Entity& p, Game& g) {
             break;
         };
 
-        case Player_State::Kicking_Drop: {
-            // deal damage if in hitbox
-
-            if (is_animation_finished(p, g) && p.z == GROUND_LEVEL) {
-                player_stand(p);
-            }
-
-            handle_movement(p, g);
-            handle_jump_physics(p, g);
-
-            break;
-        }
-
         case Player_State::Got_Hit: {
             assert(false); // unimplemented
             break;
@@ -484,6 +472,20 @@ void player_update(Entity& p, Game& g) {
 
         case Player_State::Landing: {
             if (is_animation_finished(p, g)) {
+                player_stand(p);
+            }
+
+            handle_movement(p, g);
+            handle_jump_physics(p, g);
+
+            break;
+        }
+
+        case Player_State::Kicking_Drop: {
+            // deal damage if in hitbox
+
+            std::cout << p.z << std::endl;
+            if (p.z == GROUND_LEVEL) {
                 player_stand(p);
             }
 
