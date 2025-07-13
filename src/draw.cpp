@@ -35,6 +35,16 @@ void draw_hurtbox(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRec
     _draw_box(r, hurtbox_screen, HURTBOX_COLORS);
 }
 
+void draw_hitbox(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRect& hitbox_offsets, const Game& g) {
+    const SDL_FRect hitbox_screen = {
+        (world_coords.x + hitbox_offsets.x) - g.camera.x,
+        (world_coords.y + hitbox_offsets.y) - g.camera.y,
+        hitbox_offsets.w,
+        hitbox_offsets.h
+    };
+    _draw_box(r, hitbox_screen, HITBOX_COLORS);
+}
+
 void draw_level(SDL_Renderer* r, const Game& g) {
     const SDL_FRect dst = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
     SDL_RenderTexture(r, g.bg.img, &g.camera, &dst);

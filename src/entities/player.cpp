@@ -362,6 +362,7 @@ internal void handle_jump_physics(Entity& p, const Game& g) {
     p.z_vel += GRAVITY * g.dt;
     p.z += p.z_vel * g.dt;
 
+    // remember that this is reversed (up means negative, down means positive)
     if (p.z >= GROUND_LEVEL) {
         p.z = GROUND_LEVEL;
         p.z_vel = 0.0f;
@@ -516,9 +517,23 @@ void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
     );
     if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
 
-    const Vec2<f32> world_coords = {p.x, p.y};
+    Vec2<f32> world_coords = {p.x, p.y};
     draw_shadow(r, world_coords, p.shadow_offsets, g);
-    #if SHOW_COLLISION_BOXES
-    draw_collision_box(r, world_coords, p.collision_box_offsets, g);
-    #endif
+
+    // drawing debug *box
+    {
+        #if SHOW_COLLISION_BOXES || DEV_MODE
+        draw_collision_box(r, world_coords, p.collision_box_offsets, g);
+        #endif
+
+        // this is so that both hurtbox and hitbox go along with the player when he jumps
+        world_coords.y += p.z;
+        #if SHOW_HURTBOXES || DEV_MODE
+        draw_hurtbox(r, world_coords, p.hurtbox_offsets, g);
+        #endif
+
+        #if SHOW_HITBOXES || DEV_MODE
+        draw_hitbox(r, world_coords, p.hitbox_offsets, g);
+        #endif
+    }
 }
