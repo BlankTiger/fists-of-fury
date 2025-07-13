@@ -10,7 +10,7 @@
 #include "entities/entity.h"
 #include "vec2.h"
 
-enum struct Kick_State { Left, Right, Drop };
+enum struct Kick_State { Left, Right };
 
 struct Input_State {
     bool left  = false;

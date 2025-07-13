@@ -18,6 +18,37 @@ enum struct Entity_Type : u8 {
     Barrel
 };
 
+enum struct Player_State : u32 {
+    Standing,
+    Running,
+    Punching,
+    Kicking,
+    Kicking_Drop,
+    Got_Hit,
+    Dying,
+    Takeoff,
+    Jumping,
+    Landing
+};
+
+static_assert((u32)Player_State::Standing == 0);
+static_assert((u32)Player_State::Running  == 1);
+
+enum struct Player_Anim : u32 {
+    Standing,
+    Running,
+    Punching_Left,
+    Punching_Right,
+    Kicking_Left,
+    Kicking_Right,
+    Kicking_Drop,
+    Got_Hit,
+    Dying,
+    Takeoff,
+    Jumping,
+    Landing
+};
+
 struct Entity {
     int health = 100;
     int damage = 12;
@@ -40,14 +71,17 @@ struct Entity {
     u64 frame_duration_ms  = 100;   // Milliseconds per frame
     bool animation_playing = false;
     bool animation_loop    = true;  // Whether this animation should loop
-    u32 default_anim       = 0;     // Animation to return to when current finishes
 
     Entity_Type type;
 
-    struct Player_Data { };
-    struct Enemy_Data  { };
+    // extra data unique to an Entity_Type
+    union {
+        struct {
+            Player_Anim  default_anim;
+        } extra_player;
 
-    std::variant<Player_Data, Enemy_Data> extra;
+        struct {} extra_enemy;
+    };
 };
 
 void start_animation(Entity& e, u32 anim_idx, bool should_loop, u64 frame_time);

@@ -90,15 +90,15 @@ internal bool init() {
         const auto sprite_frame_h = 48;
         const auto sprite_frame_w = 48;
         Entity player{};
-        player.type                  = Entity_Type::Player;
-        player.x                     = 20;
-        player.y                     = 50;
-        player.sprite_frame_w        = 48;
-        player.sprite_frame_h        = 48;
-        player.collision_box_offsets = {-sprite_frame_w/7, -4, 2*sprite_frame_w/7, 4};
-        player.shadow_offsets        = {-7, -1, 14, 2};
-        player.default_anim          = (u32)Player_State::Standing;
-        start_animation(player, (u32)Player_State::Standing, true);
+        player.type                      = Entity_Type::Player;
+        player.x                         = 20;
+        player.y                         = 50;
+        player.sprite_frame_w            = 48;
+        player.sprite_frame_h            = 48;
+        player.collision_box_offsets     = {-sprite_frame_w/7, -4, 2*sprite_frame_w/7, 4};
+        player.shadow_offsets            = {-7, -1, 14, 2};
+        player.extra_player.default_anim = Player_Anim::Standing;
+        start_animation(player, (u32)Player_Anim::Standing, true);
         g.entities.push_back(player);
         g.idx_player = g.entities.size() - 1;
     }
