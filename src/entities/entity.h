@@ -34,6 +34,8 @@ enum struct Player_State : u32 {
 static_assert((u32)Player_State::Standing == 0);
 static_assert((u32)Player_State::Running  == 1);
 
+// this has to be synced with the player sprite
+// each enum value is the next row in the sprite
 enum struct Player_Anim : u32 {
     Standing,
     Running,

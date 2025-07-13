@@ -87,7 +87,8 @@ enum struct Action {
     Up,
     Down,
     Punch,
-    Kick
+    Kick,
+    Jump
 };
 
 internal bool is_pressed(const Game& g, Action a) {
@@ -119,6 +120,11 @@ internal bool is_pressed(const Game& g, Action a) {
 
         case Action::Down: {
             return g.input.down;
+            break;
+        }
+
+        case Action::Jump: {
+            return g.input.jump;
             break;
         }
     }
@@ -157,6 +163,11 @@ internal bool just_pressed(const Game& g, Action a) {
             return input_pressed(g.input.down, g.input_prev.down);
             break;
         }
+
+        case Action::Jump: {
+            return input_pressed(g.input.jump, g.input_prev.jump);
+            break;
+        }
     }
 
     return false;
@@ -185,12 +196,17 @@ internal bool not_pressed(const Game& g, Action a) {
         }
 
         case Action::Punch: {
-            assert(false);
+            return !g.input.punch;
             break;
         }
 
         case Action::Kick: {
-            assert(false);
+            return !g.input.kick;
+            break;
+        }
+
+        case Action::Jump: {
+            return !g.input.jump;
             break;
         }
     }
@@ -283,7 +299,8 @@ internal void handle_movement(Entity& p, const Game& g) {
 }
 
 
-void player_kick(Entity& p, Game& g) {
+internal void player_kick(Entity& p, Game& g) {
+    p.extra_player.state = Player_State::Kicking;
     switch (g.input.last_kick) {
         case Kick_State::Right: {
             start_animation(p, (u32)Player_Anim::Kicking_Right, false, 80);
@@ -299,7 +316,8 @@ void player_kick(Entity& p, Game& g) {
     }
 }
 
-void player_punch(Entity& p, Game& g) {
+internal void player_punch(Entity& p, Game& g) {
+    p.extra_player.state = Player_State::Punching;
     start_animation(p, (u32)Player_Anim::Punching_Left, false, 50);
     if (g.input.last_punch_was_left) {
         start_animation(p, (u32)Player_Anim::Punching_Right, false, 50);
@@ -310,26 +328,53 @@ void player_punch(Entity& p, Game& g) {
     }
 }
 
+internal void player_takeoff(Entity& p, Game& g) {
+    p.extra_player.state = Player_State::Takeoff;
+    start_animation(p, (u32)Player_Anim::Takeoff, false, 200);
+}
+
+internal void player_stand(Entity& p, Game& g) {
+    p.extra_player.state = Player_State::Standing;
+    start_animation(p, (u32)Player_Anim::Standing, true);
+}
+
+internal void player_run(Entity& p, Game& g) {
+    p.extra_player.state = Player_State::Running;
+    start_animation(p, (u32)Player_Anim::Running, true);
+}
+
+internal void player_jump(Entity& p, Game& g) {
+    p.extra_player.state = Player_State::Jumping;
+    start_animation(p, (u32)Player_Anim::Jumping, true);
+}
+
+internal void player_land(Entity& p, Game& g) {
+    p.extra_player.state = Player_State::Landing;
+    start_animation(p, (u32)Player_Anim::Landing, true);
+}
+
+internal void player_drop_kick(Entity& p, Game& g) {
+    p.extra_player.state = Player_State::Kicking_Drop;
+    start_animation(p, (u32)Player_Anim::Kicking_Drop, false, 80);
+}
+
 void player_update(Entity& p, Game& g) {
     assert(p.type == Entity_Type::Player);
-
-    const auto& in      = g.input;
-    const auto& in_prev = g.input_prev;
 
     switch (p.extra_player.state) {
         case Player_State::Standing: {
             if (started_moving(g)) {
-                p.extra_player.state = Player_State::Running;
-                start_animation(p, (u32)Player_Anim::Running, true);
+                player_run(p, g);
                 handle_movement(p, g);
             }
             else if (just_pressed(g, Action::Punch)) {
-                p.extra_player.state = Player_State::Punching;
                 player_punch(p, g);
             }
             else if (just_pressed(g, Action::Kick)) {
-                p.extra_player.state = Player_State::Kicking;
                 player_kick(p, g);
+            }
+            else if (just_pressed(g, Action::Jump)) {
+                player_takeoff(p, g);
             }
 
             break;
@@ -337,16 +382,16 @@ void player_update(Entity& p, Game& g) {
 
         case Player_State::Running: {
             if (stopped_moving(g)) {
-                p.extra_player.state = Player_State::Standing;
-                start_animation(p, (u32)Player_Anim::Standing, true);
+                player_stand(p, g);
             }
             else if (just_pressed(g, Action::Punch)) {
-                p.extra_player.state = Player_State::Punching;
                 player_punch(p, g);
             }
             else if (just_pressed(g, Action::Kick)) {
-                p.extra_player.state = Player_State::Kicking;
                 player_kick(p, g);
+            }
+            else if (just_pressed(g, Action::Jump)) {
+                player_takeoff(p, g);
             }
             else {
                 handle_movement(p, g);
@@ -359,7 +404,7 @@ void player_update(Entity& p, Game& g) {
             // deal damage if in hitbox
 
             if (is_animation_finished(p, g)) {
-                p.extra_player.state = Player_State::Standing;
+                player_stand(p, g);
             }
 
             break;
@@ -369,20 +414,20 @@ void player_update(Entity& p, Game& g) {
             // deal damage if in hitbox
 
             if (is_animation_finished(p, g)) {
-                p.extra_player.state = Player_State::Standing;
+                player_stand(p, g);
             }
 
             break;
         };
 
         case Player_State::Kicking_Drop: {
-            assert(false); // unimplemented
-
             // deal damage if in hitbox
 
             if (is_animation_finished(p, g)) {
-                p.extra_player.state = Player_State::Standing;
+                player_stand(p, g);
             }
+
+            handle_movement(p, g);
 
             break;
         }
@@ -399,27 +444,33 @@ void player_update(Entity& p, Game& g) {
 
         case Player_State::Takeoff: {
             if (is_animation_finished(p, g)) {
-                p.extra_player.state = Player_State::Jumping;
+                player_jump(p, g);
             }
+
+            handle_movement(p, g);
 
             break;
         }
 
         case Player_State::Jumping: {
             if (just_pressed(g, Action::Kick)) {
-                p.extra_player.state = Player_State::Kicking_Drop;
+                player_drop_kick(p, g);
             }
             else if (is_animation_finished(p, g)) {
-                p.extra_player.state = Player_State::Landing;
+                player_land(p, g);
             }
+
+            handle_movement(p, g);
 
             break;
         }
 
         case Player_State::Landing: {
             if (is_animation_finished(p, g)) {
-                p.extra_player.state = Player_State::Standing;
+                player_stand(p, g);
             }
+
+            handle_movement(p, g);
 
             break;
         }
