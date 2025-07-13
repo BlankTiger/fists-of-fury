@@ -72,11 +72,11 @@ struct Entity {
     bool animation_playing = false;
     bool animation_loop    = true;  // Whether this animation should loop
 
-    Entity_Type type;
-
     // extra data unique to an Entity_Type
+    Entity_Type type;
     union {
         struct {
+            Player_State state;
             Player_Anim  default_anim;
         } extra_player;
 

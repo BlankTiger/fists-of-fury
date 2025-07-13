@@ -6,11 +6,11 @@
 #include "../settings.h"
 #include "../draw.h"
 
-// internal bool is_animation_finished(const Entity& e) {
-//     if (!e.animation_playing) return true;
-//     if (e.animation_loop) return false;
-//     return e.current_frame >= g.sprite_player.frames_in_each_row[e.idx_anim] - 1;
-// }
+internal bool is_animation_finished(const Entity& e, const Game& g) {
+    if (!e.animation_playing) return true;
+    if (e.animation_loop) return false;
+    return e.current_frame >= g.sprite_player.frames_in_each_row[e.idx_anim] - 1;
+}
 
 internal void update_animation(Entity& e, const Game& g) {
     if (!e.animation_playing) return;
@@ -81,48 +81,139 @@ internal bool input_pressed(bool curr, bool prev) {
 //     return !curr && prev;
 // }
 
-void player_update(Entity& p, Game& g) {
-    assert(p.type == Entity_Type::Player);
+enum struct Action {
+    Left,
+    Right,
+    Up,
+    Down,
+    Punch,
+    Kick
+};
 
-    const auto& in      = g.input;
-    const auto& in_prev = g.input_prev;
+internal bool is_pressed(const Game& g, Action a) {
+    switch (a) {
+        case Action::Punch: {
+            return g.input.punch;
+            break;
+        }
 
-    if (input_pressed(in.jump, in_prev.jump)) {
-        if (!p.animation_playing || p.animation_loop) {
-            start_animation(p, (u32)Player_State::Jumping, false, 150);
-            g.input.jump = false;
+        case Action::Kick: {
+            return g.input.kick;
+            break;
+        }
+
+        case Action::Left: {
+            return g.input.left;
+            break;
+        }
+
+        case Action::Right: {
+            return g.input.right;
+            break;
+        }
+
+        case Action::Up: {
+            return g.input.up;
+            break;
+        }
+
+        case Action::Down: {
+            return g.input.down;
+            break;
         }
     }
 
-    if (input_pressed(in.punch, in_prev.punch)) {
-        if (!p.animation_playing || p.animation_loop) {
-            if (g.input.last_punch_was_left) {
-                start_animation(p, (u32)Player_Anim::Punching_Right, false, 50);
-                g.input.last_punch_was_left = false;
-            } else {
-                start_animation(p, (u32)Player_Anim::Punching_Left, false, 50);
-                g.input.last_punch_was_left = true;
-            }
+    return false;
+}
+
+internal bool just_pressed(const Game& g, Action a) {
+    switch (a) {
+        case Action::Punch: {
+            return input_pressed(g.input.punch, g.input_prev.punch);
+            break;
+        }
+
+        case Action::Kick: {
+            return input_pressed(g.input.kick, g.input_prev.kick);
+            break;
+        }
+
+        case Action::Left: {
+            return input_pressed(g.input.left, g.input_prev.left);
+            break;
+        }
+
+        case Action::Right: {
+            return input_pressed(g.input.right, g.input_prev.right);
+            break;
+        }
+
+        case Action::Up: {
+            return input_pressed(g.input.up, g.input_prev.up);
+            break;
+        }
+
+        case Action::Down: {
+            return input_pressed(g.input.down, g.input_prev.down);
+            break;
         }
     }
 
-    if (input_pressed(in.kick, in_prev.kick)) {
-        if (!p.animation_playing || p.animation_loop) {
-            switch (g.input.last_kick) {
-                case Kick_State::Right: {
-                    start_animation(p, (u32)Player_Anim::Kicking_Right, false, 80);
-                    g.input.last_kick = Kick_State::Left;
-                    break;
-                }
+    return false;
+}
 
-                case Kick_State::Left: {
-                    start_animation(p, (u32)Player_Anim::Kicking_Left, false, 50);
-                    g.input.last_kick = Kick_State::Right;
-                    break;
-                }
-            }
+internal bool not_pressed(const Game& g, Action a) {
+    switch (a) {
+        case Action::Left: {
+            return !g.input.left;
+            break;
+        }
+
+        case Action::Right: {
+            return !g.input.right;
+            break;
+        }
+
+        case Action::Up: {
+            return !g.input.up;
+            break;
+        }
+
+        case Action::Down: {
+            return !g.input.down;
+            break;
+        }
+
+        case Action::Punch: {
+            assert(false);
+            break;
+        }
+
+        case Action::Kick: {
+            assert(false);
+            break;
         }
     }
+
+    return true;
+}
+
+internal bool started_moving(const Game& g) {
+    return is_pressed(g, Action::Up)
+        || is_pressed(g, Action::Down)
+        || is_pressed(g, Action::Left)
+        || is_pressed(g, Action::Right);
+}
+
+internal bool stopped_moving(const Game& g) {
+    return not_pressed(g, Action::Up)
+        && not_pressed(g, Action::Down)
+        && not_pressed(g, Action::Left)
+        && not_pressed(g, Action::Right);
+}
+
+internal void handle_movement(Entity& p, const Game& g) {
+    const auto in = g.input;
 
     bool is_moving = false;
     f32 x_vel = 0., y_vel = 0.;
@@ -189,18 +280,148 @@ void player_update(Entity& p, Game& g) {
             p.y = y_old;
         }
     }
+}
 
-    if (!p.animation_playing || p.animation_loop) {
-        if (is_moving) {
-            if (p.extra_player.default_anim != Player_Anim::Running) {
-                p.extra_player.default_anim = Player_Anim::Running;
+
+void player_kick(Entity& p, Game& g) {
+    switch (g.input.last_kick) {
+        case Kick_State::Right: {
+            start_animation(p, (u32)Player_Anim::Kicking_Right, false, 80);
+            g.input.last_kick = Kick_State::Left;
+            break;
+        }
+
+        case Kick_State::Left: {
+            start_animation(p, (u32)Player_Anim::Kicking_Left, false, 50);
+            g.input.last_kick = Kick_State::Right;
+            break;
+        }
+    }
+}
+
+void player_punch(Entity& p, Game& g) {
+    start_animation(p, (u32)Player_Anim::Punching_Left, false, 50);
+    if (g.input.last_punch_was_left) {
+        start_animation(p, (u32)Player_Anim::Punching_Right, false, 50);
+        g.input.last_punch_was_left = false;
+    } else {
+        start_animation(p, (u32)Player_Anim::Punching_Left, false, 50);
+        g.input.last_punch_was_left = true;
+    }
+}
+
+void player_update(Entity& p, Game& g) {
+    assert(p.type == Entity_Type::Player);
+
+    const auto& in      = g.input;
+    const auto& in_prev = g.input_prev;
+
+    switch (p.extra_player.state) {
+        case Player_State::Standing: {
+            if (started_moving(g)) {
+                p.extra_player.state = Player_State::Running;
                 start_animation(p, (u32)Player_Anim::Running, true);
+                handle_movement(p, g);
             }
-        } else {
-            if (p.extra_player.default_anim != Player_Anim::Standing) {
-                p.extra_player.default_anim = Player_Anim::Standing;
+            else if (just_pressed(g, Action::Punch)) {
+                p.extra_player.state = Player_State::Punching;
+                player_punch(p, g);
+            }
+            else if (just_pressed(g, Action::Kick)) {
+                p.extra_player.state = Player_State::Kicking;
+                player_kick(p, g);
+            }
+
+            break;
+        }
+
+        case Player_State::Running: {
+            if (stopped_moving(g)) {
+                p.extra_player.state = Player_State::Standing;
                 start_animation(p, (u32)Player_Anim::Standing, true);
             }
+            else if (just_pressed(g, Action::Punch)) {
+                p.extra_player.state = Player_State::Punching;
+                player_punch(p, g);
+            }
+            else if (just_pressed(g, Action::Kick)) {
+                p.extra_player.state = Player_State::Kicking;
+                player_kick(p, g);
+            }
+            else {
+                handle_movement(p, g);
+            }
+
+            break;
+        }
+
+        case Player_State::Punching: {
+            // deal damage if in hitbox
+
+            if (is_animation_finished(p, g)) {
+                p.extra_player.state = Player_State::Standing;
+            }
+
+            break;
+        }
+
+        case Player_State::Kicking: {
+            // deal damage if in hitbox
+
+            if (is_animation_finished(p, g)) {
+                p.extra_player.state = Player_State::Standing;
+            }
+
+            break;
+        };
+
+        case Player_State::Kicking_Drop: {
+            assert(false); // unimplemented
+
+            // deal damage if in hitbox
+
+            if (is_animation_finished(p, g)) {
+                p.extra_player.state = Player_State::Standing;
+            }
+
+            break;
+        }
+
+        case Player_State::Got_Hit: {
+            assert(false); // unimplemented
+            break;
+        }
+
+        case Player_State::Dying: {
+            assert(false); // unimplemented
+            break;
+        }
+
+        case Player_State::Takeoff: {
+            if (is_animation_finished(p, g)) {
+                p.extra_player.state = Player_State::Jumping;
+            }
+
+            break;
+        }
+
+        case Player_State::Jumping: {
+            if (just_pressed(g, Action::Kick)) {
+                p.extra_player.state = Player_State::Kicking_Drop;
+            }
+            else if (is_animation_finished(p, g)) {
+                p.extra_player.state = Player_State::Landing;
+            }
+
+            break;
+        }
+
+        case Player_State::Landing: {
+            if (is_animation_finished(p, g)) {
+                p.extra_player.state = Player_State::Standing;
+            }
+
+            break;
         }
     }
 
