@@ -33,7 +33,7 @@ internal void update_animation(Entity& e, const Game& g) {
     }
 }
 
-void update_borders_for_curr_level(Game& g) {
+internal void update_borders_for_curr_level(Game& g) {
     auto new_left   = level_info_get_collision_box(g.curr_level_info, Border::Left);
     auto new_top    = level_info_get_collision_box(g.curr_level_info, Border::Top);
     auto new_bottom = level_info_get_collision_box(g.curr_level_info, Border::Bottom);
