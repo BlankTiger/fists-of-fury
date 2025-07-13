@@ -57,6 +57,9 @@ struct Entity {
     f32 speed  = 0.03;
     f32 x;
     f32 y;
+    f32 z;
+    f32 z_vel;
+
     f32 sprite_frame_w;
     f32 sprite_frame_h;
     u32 idx_anim;
