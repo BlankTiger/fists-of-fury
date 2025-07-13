@@ -96,9 +96,9 @@ internal bool init() {
         player.sprite_frame_w        = 48;
         player.sprite_frame_h        = 48;
         player.collision_box_offsets = {-sprite_frame_w/7, -4, 2*sprite_frame_w/7, 4};
-        player.shadow_offsets         = {-7, -1, 14, 2};
-        player.default_anim          = (u32)Player_Anim::Standing;
-        start_animation(player, (u32)Player_Anim::Standing, true);
+        player.shadow_offsets        = {-7, -1, 14, 2};
+        player.default_anim          = (u32)Player_State::Standing;
+        start_animation(player, (u32)Player_State::Standing, true);
         g.entities.push_back(player);
         g.idx_player = g.entities.size() - 1;
     }
@@ -207,12 +207,13 @@ internal void draw(const Game& g) {
 internal void handle_input(const SDL_Event& e) {
     if (e.type == SDL_EVENT_KEY_DOWN) {
         switch (e.key.key) {
-            case SDLK_S: g.input.left  = true; break;
-            case SDLK_F: g.input.right = true; break;
-            case SDLK_E: g.input.up    = true; break;
-            case SDLK_D: g.input.down  = true; break;
-            case SDLK_J: g.input.punch = true; break;
-            case SDLK_K: g.input.kick  = true; break;
+            case SDLK_S:     g.input.left  = true; break;
+            case SDLK_F:     g.input.right = true; break;
+            case SDLK_E:     g.input.up    = true; break;
+            case SDLK_D:     g.input.down  = true; break;
+            case SDLK_J:     g.input.punch = true; break;
+            case SDLK_K:     g.input.kick  = true; break;
+            case SDLK_SPACE: g.input.jump  = true; break;
         }
     }
 

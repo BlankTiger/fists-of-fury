@@ -84,13 +84,20 @@ void player_update(Entity& p, Game& g) {
     const auto& in      = g.input;
     const auto& in_prev = g.input_prev;
 
+    if (input_pressed(in.jump, in_prev.jump)) {
+        if (!p.animation_playing || p.animation_loop) {
+            start_animation(p, (u32)Player_State::Jump, false, 150);
+            g.input.jump = false;
+        }
+    }
+
     if (input_pressed(in.punch, in_prev.punch)) {
         if (!p.animation_playing || p.animation_loop) {
             if (g.input.last_punch_was_left) {
-                start_animation(p, (u32)Player_Anim::Punching_Right, false, 50);
+                start_animation(p, (u32)Player_State::Punching_Right, false, 50);
                 g.input.last_punch_was_left = false;
             } else {
-                start_animation(p, (u32)Player_Anim::Punching_Left, false, 50);
+                start_animation(p, (u32)Player_State::Punching_Left, false, 50);
                 g.input.last_punch_was_left = true;
             }
         }
@@ -100,19 +107,19 @@ void player_update(Entity& p, Game& g) {
         if (!p.animation_playing || p.animation_loop) {
             switch (g.input.last_kick) {
                 case Kick_State::Drop: {
-                    start_animation(p, (u32)Player_Anim::Kicking_Drop, false, 80);
+                    start_animation(p, (u32)Player_State::Kicking_Drop, false, 80);
                     g.input.last_kick = Kick_State::Left;
                     break;
                 }
 
                 case Kick_State::Left: {
-                    start_animation(p, (u32)Player_Anim::Kicking_Left, false, 50);
+                    start_animation(p, (u32)Player_State::Kicking_Left, false, 50);
                     g.input.last_kick = Kick_State::Right;
                     break;
                 }
 
                 case Kick_State::Right: {
-                    start_animation(p, (u32)Player_Anim::Kicking_Right, false, 50);
+                    start_animation(p, (u32)Player_State::Kicking_Right, false, 50);
                     g.input.last_kick = Kick_State::Drop;
                     break;
                 }
@@ -188,14 +195,14 @@ void player_update(Entity& p, Game& g) {
 
     if (!p.animation_playing || p.animation_loop) {
         if (is_moving) {
-            if (p.default_anim != (u32)Player_Anim::Running) {
-                p.default_anim = (u32)Player_Anim::Running;
-                start_animation(p, (u32)Player_Anim::Running, true);
+            if (p.default_anim != (u32)Player_State::Running) {
+                p.default_anim = (u32)Player_State::Running;
+                start_animation(p, (u32)Player_State::Running, true);
             }
         } else {
-            if (p.default_anim != (u32)Player_Anim::Standing) {
-                p.default_anim = (u32)Player_Anim::Standing;
-                start_animation(p, (u32)Player_Anim::Standing, true);
+            if (p.default_anim != (u32)Player_State::Standing) {
+                p.default_anim = (u32)Player_State::Standing;
+                start_animation(p, (u32)Player_State::Standing, true);
             }
         }
     }

@@ -5,17 +5,22 @@
 #include "../game.h"
 #include "entity.h"
 
-enum struct Player_Anim : u32 {
-    Standing       = 0,
-    Running        = 1,
-    Punching_Left  = 2,
-    Punching_Right = 3,
-    Kicking_Left   = 4,
-    Kicking_Right  = 5,
-    Kicking_Drop   = 6,
-    Got_Hit        = 7,
-    Fallover       = 8
+enum struct Player_State : u32 {
+    Standing,
+    Running,
+    Punching_Left,
+    Punching_Right,
+    Kicking_Left,
+    Kicking_Right,
+    Kicking_Drop,
+    Got_Hit,
+    Fallover,
+    Takeoff,
+    Jump,
 };
+
+static_assert((u32)Player_State::Standing == 0);
+static_assert((u32)Player_State::Running  == 1);
 
 void start_animation(Entity& e, u32 anim_idx, bool should_loop = false, u64 frame_time = 100);
 void player_update(Entity& p, Game& g);

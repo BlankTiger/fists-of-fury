@@ -19,6 +19,7 @@ struct Input_State {
     bool down  = false;
     bool punch = false;
     bool kick  = false;
+    bool jump  = false;
 
     Kick_State last_kick     = Kick_State::Left;
     bool last_punch_was_left = true;
@@ -33,7 +34,7 @@ struct Game {
     Img bg;
     Img entity_shadow;
 
-    static constexpr u32 sprite_player_frames[] = { 4, 8, 4, 3, 6, 6, 5, 3, 3, 0 };
+    static constexpr u32 sprite_player_frames[] = { 4, 8, 4, 3, 6, 6, 5, 3, 3, 1, 1, 1 };
     Sprite sprite_player = {
         .img                     = {},
         .max_frames_in_row_count = 10,
