@@ -5,5 +5,5 @@
 #include "../game.h"
 
 Entity barrel_init();
-void barrel_update(Entity& e);
+Update_Result barrel_update(Entity& e, Game& g);
 void barrel_draw(SDL_Renderer* r, const Entity& e, const Game& g);

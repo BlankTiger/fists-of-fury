@@ -16,10 +16,6 @@
 
 static Game g = {};
 
-// internal Entity& get_player() {
-//     return g.entities[g.idx_player];
-// }
-
 internal bool init() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("SDL could not initialize! SDL err: %s\n", SDL_GetError());
@@ -112,23 +108,27 @@ internal bool init() {
     return true;
 }
 
-internal void update_entity(Entity& e) {
+internal Update_Result update_entity(Entity& e) {
+    Update_Result res;
+
     switch (e.type) {
         case Entity_Type::Player: {
-            player_update(e, g);
+            res = player_update(e, g);
             break;
         }
 
         case Entity_Type::Enemy: {
-            enemy_update(e);
+            res = enemy_update(e);
             break;
         }
 
         case Entity_Type::Barrel: {
-            barrel_update(e);
+            res = barrel_update(e, g);
             break;
         }
     }
+
+    return res;
 }
 
 internal void y_sort_entities(Game& g) {
@@ -146,7 +146,14 @@ internal void y_sort_entities(Game& g) {
 
 internal void update(Game& g) {
     for (u64 idx = 0; idx < g.entities.size(); idx++) {
-        update_entity(g.entities[idx]);
+        auto res = update_entity(g.entities[idx]);
+        if (res == Update_Result::Remove_Me) g.removal_queue.push_back(idx);
+    }
+
+    while (!g.removal_queue.empty()) {
+        const auto idx = g.removal_queue.back();
+        g.entities.erase(g.entities.begin() + idx);
+        g.removal_queue.pop_back();
     }
     y_sort_entities(g);
 

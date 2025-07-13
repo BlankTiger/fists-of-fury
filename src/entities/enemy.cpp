@@ -13,8 +13,9 @@ void enemy_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
     #endif
 }
 
-void enemy_update(Entity& e) {
+Update_Result enemy_update(Entity& e) {
     // TODO: remove this
     e.health = e.health;
+    return Update_Result::None;
 }
 

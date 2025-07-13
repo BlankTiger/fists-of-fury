@@ -10,6 +10,8 @@
 #include "entities/entity.h"
 #include "vec2.h"
 
+enum struct Update_Result { Remove_Me, None };
+
 enum struct Kick_State { Left, Right };
 
 struct Input_State {
@@ -53,6 +55,7 @@ struct Game {
 
     std::vector<Entity> entities;
     std::vector<u32>    sorted_indices; // for y-sorting when drawing
+    std::vector<u32>    removal_queue;  // for removing entities at the end of the frame
     u32 idx_player;
 
     Level_Info curr_level_info;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <variant>
+#include <vector>
 #include <SDL3/SDL.h>
 #include "../number_types.h"
 #include "../vec2.h"
@@ -52,13 +52,16 @@ enum struct Player_Anim : u32 {
 };
 
 struct Entity {
-    int health = 100;
-    int damage = 12;
-    f32 speed  = 0.03;
+    int health;
+    int damage;
+    f32 speed;
     f32 x;
     f32 y;
     f32 z;
     f32 z_vel;
+
+    // used to collect all the received damage in a frame
+    std::vector<f32> damage_queue;
 
     f32 sprite_frame_w;
     f32 sprite_frame_h;

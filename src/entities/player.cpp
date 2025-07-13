@@ -11,6 +11,9 @@ Entity player_init() {
     const auto sprite_frame_h = 48;
     const auto sprite_frame_w = 48;
     Entity player{};
+    player.health                    = 100;
+    player.damage                    = 20;
+    player.speed                     = 0.03;
     player.type                      = Entity_Type::Player;
     player.x                         = 20;
     player.y                         = 50;
@@ -343,7 +346,7 @@ internal void handle_player_attack(Entity& p, Game& g) {
         SDL_FRect player_hurtbox = entity_get_world_hurtbox(p);
         SDL_FRect entity_hitbox = entity_get_world_hitbox(e);
         if (SDL_HasRectIntersectionFloat(&entity_hitbox, &player_hurtbox)) {
-            std::cout << "Registered a hit\n";
+            e.damage_queue.push_back(p.damage);
         }
     }
 }
@@ -426,7 +429,7 @@ internal void handle_jump_physics(Entity& p, const Game& g) {
     }
 }
 
-void player_update(Entity& p, Game& g) {
+Update_Result player_update(Entity& p, Game& g) {
     assert(p.type == Entity_Type::Player);
 
     switch (p.extra_player.state) {
@@ -550,6 +553,8 @@ void player_update(Entity& p, Game& g) {
 
     update_animation(p, g);
     camera_update(p, g);
+
+    return Update_Result::None;
 }
 
 void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {

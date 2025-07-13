@@ -8,6 +8,7 @@ Entity barrel_init() {
     const f32 barrel_w = 32;
     const f32 barrel_h = 32;
     Entity barrel{};
+    barrel.health                = 20;
     barrel.type                  = Entity_Type::Barrel;
     barrel.x                     = SCREEN_WIDTH / 2;
     barrel.y                     = 45;
@@ -19,11 +20,17 @@ Entity barrel_init() {
     return barrel;
 }
 
-void barrel_update(Entity& e) {
+Update_Result barrel_update(Entity& e, Game& g) {
     assert(e.type == Entity_Type::Barrel);
 
-    // TODO: remove
-    e.health = e.health;
+    while (!e.damage_queue.empty()) {
+        const auto dmg = e.damage_queue.back();
+        e.health -= dmg;
+        e.damage_queue.pop_back();
+        if (e.health <= 0) return Update_Result::Remove_Me;
+    }
+
+    return Update_Result::None;
 }
 
 void barrel_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
