@@ -16,9 +16,9 @@
 
 static Game g = {};
 
-internal Entity& get_player() {
-    return g.entities[g.idx_player];
-}
+// internal Entity& get_player() {
+//     return g.entities[g.idx_player];
+// }
 
 internal bool init() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -93,8 +93,8 @@ internal bool init() {
         player.type                      = Entity_Type::Player;
         player.x                         = 20;
         player.y                         = 50;
-        player.sprite_frame_w            = 48;
-        player.sprite_frame_h            = 48;
+        player.sprite_frame_w            = sprite_frame_w;
+        player.sprite_frame_h            = sprite_frame_h;
         player.collision_box_offsets     = {-sprite_frame_w/7, -4, 2*sprite_frame_w/7, 4};
         player.shadow_offsets            = {-7, -1, 14, 2};
         player.extra_player.state        = Player_State::Standing;
@@ -119,7 +119,7 @@ internal bool init() {
         barrel.y                     = 45;
         barrel.sprite_frame_w        = barrel_w;
         barrel.sprite_frame_h        = barrel_h;
-        barrel.collision_box_offsets = {-barrel_w/4.5, -6, barrel_w*2/4.5, 4};
+        barrel.collision_box_offsets = {-barrel_w/4.5f, -6, barrel_w*2/4.5f, 4};
         barrel.shadow_offsets        = {-barrel_w/5, -2, barrel_w*2/5, 3};
         g.entities.push_back(barrel);
     }
