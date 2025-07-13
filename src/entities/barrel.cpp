@@ -13,6 +13,7 @@ Entity barrel_init() {
     barrel.y                     = 45;
     barrel.sprite_frame_w        = barrel_w;
     barrel.sprite_frame_h        = barrel_h;
+    barrel.hitbox_offsets        = {-barrel_w/4.5f, -20, barrel_w*2/4.5f, 13};
     barrel.collision_box_offsets = {-barrel_w/4.5f, -6, barrel_w*2/4.5f, 4};
     barrel.shadow_offsets        = {-barrel_w/5, -2, barrel_w*2/5, 3};
     return barrel;
@@ -36,7 +37,16 @@ void barrel_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
 
     const Vec2<f32> world_coords = {e.x, e.y};
     draw_shadow(r, world_coords, e.shadow_offsets, g);
-    #if SHOW_COLLISION_BOXES
-    draw_collision_box(r, world_coords, e.collision_box_offsets, g);
-    #endif
+
+    {
+        #if SHOW_COLLISION_BOXES || DEV_MODE
+        draw_collision_box(r, world_coords, e.collision_box_offsets, g);
+        #endif
+
+        #if SHOW_HITBOXES || DEV_MODE
+        draw_hitbox(r, world_coords, e.hitbox_offsets, g);
+        #endif
+
+        // NOTE: barrels dont have hurtboxes obviously
+    }
 }
