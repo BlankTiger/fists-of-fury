@@ -4,6 +4,20 @@
 #include "../draw.h"
 #include "../settings.h"
 
+Entity barrel_init() {
+    const f32 barrel_w = 32;
+    const f32 barrel_h = 32;
+    Entity barrel{};
+    barrel.type                  = Entity_Type::Barrel;
+    barrel.x                     = SCREEN_WIDTH / 2;
+    barrel.y                     = 45;
+    barrel.sprite_frame_w        = barrel_w;
+    barrel.sprite_frame_h        = barrel_h;
+    barrel.collision_box_offsets = {-barrel_w/4.5f, -6, barrel_w*2/4.5f, 4};
+    barrel.shadow_offsets        = {-barrel_w/5, -2, barrel_w*2/5, 3};
+    return barrel;
+}
+
 void barrel_update(Entity& e) {
     assert(e.type == Entity_Type::Barrel);
 

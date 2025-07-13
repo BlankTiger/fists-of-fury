@@ -6,6 +6,25 @@
 #include "../settings.h"
 #include "../draw.h"
 
+Entity player_init() {
+    const auto sprite_frame_h = 48;
+    const auto sprite_frame_w = 48;
+    Entity player{};
+    player.type                      = Entity_Type::Player;
+    player.x                         = 20;
+    player.y                         = 50;
+    player.sprite_frame_w            = sprite_frame_w;
+    player.sprite_frame_h            = sprite_frame_h;
+    player.collision_box_offsets     = {-sprite_frame_w/7, -4, 2*sprite_frame_w/7, 4};
+    player.hurtbox_offsets           = {sprite_frame_w/7, -14, 10, 6};
+    player.hitbox_offsets            = {-sprite_frame_w/6.5f, -23, 2*sprite_frame_w/6.5f, 23};
+    player.shadow_offsets            = {-7, -1, 14, 2};
+    player.extra_player.state        = Player_State::Standing;
+    start_animation(player, (u32)Player_Anim::Standing, true);
+    return player;
+}
+
+
 internal bool is_animation_finished(const Entity& e, const Game& g) {
     if (!e.animation_playing) return true;
     if (e.animation_loop) return false;

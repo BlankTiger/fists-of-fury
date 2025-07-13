@@ -87,41 +87,21 @@ internal bool init() {
 
     // player setup
     {
-        const auto sprite_frame_h = 48;
-        const auto sprite_frame_w = 48;
-        Entity player{};
-        player.type                      = Entity_Type::Player;
-        player.x                         = 20;
-        player.y                         = 50;
-        player.sprite_frame_w            = sprite_frame_w;
-        player.sprite_frame_h            = sprite_frame_h;
-        player.collision_box_offsets     = {-sprite_frame_w/7, -4, 2*sprite_frame_w/7, 4};
-        player.hurtbox_offsets           = {sprite_frame_w/7, -14, 10, 6};
-        player.hitbox_offsets            = {-sprite_frame_w/6.5f, -23, 2*sprite_frame_w/6.5f, 23};
-        player.shadow_offsets            = {-7, -1, 14, 2};
-        player.extra_player.state        = Player_State::Standing;
-        start_animation(player, (u32)Player_Anim::Standing, true);
+        Entity player = player_init();
         g.entities.push_back(player);
         g.idx_player = g.entities.size() - 1;
     }
 
-    // props
     {
         bool ok = sprite_load(g.sprite_barrel, g.renderer, "assets/art/props/barrel.png");
         if (!ok) {
             SDL_Log("Failed to load barrel sprite! SDL err: %s\n", SDL_GetError());
             return false;
         }
-        const f32 barrel_w = 32;
-        const f32 barrel_h = 32;
-        Entity barrel{};
-        barrel.type                  = Entity_Type::Barrel;
-        barrel.x                     = SCREEN_WIDTH / 2;
-        barrel.y                     = 45;
-        barrel.sprite_frame_w        = barrel_w;
-        barrel.sprite_frame_h        = barrel_h;
-        barrel.collision_box_offsets = {-barrel_w/4.5f, -6, barrel_w*2/4.5f, 4};
-        barrel.shadow_offsets        = {-barrel_w/5, -2, barrel_w*2/5, 3};
+    }
+
+    {
+        Entity barrel = barrel_init();
         g.entities.push_back(barrel);
     }
 
