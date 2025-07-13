@@ -318,12 +318,11 @@ internal void player_kick(Entity& p, Game& g) {
 
 internal void player_punch(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Punching;
-    start_animation(p, (u32)Player_Anim::Punching_Left, false, 50);
     if (g.input.last_punch_was_left) {
-        start_animation(p, (u32)Player_Anim::Punching_Right, false, 50);
+        start_animation(p, (u32)Player_Anim::Punching_Right, false, 60);
         g.input.last_punch_was_left = false;
     } else {
-        start_animation(p, (u32)Player_Anim::Punching_Left, false, 50);
+        start_animation(p, (u32)Player_Anim::Punching_Left, false, 60);
         g.input.last_punch_was_left = true;
     }
 }
