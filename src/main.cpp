@@ -205,25 +205,27 @@ internal void draw(const Game& g) {
     SDL_RenderPresent(g.renderer);
 }
 
-internal void handle_input(const SDL_Event& e) {
-    if (e.type == SDL_EVENT_KEY_DOWN) {
-        switch (e.key.key) {
-            case SDLK_S:     g.input.left  = true; break;
-            case SDLK_F:     g.input.right = true; break;
-            case SDLK_E:     g.input.up    = true; break;
-            case SDLK_D:     g.input.down  = true; break;
-            case SDLK_J:     g.input.punch = true; break;
-            case SDLK_K:     g.input.kick  = true; break;
-            case SDLK_SPACE: g.input.jump  = true; break;
-        }
-    }
+struct Key_Binding {
+    SDL_Keycode key;
+    bool*       input_field;
+};
 
-    if (e.type == SDL_EVENT_KEY_UP) {
-        switch (e.key.key) {
-            case SDLK_S: g.input.left  = false; break;
-            case SDLK_F: g.input.right = false; break;
-            case SDLK_E: g.input.up    = false; break;
-            case SDLK_D: g.input.down  = false; break;
+Key_Binding bindings[] = {
+    {SDLK_S,     &g.input.left},
+    {SDLK_F,     &g.input.right},
+    {SDLK_E,     &g.input.up},
+    {SDLK_D,     &g.input.down},
+    {SDLK_J,     &g.input.punch},
+    {SDLK_K,     &g.input.kick},
+    {SDLK_SPACE, &g.input.jump},
+};
+
+internal void handle_input(const SDL_Event& e) {
+    bool pressed = (e.type == SDL_EVENT_KEY_DOWN);
+    for (auto& binding : bindings) {
+        if (e.key.key == binding.key) {
+            *binding.input_field = pressed;
+            break;
         }
     }
 }
