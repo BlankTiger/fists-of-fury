@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cassert>
 
 #include "player.h"
 #include "../game.h"
@@ -81,6 +82,8 @@ internal bool input_pressed(bool curr, bool prev) {
 // }
 
 void player_update(Entity& p, Game& g) {
+    assert(p.type == Entity_Type::Player);
+
     const auto& in      = g.input;
     const auto& in_prev = g.input_prev;
 
@@ -212,6 +215,8 @@ void player_update(Entity& p, Game& g) {
 }
 
 void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
+    assert(p.type == Entity_Type::Player);
+
     const Vec2<f32> drawing_coords = entity_offset_to_bottom_center(p);
     const Vec2<f32> screen_coords = game_get_screen_coords(g, drawing_coords);
 

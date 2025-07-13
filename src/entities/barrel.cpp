@@ -1,13 +1,19 @@
+#include <cassert>
+
 #include "barrel.h"
 #include "../draw.h"
 #include "../settings.h"
 
 void barrel_update(Entity& e) {
+    assert(e.type == Entity_Type::Barrel);
+
     // TODO: remove
     e.health = e.health;
 }
 
 void barrel_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
+    assert(e.type == Entity_Type::Barrel);
+
     const Vec2<f32> drawing_coords = entity_offset_to_bottom_center(e);
     const Vec2<f32> screen_coords = game_get_screen_coords(g, drawing_coords);
 
