@@ -98,7 +98,6 @@ internal bool init() {
         player.collision_box_offsets     = {-sprite_frame_w/7, -4, 2*sprite_frame_w/7, 4};
         player.shadow_offsets            = {-7, -1, 14, 2};
         player.extra_player.state        = Player_State::Standing;
-        player.extra_player.default_anim = Player_Anim::Standing;
         start_animation(player, (u32)Player_Anim::Standing, true);
         g.entities.push_back(player);
         g.idx_player = g.entities.size() - 1;

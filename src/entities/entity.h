@@ -82,7 +82,6 @@ struct Entity {
     union {
         struct {
             Player_State state;
-            Player_Anim  default_anim;
         } extra_player;
 
         struct {} extra_enemy;

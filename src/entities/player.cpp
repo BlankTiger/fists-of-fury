@@ -26,8 +26,8 @@ internal void update_animation(Entity& e, const Game& g) {
                 e.current_frame = 0; // Loop back to start
             } else {
                 e.animation_playing = false;
+                // loop the last frame until we start another animation
                 e.current_frame -= 1;
-                // start_animation(e, (u32)e.extra_player.default_anim, true);
             }
         }
     }
