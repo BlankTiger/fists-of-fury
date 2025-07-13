@@ -64,10 +64,11 @@ struct Entity {
     f32 sprite_frame_h;
     u32 idx_anim;
     Direction dir;
-    // this should be relative to the player position (which is always
-    // considered to be where the center of the bottom border of the drawn
-    // sprite is)
+    // this is relative to the player position (which is always considered to
+    // be where the center of the bottom border of the drawn sprite is)
     SDL_FRect collision_box_offsets;
+    // same thing goes for hurtbox_offsets
+    SDL_FRect hurtbox_offsets;
     // same thing goes for shadow_offset
     SDL_FRect shadow_offsets;
 
