@@ -2,9 +2,9 @@
 
 #define internal static
 
-#define SHOW_COLLISION_BOXES 1
-#define SHOW_HURTBOXES       1
-#define SHOW_HITBOXES        1
+#define SHOW_COLLISION_BOXES 0
+#define SHOW_HURTBOXES       0
+#define SHOW_HITBOXES        0
 #define DEV_MODE             1
 
 const f32 COLLISION_BOX_COLORS[] = {255, 2, 0, 200};

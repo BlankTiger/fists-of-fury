@@ -581,17 +581,17 @@ void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
 
     // drawing debug *box
     {
-        #if SHOW_COLLISION_BOXES || DEV_MODE
+        #if SHOW_COLLISION_BOXES
         draw_collision_box(r, world_coords, p.collision_box_offsets, g);
         #endif
 
         // this is so that both hurtbox and hitbox go along with the player when he jumps
         world_coords.y += p.z;
-        #if SHOW_HURTBOXES || DEV_MODE
+        #if SHOW_HURTBOXES
         draw_hurtbox(r, world_coords, p.hurtbox_offsets, g);
         #endif
 
-        #if SHOW_HITBOXES || DEV_MODE
+        #if SHOW_HITBOXES
         draw_hitbox(r, world_coords, p.hitbox_offsets, g);
         #endif
     }

@@ -46,11 +46,11 @@ void barrel_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
     draw_shadow(r, world_coords, e.shadow_offsets, g);
 
     {
-        #if SHOW_COLLISION_BOXES || DEV_MODE
+        #if SHOW_COLLISION_BOXES
         draw_collision_box(r, world_coords, e.collision_box_offsets, g);
         #endif
 
-        #if SHOW_HITBOXES || DEV_MODE
+        #if SHOW_HITBOXES
         draw_hitbox(r, world_coords, e.hitbox_offsets, g);
         #endif
 
