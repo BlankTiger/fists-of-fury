@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC)
-    add_compile_options(/W4 /WX)
+    add_compile_options()
 else()
     add_compile_options(-Wall -Wextra -Wpedantic -Wcast-align -ggdb -O0 -Werror=switch)
 endif()
@@ -37,5 +37,10 @@ if(WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL3::SDL3>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3_image::SDL3_image>
         $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 endif()
