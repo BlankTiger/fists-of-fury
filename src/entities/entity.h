@@ -56,6 +56,8 @@ struct Dmg {
     Vec2<f32> dir;
 };
 
+enum struct Barrel_State : u32 { Idle, Destroyed };
+
 struct Entity {
     int health;
     int damage;
@@ -97,6 +99,10 @@ struct Entity {
         } extra_player;
 
         struct {} extra_enemy;
+
+        struct {
+            Barrel_State state;
+        } extra_barrel;
     };
 };
 

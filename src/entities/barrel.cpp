@@ -17,17 +17,33 @@ Entity barrel_init() {
     barrel.hitbox_offsets        = {-barrel_w/4.5f, -20, barrel_w*2/4.5f, 13};
     barrel.collision_box_offsets = {-barrel_w/4.5f, -6, barrel_w*2/4.5f, 4};
     barrel.shadow_offsets        = {-barrel_w/5, -2, barrel_w*2/5, 3};
+    barrel.extra_barrel.state    = Barrel_State::Idle;
     return barrel;
 }
 
 Update_Result barrel_update(Entity& e, Game& g) {
     assert(e.type == Entity_Type::Barrel);
 
-    while (!e.damage_queue.empty()) {
-        const auto dmg = e.damage_queue.back();
-        e.health -= dmg.amount;
-        e.damage_queue.pop_back();
-        if (e.health <= 0) return Update_Result::Remove_Me;
+    switch (e.extra_barrel.state) {
+        case (Barrel_State::Idle): {
+            while (!e.damage_queue.empty()) {
+                const auto dmg = e.damage_queue.back();
+                e.health -= dmg.amount;
+                e.damage_queue.pop_back();
+                if (e.health <= 0) {
+                    e.extra_barrel.state = Barrel_State::Destroyed;
+                    // start the animation here
+                }
+            }
+            return Update_Result::None;
+            break;
+        }
+
+        case (Barrel_State::Destroyed): {
+            // if animation is finished
+            return Update_Result::Remove_Me;
+            break;
+        }
     }
 
     return Update_Result::None;
