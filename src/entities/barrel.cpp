@@ -4,14 +4,14 @@
 #include "../draw.h"
 #include "../settings.h"
 
-Entity barrel_init() {
+Entity barrel_init(Barrel_Init_Opts opts) {
     const f32 barrel_w = 32;
     const f32 barrel_h = 32;
     Entity barrel{};
-    barrel.health                = 20;
     barrel.type                  = Entity_Type::Barrel;
-    barrel.x                     = SCREEN_WIDTH / 2;
-    barrel.y                     = 45;
+    barrel.x                     = opts.x;
+    barrel.y                     = opts.y;
+    barrel.health                = opts.health;
     barrel.sprite_frame_w        = barrel_w;
     barrel.sprite_frame_h        = barrel_h;
     barrel.hitbox_offsets        = {-barrel_w/4.5f, -20, barrel_w*2/4.5f, 13};

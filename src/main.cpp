@@ -97,8 +97,19 @@ internal bool init() {
     }
 
     {
-        Entity barrel = barrel_init();
+        Entity barrel = barrel_init({
+            .x = SCREEN_WIDTH / 2,
+            .y = 38,
+            .health = 20
+        });
         g.entities.push_back(barrel);
+
+        Entity barrel2 = barrel_init({
+            .x = SCREEN_WIDTH,
+            .y = 38,
+            .health = 20
+        });
+        g.entities.push_back(barrel2);
     }
 
     {
