@@ -25,7 +25,7 @@ Update_Result barrel_update(Entity& e, Game& g) {
 
     while (!e.damage_queue.empty()) {
         const auto dmg = e.damage_queue.back();
-        e.health -= dmg;
+        e.health -= dmg.amount;
         e.damage_queue.pop_back();
         if (e.health <= 0) return Update_Result::Remove_Me;
     }

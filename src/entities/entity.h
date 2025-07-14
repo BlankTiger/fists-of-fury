@@ -51,6 +51,11 @@ enum struct Player_Anim : u32 {
     Landing
 };
 
+struct Dmg {
+    f32       amount;
+    Vec2<f32> dir;
+};
+
 struct Entity {
     int health;
     int damage;
@@ -61,7 +66,7 @@ struct Entity {
     f32 z_vel;
 
     // used to collect all the received damage in a frame
-    std::vector<f32> damage_queue;
+    std::vector<Dmg> damage_queue;
 
     f32 sprite_frame_w;
     f32 sprite_frame_h;

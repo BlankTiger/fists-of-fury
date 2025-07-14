@@ -346,7 +346,7 @@ internal void handle_player_attack(Entity& p, Game& g) {
         SDL_FRect player_hurtbox = entity_get_world_hurtbox(p);
         SDL_FRect entity_hitbox = entity_get_world_hitbox(e);
         if (SDL_HasRectIntersectionFloat(&entity_hitbox, &player_hurtbox)) {
-            e.damage_queue.push_back(p.damage);
+            e.damage_queue.push_back({p.damage, {}});
         }
     }
 }
