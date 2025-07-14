@@ -321,22 +321,14 @@ internal void handle_movement(Entity& p, const Game& g) {
     }
 
     // rotate the hurtbox around the player when turning
-    switch (p.dir) {
-        case Direction::Left: {
-            p.hurtbox_offsets.x = -std::fabs(p.hurtbox_offsets.x);
-            p.hurtbox_offsets.w = -std::fabs(p.hurtbox_offsets.w);
-            break;
+    if (p.dir != p.dir_prev) {
+        if ((p.dir_prev == Direction::Right && p.dir == Direction::Left) ||
+            (p.dir_prev == Direction::Left  && p.dir == Direction::Right)) {
+            p.hurtbox_offsets.x = -p.hurtbox_offsets.x - p.hurtbox_offsets.w;
         }
-
-        case Direction::Right: {
-            p.hurtbox_offsets.x = std::fabs(p.hurtbox_offsets.x);
-            p.hurtbox_offsets.w = std::fabs(p.hurtbox_offsets.w);
-            break;
-        }
-
-        case Direction::Up: break;
-        case Direction::Down: break;
     }
+
+    p.dir_prev = p.dir;
 }
 
 internal void handle_player_attack(Entity& p, Game& g) {

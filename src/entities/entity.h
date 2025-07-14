@@ -74,6 +74,7 @@ struct Entity {
     f32 sprite_frame_h;
     u32 idx_anim;
     Direction dir;
+    Direction dir_prev;
 
     // this is relative to the player position (which is always considered to
     // be where the center of the bottom border of the drawn sprite is)
