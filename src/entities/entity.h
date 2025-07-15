@@ -74,7 +74,6 @@ struct Entity {
 
     f32 sprite_frame_w;
     f32 sprite_frame_h;
-    u32 idx_anim;
     Direction dir;
     Direction dir_prev;
 
