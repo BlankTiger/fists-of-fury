@@ -136,7 +136,7 @@ internal Update_Result update_entity(Entity& e) {
         }
 
         case Entity_Type::Barrel: {
-            res = barrel_update(e, g);
+            res = barrel_update(e);
             break;
         }
     }
@@ -264,7 +264,7 @@ int main() {
         a    = SDL_GetTicks();
         g.dt = a - b;
 
-        if (g.dt > 1000 / FPS_MAX) {
+        if (g.dt > 1000 / settings.fps_max) {
             b = a;
             update(g);
             draw(g);

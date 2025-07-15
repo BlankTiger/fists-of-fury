@@ -22,7 +22,7 @@ void draw_collision_box(SDL_Renderer* r, const Vec2<f32>& world_coords, const SD
         offsets.w,
         offsets.h
     };
-    _draw_box(r, collision_box_screen, COLLISION_BOX_COLORS);
+    _draw_box(r, collision_box_screen, settings.collision_box_colors);
 }
 
 void draw_hurtbox(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRect& hurtbox_offsets, const Game& g) {
@@ -32,7 +32,7 @@ void draw_hurtbox(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRec
         hurtbox_offsets.w,
         hurtbox_offsets.h
     };
-    _draw_box(r, hurtbox_screen, HURTBOX_COLORS);
+    _draw_box(r, hurtbox_screen, settings.hurtbox_colors);
 }
 
 void draw_hitbox(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRect& hitbox_offsets, const Game& g) {
@@ -42,7 +42,7 @@ void draw_hitbox(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRect
         hitbox_offsets.w,
         hitbox_offsets.h
     };
-    _draw_box(r, hitbox_screen, HITBOX_COLORS);
+    _draw_box(r, hitbox_screen, settings.hitbox_colors);
 }
 
 void draw_level(SDL_Renderer* r, const Game& g) {

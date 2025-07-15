@@ -22,7 +22,7 @@ Entity barrel_init(Barrel_Init_Opts opts) {
     return barrel;
 }
 
-Update_Result barrel_update(Entity& e, Game& g) {
+Update_Result barrel_update(Entity& e) {
     assert(e.type == Entity_Type::Barrel);
 
     switch (e.extra_barrel.state) {

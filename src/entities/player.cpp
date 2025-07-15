@@ -351,7 +351,7 @@ internal void player_punch(Entity& p, Game& g) {
 
 internal void player_takeoff(Entity& p) {
     p.extra_player.state = Player_State::Takeoff;
-    p.z_vel = JUMP_VELOCITY;
+    p.z_vel = settings.jump_velocity;
     animation_start(p.anim, (u32)Player_Anim::Takeoff, false, 200);
 }
 
@@ -382,12 +382,12 @@ internal void player_run(Entity& p) {
 }
 
 internal void handle_jump_physics(Entity& p, const Game& g) {
-    p.z_vel += GRAVITY * g.dt;
+    p.z_vel += settings.gravity * g.dt;
     p.z += p.z_vel * g.dt;
 
     // remember that this is reversed (up means negative, down means positive)
-    if (p.z >= GROUND_LEVEL) {
-        p.z = GROUND_LEVEL;
+    if (p.z >= settings.ground_level) {
+        p.z = settings.ground_level;
         p.z_vel = 0.0f;
         if (p.extra_player.state == Player_State::Jumping) {
             player_land(p);
@@ -506,7 +506,7 @@ Update_Result player_update(Entity& p, Game& g) {
         case Player_State::Kicking_Drop: {
             // deal damage if in hitbox
 
-            if (p.z == GROUND_LEVEL) {
+            if (p.z == settings.ground_level) {
                 player_stand(p);
             }
 
