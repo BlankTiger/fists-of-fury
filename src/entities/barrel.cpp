@@ -18,6 +18,7 @@ Entity barrel_init(Barrel_Init_Opts opts) {
     barrel.collision_box_offsets = {-barrel_w/4.5f, -6, barrel_w*2/4.5f, 4};
     barrel.shadow_offsets        = {-barrel_w/5, -2, barrel_w*2/5, 3};
     barrel.extra_barrel.state    = Barrel_State::Idle;
+    barrel.anim.sprite           = opts.sprite;
     return barrel;
 }
 

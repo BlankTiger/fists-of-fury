@@ -83,7 +83,7 @@ internal bool init() {
 
     // player setup
     {
-        Entity player = player_init();
+        Entity player = player_init(&g.sprite_player);
         g.entities.push_back(player);
         g.idx_player = g.entities.size() - 1;
     }
@@ -100,14 +100,16 @@ internal bool init() {
         Entity barrel = barrel_init({
             .x = SCREEN_WIDTH / 2,
             .y = 38,
-            .health = 20
+            .health = 20,
+            .sprite = &g.sprite_barrel,
         });
         g.entities.push_back(barrel);
 
         Entity barrel2 = barrel_init({
             .x = SCREEN_WIDTH,
             .y = 38,
-            .health = 20
+            .health = 20,
+            .sprite = &g.sprite_barrel,
         });
         g.entities.push_back(barrel2);
     }

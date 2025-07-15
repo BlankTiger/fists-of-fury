@@ -1,13 +1,9 @@
 #pragma once
 
 #include <span>
+#include <SDL3/SDL.h>
 
 #include "number_types.h"
-
-// forward declaration to omit including SDL3
-struct SDL_Texture;
-struct SDL_Renderer;
-struct SDL_FRect;
 
 struct Img {
     SDL_Texture* img;

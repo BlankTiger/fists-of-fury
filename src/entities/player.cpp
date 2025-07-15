@@ -7,7 +7,7 @@
 #include "../settings.h"
 #include "../draw.h"
 
-Entity player_init() {
+Entity player_init(const Sprite* player_sprite) {
     const auto sprite_frame_h = 48;
     const auto sprite_frame_w = 48;
     Entity player{};
@@ -24,37 +24,11 @@ Entity player_init() {
     player.hitbox_offsets            = {-sprite_frame_w/6.5f, -23, 2*sprite_frame_w/6.5f, 23};
     player.shadow_offsets            = {-7, -1, 14, 2};
     player.extra_player.state        = Player_State::Standing;
-    start_animation(player, (u32)Player_Anim::Standing, true);
+    player.anim.sprite               = player_sprite;
+    animation_start(player.anim, (u32)Player_Anim::Standing, true);
     return player;
 }
 
-
-internal bool is_animation_finished(const Entity& e, const Game& g) {
-    if (!e.animation_playing) return true;
-    if (e.animation_loop) return false;
-    return e.current_frame >= g.sprite_player.frames_in_each_row[e.idx_anim] - 1;
-}
-
-internal void update_animation(Entity& e, const Game& g) {
-    if (!e.animation_playing) return;
-
-    u64 current_time = SDL_GetTicks();
-    if (current_time - e.last_frame_time >= e.frame_duration_ms) {
-        e.current_frame++;
-        e.last_frame_time = current_time;
-
-        // Check if animation finished
-        if (e.current_frame >= g.sprite_player.frames_in_each_row[e.idx_anim]) {
-            if (e.animation_loop) {
-                e.current_frame = 0; // Loop back to start
-            } else {
-                e.animation_playing = false;
-                // loop the last frame until we start another animation
-                e.current_frame -= 1;
-            }
-        }
-    }
-}
 
 internal void update_borders_for_curr_level(Game& g) {
     auto new_left   = level_info_get_collision_box(g.curr_level_info, Border::Left);
@@ -338,7 +312,7 @@ internal void handle_player_attack(Entity& p, Game& g) {
         SDL_FRect player_hurtbox = entity_get_world_hurtbox(p);
         SDL_FRect entity_hitbox = entity_get_world_hitbox(e);
         if (SDL_HasRectIntersectionFloat(&entity_hitbox, &player_hurtbox)) {
-            e.damage_queue.push_back({p.damage, {}});
+            e.damage_queue.push_back({(f32)p.damage, {}});
         }
     }
 }
@@ -347,13 +321,13 @@ internal void player_kick(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Kicking;
     switch (g.input.last_kick) {
         case Kick_State::Right: {
-            start_animation(p, (u32)Player_Anim::Kicking_Right, false, 80);
+            animation_start(p.anim, (u32)Player_Anim::Kicking_Right, false, 80);
             g.input.last_kick = Kick_State::Left;
             break;
         }
 
         case Kick_State::Left: {
-            start_animation(p, (u32)Player_Anim::Kicking_Left, false, 50);
+            animation_start(p.anim, (u32)Player_Anim::Kicking_Left, false, 50);
             g.input.last_kick = Kick_State::Right;
             break;
         }
@@ -365,10 +339,10 @@ internal void player_kick(Entity& p, Game& g) {
 internal void player_punch(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Punching;
     if (g.input.last_punch_was_left) {
-        start_animation(p, (u32)Player_Anim::Punching_Right, false, 60);
+        animation_start(p.anim, (u32)Player_Anim::Punching_Right, false, 60);
         g.input.last_punch_was_left = false;
     } else {
-        start_animation(p, (u32)Player_Anim::Punching_Left, false, 60);
+        animation_start(p.anim, (u32)Player_Anim::Punching_Left, false, 60);
         g.input.last_punch_was_left = true;
     }
 
@@ -378,33 +352,33 @@ internal void player_punch(Entity& p, Game& g) {
 internal void player_takeoff(Entity& p) {
     p.extra_player.state = Player_State::Takeoff;
     p.z_vel = JUMP_VELOCITY;
-    start_animation(p, (u32)Player_Anim::Takeoff, false, 200);
+    animation_start(p.anim, (u32)Player_Anim::Takeoff, false, 200);
 }
 
 internal void player_jump(Entity& p) {
     p.extra_player.state = Player_State::Jumping;
-    start_animation(p, (u32)Player_Anim::Jumping, true);
+    animation_start(p.anim, (u32)Player_Anim::Jumping, true);
 }
 
 internal void player_land(Entity& p) {
     p.extra_player.state = Player_State::Landing;
-    start_animation(p, (u32)Player_Anim::Landing, false);
+    animation_start(p.anim, (u32)Player_Anim::Landing, false);
 }
 
 internal void player_drop_kick(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Kicking_Drop;
-    start_animation(p, (u32)Player_Anim::Kicking_Drop, false, 80);
+    animation_start(p.anim, (u32)Player_Anim::Kicking_Drop, false, 80);
     handle_player_attack(p, g);
 }
 
 internal void player_stand(Entity& p) {
     p.extra_player.state = Player_State::Standing;
-    start_animation(p, (u32)Player_Anim::Standing, true);
+    animation_start(p.anim, (u32)Player_Anim::Standing, true);
 }
 
 internal void player_run(Entity& p) {
     p.extra_player.state = Player_State::Running;
-    start_animation(p, (u32)Player_Anim::Running, true);
+    animation_start(p.anim, (u32)Player_Anim::Running, true);
 }
 
 internal void handle_jump_physics(Entity& p, const Game& g) {
@@ -466,7 +440,7 @@ Update_Result player_update(Entity& p, Game& g) {
         case Player_State::Punching: {
             // deal damage if in hitbox
 
-            if (is_animation_finished(p, g)) {
+            if (animation_is_finished(p.anim)) {
                 player_stand(p);
             }
 
@@ -476,7 +450,7 @@ Update_Result player_update(Entity& p, Game& g) {
         case Player_State::Kicking: {
             // deal damage if in hitbox
 
-            if (is_animation_finished(p, g)) {
+            if (animation_is_finished(p.anim)) {
                 player_stand(p);
             }
 
@@ -494,7 +468,7 @@ Update_Result player_update(Entity& p, Game& g) {
         }
 
         case Player_State::Takeoff: {
-            if (is_animation_finished(p, g)) {
+            if (animation_is_finished(p.anim)) {
                 player_jump(p);
             }
 
@@ -508,7 +482,7 @@ Update_Result player_update(Entity& p, Game& g) {
             if (just_pressed(g, Action::Kick)) {
                 player_drop_kick(p, g);
             }
-            else if (is_animation_finished(p, g)) {
+            else if (animation_is_finished(p.anim)) {
                 player_land(p);
             }
 
@@ -519,7 +493,7 @@ Update_Result player_update(Entity& p, Game& g) {
         }
 
         case Player_State::Landing: {
-            if (is_animation_finished(p, g)) {
+            if (animation_is_finished(p.anim)) {
                 player_stand(p);
             }
 
@@ -543,7 +517,7 @@ Update_Result player_update(Entity& p, Game& g) {
         }
     }
 
-    update_animation(p, g);
+    animation_update(p.anim);
     camera_update(p, g);
 
     return Update_Result::None;
@@ -562,8 +536,8 @@ void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
         r,
         screen_coords.x,
         screen_coords.y,
-        p.idx_anim,
-        p.current_frame,
+        p.anim.idx,
+        p.anim.frame_current,
         flip
     );
     if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());

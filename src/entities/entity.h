@@ -4,6 +4,8 @@
 #include <SDL3/SDL.h>
 #include "../number_types.h"
 #include "../vec2.h"
+#include "../animation.h"
+#include "../sprite.h"
 
 enum struct Direction {
     Up,
@@ -86,11 +88,8 @@ struct Entity {
     // same thing goes for shadow_offset
     SDL_FRect shadow_offsets;
 
-    u32 current_frame      = 0;     // Current frame in the animation
-    u64 last_frame_time    = 0;     // When the last frame was shown
-    u64 frame_duration_ms  = 100;   // Milliseconds per frame
-    bool animation_playing = false;
-    bool animation_loop    = true;  // Whether this animation should loop
+    const Sprite* sprite;
+    Animation     anim;
 
     // extra data unique to an Entity_Type
     Entity_Type type;
@@ -107,7 +106,6 @@ struct Entity {
     };
 };
 
-void start_animation(Entity& e, u32 anim_idx, bool should_loop, u64 frame_time);
 // gives coordinates such that when they are used to draw the center point of the bottom border
 // of the sprite is at the entity x, y
 Vec2<f32> entity_offset_to_bottom_center(const Entity& e);

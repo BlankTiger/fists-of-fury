@@ -3,11 +3,13 @@
 #include <SDL3/SDL.h>
 #include "entity.h"
 #include "../game.h"
+#include "../sprite.h"
 
 struct Barrel_Init_Opts { 
-    f32 x; 
-    f32 y;
-    f32 health = 20;
+    f32           x; 
+    f32           y;
+    f32           health = 20;
+    const Sprite* sprite;
 };
 
 Entity barrel_init(Barrel_Init_Opts opts);
