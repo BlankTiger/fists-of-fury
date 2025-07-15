@@ -30,7 +30,7 @@ Entity player_init(const Sprite* player_sprite) {
 }
 
 
-internal void update_borders_for_curr_level(Game& g) {
+static void update_borders_for_curr_level(Game& g) {
     auto new_left   = level_info_get_collision_box(g.curr_level_info, Border::Left);
     auto new_top    = level_info_get_collision_box(g.curr_level_info, Border::Top);
     auto new_bottom = level_info_get_collision_box(g.curr_level_info, Border::Bottom);
@@ -45,7 +45,7 @@ internal void update_borders_for_curr_level(Game& g) {
 
 const f32 w_half_screen = SCREEN_WIDTH / 2;
 
-internal void camera_update(const Entity& player, Game& g) {
+static void camera_update(const Entity& player, Game& g) {
     f32 player_screen_pos = player.x - g.camera.x;
 
     // Only move camera right when player crosses halfway point
@@ -70,11 +70,11 @@ internal void camera_update(const Entity& player, Game& g) {
     }
 }
 
-internal bool input_pressed(bool curr, bool prev) {
+static bool input_pressed(bool curr, bool prev) {
     return curr && !prev;
 }
 
-// internal bool input_released(bool curr, bool prev) {
+// static bool input_released(bool curr, bool prev) {
 //     return !curr && prev;
 // }
 
@@ -88,7 +88,7 @@ enum struct Action {
     Jump
 };
 
-internal bool is_pressed(const Game& g, Action a) {
+static bool is_pressed(const Game& g, Action a) {
     switch (a) {
         case Action::Punch: {
             return g.input.punch;
@@ -129,7 +129,7 @@ internal bool is_pressed(const Game& g, Action a) {
     return false;
 }
 
-internal bool just_pressed(const Game& g, Action a) {
+static bool just_pressed(const Game& g, Action a) {
     switch (a) {
         case Action::Punch: {
             return input_pressed(g.input.punch, g.input_prev.punch);
@@ -170,7 +170,7 @@ internal bool just_pressed(const Game& g, Action a) {
     return false;
 }
 
-internal bool not_pressed(const Game& g, Action a) {
+static bool not_pressed(const Game& g, Action a) {
     switch (a) {
         case Action::Left: {
             return !g.input.left;
@@ -211,21 +211,21 @@ internal bool not_pressed(const Game& g, Action a) {
     return true;
 }
 
-internal bool started_moving(const Game& g) {
+static bool started_moving(const Game& g) {
     return is_pressed(g, Action::Up)
         || is_pressed(g, Action::Down)
         || is_pressed(g, Action::Left)
         || is_pressed(g, Action::Right);
 }
 
-internal bool stopped_moving(const Game& g) {
+static bool stopped_moving(const Game& g) {
     return not_pressed(g, Action::Up)
         && not_pressed(g, Action::Down)
         && not_pressed(g, Action::Left)
         && not_pressed(g, Action::Right);
 }
 
-internal void handle_movement(Entity& p, const Game& g) {
+static void handle_movement(Entity& p, const Game& g) {
     const auto in = g.input;
 
     bool is_moving = false;
@@ -305,7 +305,7 @@ internal void handle_movement(Entity& p, const Game& g) {
     p.dir_prev = p.dir;
 }
 
-internal void handle_player_attack(Entity& p, Game& g) {
+static void handle_player_attack(Entity& p, Game& g) {
     for (auto& e : g.entities) {
         if (e.type == Entity_Type::Player) continue;
 
@@ -317,7 +317,7 @@ internal void handle_player_attack(Entity& p, Game& g) {
     }
 }
 
-internal void player_kick(Entity& p, Game& g) {
+static void player_kick(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Kicking;
     switch (g.input.last_kick) {
         case Kick_State::Right: {
@@ -336,7 +336,7 @@ internal void player_kick(Entity& p, Game& g) {
     handle_player_attack(p, g);
 }
 
-internal void player_punch(Entity& p, Game& g) {
+static void player_punch(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Punching;
     if (g.input.last_punch_was_left) {
         animation_start(p.anim, (u32)Player_Anim::Punching_Right, false, 60);
@@ -349,39 +349,39 @@ internal void player_punch(Entity& p, Game& g) {
     handle_player_attack(p, g);
 }
 
-internal void player_takeoff(Entity& p) {
+static void player_takeoff(Entity& p) {
     p.extra_player.state = Player_State::Takeoff;
     p.z_vel = settings.jump_velocity;
     animation_start(p.anim, (u32)Player_Anim::Takeoff, false, 200);
 }
 
-internal void player_jump(Entity& p) {
+static void player_jump(Entity& p) {
     p.extra_player.state = Player_State::Jumping;
     animation_start(p.anim, (u32)Player_Anim::Jumping, true);
 }
 
-internal void player_land(Entity& p) {
+static void player_land(Entity& p) {
     p.extra_player.state = Player_State::Landing;
     animation_start(p.anim, (u32)Player_Anim::Landing, false);
 }
 
-internal void player_drop_kick(Entity& p, Game& g) {
+static void player_drop_kick(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Kicking_Drop;
     animation_start(p.anim, (u32)Player_Anim::Kicking_Drop, false, 80);
     handle_player_attack(p, g);
 }
 
-internal void player_stand(Entity& p) {
+static void player_stand(Entity& p) {
     p.extra_player.state = Player_State::Standing;
     animation_start(p.anim, (u32)Player_Anim::Standing, true);
 }
 
-internal void player_run(Entity& p) {
+static void player_run(Entity& p) {
     p.extra_player.state = Player_State::Running;
     animation_start(p.anim, (u32)Player_Anim::Running, true);
 }
 
-internal void handle_jump_physics(Entity& p, const Game& g) {
+static void handle_jump_physics(Entity& p, const Game& g) {
     p.z_vel += settings.gravity * g.dt;
     p.z += p.z_vel * g.dt;
 
@@ -547,18 +547,12 @@ void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
 
     // drawing debug *box
     {
-        #if SHOW_COLLISION_BOXES
-        draw_collision_box(r, world_coords, p.collision_box_offsets, g);
-        #endif
+        if (settings.show_collision_boxes) draw_collision_box(r, world_coords, p.collision_box_offsets, g);
 
         // this is so that both hurtbox and hitbox go along with the player when he jumps
         world_coords.y += p.z;
-        #if SHOW_HURTBOXES
-        draw_hurtbox(r, world_coords, p.hurtbox_offsets, g);
-        #endif
+        if (settings.show_hurtboxes) draw_hurtbox(r, world_coords, p.hurtbox_offsets, g);
 
-        #if SHOW_HITBOXES
-        draw_hitbox(r, world_coords, p.hitbox_offsets, g);
-        #endif
+        if (settings.show_hitboxes) draw_hitbox(r, world_coords, p.hitbox_offsets, g);
     }
 }

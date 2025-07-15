@@ -17,7 +17,7 @@
 
 static Game g = {};
 
-internal bool init() {
+static bool init() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("SDL could not initialize! SDL err: %s\n", SDL_GetError());
         return false;
@@ -122,7 +122,7 @@ internal bool init() {
     return true;
 }
 
-internal Update_Result update_entity(Entity& e) {
+static Update_Result update_entity(Entity& e) {
     Update_Result res;
 
     switch (e.type) {
@@ -145,7 +145,7 @@ internal Update_Result update_entity(Entity& e) {
     return res;
 }
 
-internal void y_sort_entities(Game& g) {
+static void y_sort_entities(Game& g) {
     if (g.sorted_indices.size() != g.entities.size()) {
         g.sorted_indices.clear();
         g.sorted_indices.reserve(g.entities.size());
@@ -158,7 +158,7 @@ internal void y_sort_entities(Game& g) {
     std::sort(g.sorted_indices.begin(), g.sorted_indices.end(), sort_fn);
 }
 
-internal void update(Game& g) {
+static void update(Game& g) {
     for (u64 idx = 0; idx < g.entities.size(); idx++) {
         auto res = update_entity(g.entities[idx]);
         if (res == Update_Result::Remove_Me) g.removal_queue.push_back(idx);
@@ -178,7 +178,7 @@ internal void update(Game& g) {
     debug_menu_update(g.menu);
 }
 
-internal void draw_entity(SDL_Renderer* r, Entity e) {
+static void draw_entity(SDL_Renderer* r, Entity e) {
     switch (e.type) {
         case Entity_Type::Player: {
             player_draw(r, e, g);
@@ -197,7 +197,7 @@ internal void draw_entity(SDL_Renderer* r, Entity e) {
     }
 }
 
-internal void draw(const Game& g) {
+static void draw(const Game& g) {
     SDL_RenderClear(g.renderer);
 
     draw_level(g.renderer, g);
@@ -226,7 +226,7 @@ Key_Binding bindings[] = {
     {SDLK_SPACE, &g.input.jump},
 };
 
-internal void handle_input(const SDL_Event& e) {
+static void handle_input(const SDL_Event& e) {
     bool pressed = (e.type == SDL_EVENT_KEY_DOWN);
     for (auto& binding : bindings) {
         if (e.key.key == binding.key) {

@@ -8,9 +8,9 @@ void enemy_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
 
     const SDL_FRect dst = {screen_x, screen_y, g.entity_shadow.width, g.entity_shadow.height};
     SDL_RenderTexture(r, g.entity_shadow.img, NULL, &dst);
-    #if SHOW_COLLISION_BOXES
-    // TODO: Add collision box drawing with camera offset
-    #endif
+    if (settings.show_collision_boxes) {
+        // TODO: Add collision box drawing with camera offset
+    }
 }
 
 Update_Result enemy_update(Entity& e) {

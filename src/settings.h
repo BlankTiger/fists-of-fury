@@ -1,8 +1,7 @@
 #pragma once
 
+#include <array>
 #include "number_types.h"
-
-#define internal static
 
 const int SCREEN_WIDTH  = 100;
 const int SCREEN_HEIGHT = 64;
@@ -15,9 +14,14 @@ struct Settings {
     bool show_hitboxes         = true;
     bool dev_mode              = true;
 
-    f32 collision_box_colors[4] = {255, 2, 0, 200};
-    f32 hurtbox_colors[4]       = {2, 255, 0, 200};
-    f32 hitbox_colors[4]        = {0, 2, 255, 200};
+    std::array<f32, 4> collision_box_colors_border = {255,      2,        0,        200};
+    std::array<f32, 4> collision_box_colors_fill   = {255/2.0f, 2/2.0f,   0/2.0f,   200/2.0f};
+
+    std::array<f32, 4> hurtbox_colors_border       = {2,        255,      0,        200};
+    std::array<f32, 4> hurtbox_colors_fill         = {2/2.0f,   255/2.0f, 0/2.0f,   200/2.0f};
+
+    std::array<f32, 4> hitbox_colors_border        = {0,        2,        255,      200};
+    std::array<f32, 4> hitbox_colors_fill          = {0/2.0f,   2/2.0f,   255/2.0f, 200/2.0f};
 
     f32 fps_max       = 144.0f;
     f32 gravity       = 0.00038f;
