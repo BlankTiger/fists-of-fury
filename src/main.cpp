@@ -9,6 +9,7 @@
 #include "number_types.h"
 #include "settings.h"
 #include "draw.h"
+#include "debug_menu.h"
 
 #include "entities/player.h"
 #include "entities/enemy.h"
@@ -173,6 +174,8 @@ internal void update(Game& g) {
     g.input_prev  = g.input;
     g.input.punch = false;
     g.input.kick  = false;
+
+    debug_menu_update(g.menu);
 }
 
 internal void draw_entity(SDL_Renderer* r, Entity e) {
@@ -203,6 +206,8 @@ internal void draw(const Game& g) {
         draw_entity(g.renderer, g.entities[idx_sorted]);
     }
 
+    debug_menu_draw(g.menu, g.renderer);
+
     SDL_RenderPresent(g.renderer);
 }
 
@@ -228,6 +233,11 @@ internal void handle_input(const SDL_Event& e) {
             *binding.input_field = pressed;
             break;
         }
+    }
+
+    // toggle debug menu
+    if (e.key.key == SDLK_TAB) {
+        g.menu.show = !g.menu.show;
     }
 }
 

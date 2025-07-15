@@ -9,6 +9,7 @@
 #include "level_info.h"
 #include "entities/entity.h"
 #include "vec2.h"
+#include "debug_menu.h"
 
 enum struct Update_Result { Remove_Me, None };
 
@@ -32,6 +33,8 @@ using Camera = SDL_FRect;
 struct Game {
     SDL_Window*   window;
     SDL_Renderer* renderer;
+
+    Debug_Menu menu;
 
     Img bg;
     Img entity_shadow;
