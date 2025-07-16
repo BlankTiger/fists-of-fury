@@ -1,3 +1,5 @@
+#include <SDL3_ttf/SDL_ttf.h>
+
 #include "draw.h"
 #include "settings.h"
 
@@ -75,4 +77,8 @@ void draw_shadow(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRect
 
 void draw_box(SDL_Renderer* r, const SDL_FRect dst, const Draw_Box_Opts& opts) {
     _draw_box(r, dst, opts.colors_border, opts.colors_fill);
+}
+
+void draw_text(SDL_Renderer* r, const SDL_FRect dst, const Draw_Text_Opts& opts) {
+
 }

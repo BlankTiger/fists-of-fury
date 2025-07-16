@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include "sprite.h"
 #include "level_info.h"
@@ -35,6 +36,9 @@ struct Game {
     SDL_Renderer* renderer;
 
     Debug_Menu menu;
+
+    TTF_Font* font_tiny_mono;
+    TTF_Font* font_press_start_2p;
 
     Img bg;
     Img entity_shadow;

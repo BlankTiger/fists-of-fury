@@ -13,6 +13,7 @@ endif()
 
 add_subdirectory(vendor/SDL)
 add_subdirectory(vendor/SDL_image)
+add_subdirectory(vendor/SDL_ttf)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
@@ -32,8 +33,9 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE
-    SDL3_image::SDL3_image
     SDL3::SDL3
+    SDL3_image::SDL3_image
+    SDL3_ttf::SDL3_ttf
 )
 
 if(WIN32)
@@ -45,5 +47,10 @@ if(WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL3_image::SDL3_image>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
         $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 endif()

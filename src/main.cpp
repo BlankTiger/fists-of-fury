@@ -1,4 +1,5 @@
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include <algorithm>
 #include <iostream>
@@ -52,6 +53,26 @@ static bool init() {
         );
         if (!ok) {
             SDL_Log("Could not set logical presentation! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+    }
+
+    if (!TTF_Init()) {
+        SDL_Log("SDL_ttf could not initialize! SDL err: %s\n", SDL_GetError());
+        return false;
+    }
+
+    // load fonts
+    {
+        g.font_tiny_mono = TTF_OpenFont("assets/fonts/tiny_mono.ttf", settings.font_size_default);
+        if (!g.font_tiny_mono) {
+            SDL_Log("SDL_ttf could not load tiny_mono! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+
+        g.font_press_start_2p = TTF_OpenFont("assets/fonts/PressStart2P.ttf", settings.font_size_default);
+        if (!g.font_press_start_2p) {
+            SDL_Log("SDL_ttf could not load PressStart2P! SDL err: %s\n", SDL_GetError());
             return false;
         }
     }

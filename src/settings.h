@@ -23,6 +23,9 @@ struct Settings {
     std::array<f32, 4> colors_hitbox_border        = {0,        2,        255,      200};
     std::array<f32, 4> colors_hitbox_fill          = {0/2.0f,   2/2.0f,   255/2.0f, 200/2.0f};
 
+    std::array<f32, 4> color_text                  = {0,        0,        0,        255};
+
+    f32 font_size_default = 9.0f;
     f32 fps_max       = 144.0f;
     f32 gravity       = 0.00038f;
     f32 jump_velocity = -0.15f;

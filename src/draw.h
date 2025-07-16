@@ -19,3 +19,9 @@ struct Draw_Box_Opts {
 };
 
 void draw_box(SDL_Renderer* r, const SDL_FRect dst, const Draw_Box_Opts& opts);
+
+struct Draw_Text_Opts {
+    std::array<f32, 4> color;
+};
+
+void draw_text(SDL_Renderer* r, const SDL_FRect dst, const Draw_Text_Opts& opts);
