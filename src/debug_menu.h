@@ -3,8 +3,12 @@
 #include "settings.h"
 
 struct Debug_Menu {
-    bool show   = false;
-    Settings& s = settings;
+    int width_font   = 12;
+    int width_border = 2;
+    int height_box   = 15;
+    int width_box    = 15;
+    bool show        = false;
+    Settings& s      = settings;
 };
 
 struct SDL_Renderer;

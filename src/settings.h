@@ -14,14 +14,14 @@ struct Settings {
     bool show_hitboxes         = true;
     bool dev_mode              = true;
 
-    std::array<f32, 4> collision_box_colors_border = {255,      2,        0,        200};
-    std::array<f32, 4> collision_box_colors_fill   = {255/2.0f, 2/2.0f,   0/2.0f,   200/2.0f};
+    std::array<f32, 4> colors_collision_box_border = {255,      2,        0,        200};
+    std::array<f32, 4> colors_collision_box_fill   = {255/2.0f, 2/2.0f,   0/2.0f,   200/2.0f};
 
-    std::array<f32, 4> hurtbox_colors_border       = {2,        255,      0,        200};
-    std::array<f32, 4> hurtbox_colors_fill         = {2/2.0f,   255/2.0f, 0/2.0f,   200/2.0f};
+    std::array<f32, 4> colors_hurtbox_border       = {2,        255,      0,        200};
+    std::array<f32, 4> colors_hurtbox_fill         = {2/2.0f,   255/2.0f, 0/2.0f,   200/2.0f};
 
-    std::array<f32, 4> hitbox_colors_border        = {0,        2,        255,      200};
-    std::array<f32, 4> hitbox_colors_fill          = {0/2.0f,   2/2.0f,   255/2.0f, 200/2.0f};
+    std::array<f32, 4> colors_hitbox_border        = {0,        2,        255,      200};
+    std::array<f32, 4> colors_hitbox_fill          = {0/2.0f,   2/2.0f,   255/2.0f, 200/2.0f};
 
     f32 fps_max       = 144.0f;
     f32 gravity       = 0.00038f;
