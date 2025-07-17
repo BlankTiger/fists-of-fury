@@ -19,6 +19,7 @@ Entity barrel_init(Barrel_Init_Opts opts) {
     barrel.shadow_offsets        = {-barrel_w/5, -2, barrel_w*2/5, 3};
     barrel.extra_barrel.state    = Barrel_State::Idle;
     barrel.anim.sprite           = opts.sprite;
+    animation_start(barrel.anim, { .anim_idx = (u32)Barrel_Anim::Idle });
     return barrel;
 }
 
@@ -33,7 +34,11 @@ Update_Result barrel_update(Entity& e) {
                 e.damage_queue.pop_back();
                 if (e.health <= 0) {
                     e.extra_barrel.state = Barrel_State::Destroyed;
-                    // start the animation here
+                    animation_start(e.anim, {
+                        .anim_idx = (u32)Barrel_Anim::Destroyed, 
+                        .frame_duration_ms = 50, 
+                        .fadeout = { .perc_per_sec = 33.0f }
+                    });
                 }
             }
             return Update_Result::None;
