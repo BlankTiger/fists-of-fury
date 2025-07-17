@@ -6,13 +6,16 @@
 
 #include <string>
 
-void debug_menu_update(Debug_Menu& dm) {}
+void debug_menu_update(Debug_Menu& dm) {
+    if (!dm.show) return;
+}
 
 static std::string debug_menu_get_content(const Debug_Menu& dm) {
     return "heyyyyy";
 }
 
 void debug_menu_draw(const Debug_Menu& dm, SDL_Renderer* r) {
+    if (!dm.show) return;
     const SDL_FRect dst_box = {0, 0, dm.width_box, dm.height_box};
     const Draw_Box_Opts opts_box = {
         .colors_border = settings.colors_collision_box_border,

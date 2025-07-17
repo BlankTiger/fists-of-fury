@@ -5,8 +5,8 @@
 struct Debug_Menu {
     int width_font   = 12;
     int width_border = 2;
-    int height_box   = 15;
-    int width_box    = 15;
+    int height_box   = SCREEN_HEIGHT * 3.0f/10.0f;
+    int width_box    = SCREEN_WIDTH  * 3.0f/10.0f;
     bool show        = false;
     Settings& s      = settings;
 };
