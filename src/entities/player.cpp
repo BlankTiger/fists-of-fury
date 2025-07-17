@@ -25,7 +25,7 @@ Entity player_init(const Sprite* player_sprite) {
     player.shadow_offsets            = {-7, -1, 14, 2};
     player.extra_player.state        = Player_State::Standing;
     player.anim.sprite               = player_sprite;
-    animation_start(player.anim, (u32)Player_Anim::Standing, true);
+    animation_start(player.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true});
     return player;
 }
 
@@ -321,13 +321,13 @@ static void player_kick(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Kicking;
     switch (g.input.last_kick) {
         case Kick_State::Right: {
-            animation_start(p.anim, (u32)Player_Anim::Kicking_Right, false, 80);
+            animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Kicking_Right, .looping = false, .frame_duration_ms = 80});
             g.input.last_kick = Kick_State::Left;
             break;
         }
 
         case Kick_State::Left: {
-            animation_start(p.anim, (u32)Player_Anim::Kicking_Left, false, 50);
+            animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Kicking_Left, .looping = false, .frame_duration_ms = 50});
             g.input.last_kick = Kick_State::Right;
             break;
         }
@@ -339,10 +339,10 @@ static void player_kick(Entity& p, Game& g) {
 static void player_punch(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Punching;
     if (g.input.last_punch_was_left) {
-        animation_start(p.anim, (u32)Player_Anim::Punching_Right, false, 60);
+        animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Punching_Right, .looping = false, .frame_duration_ms = 60});
         g.input.last_punch_was_left = false;
     } else {
-        animation_start(p.anim, (u32)Player_Anim::Punching_Left, false, 60);
+        animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Punching_Left, .looping = false, .frame_duration_ms = 60});
         g.input.last_punch_was_left = true;
     }
 
@@ -352,33 +352,33 @@ static void player_punch(Entity& p, Game& g) {
 static void player_takeoff(Entity& p) {
     p.extra_player.state = Player_State::Takeoff;
     p.z_vel = settings.jump_velocity;
-    animation_start(p.anim, (u32)Player_Anim::Takeoff, false, 200);
+    animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Takeoff, .looping = false, .frame_duration_ms = 200});
 }
 
 static void player_jump(Entity& p) {
     p.extra_player.state = Player_State::Jumping;
-    animation_start(p.anim, (u32)Player_Anim::Jumping, true);
+    animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Jumping, .looping = true});
 }
 
 static void player_land(Entity& p) {
     p.extra_player.state = Player_State::Landing;
-    animation_start(p.anim, (u32)Player_Anim::Landing, false);
+    animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Landing, .looping = false});
 }
 
 static void player_drop_kick(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Kicking_Drop;
-    animation_start(p.anim, (u32)Player_Anim::Kicking_Drop, false, 80);
+    animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Kicking_Drop, .looping =  false, .frame_duration_ms = 80});
     handle_player_attack(p, g);
 }
 
 static void player_stand(Entity& p) {
     p.extra_player.state = Player_State::Standing;
-    animation_start(p.anim, (u32)Player_Anim::Standing, true);
+    animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true });
 }
 
 static void player_run(Entity& p) {
     p.extra_player.state = Player_State::Running;
-    animation_start(p.anim, (u32)Player_Anim::Running, true);
+    animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Running, .looping = true});
 }
 
 static void handle_jump_physics(Entity& p, const Game& g) {

@@ -2,15 +2,15 @@
 
 #include "animation.h"
 
-void animation_start(Animation& a, u32 anim_idx, bool looping, u64 frame_duration_ms) {
+void animation_start(Animation& a, Anim_Start_Opts opts) {
     assert(a.sprite != nullptr);
 
-    a.idx               = anim_idx;
+    a.idx               = opts.anim_idx;
     a.frame_current     = 0;
-    a.frame_count       = a.sprite->frames_in_each_row[anim_idx];
+    a.frame_count       = a.sprite->frames_in_each_row[opts.anim_idx];
     a.playing           = true;
-    a.looping           = looping;
-    a.frame_duration_ms = frame_duration_ms;
+    a.looping           = opts.looping;
+    a.frame_duration_ms = opts.frame_duration_ms;
     a.last_frame_time   = SDL_GetTicks();
 }
 

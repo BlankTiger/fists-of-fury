@@ -33,6 +33,12 @@ struct Animation {
     // - something like fading for example
 };
 
-void animation_start(Animation& a, u32 anim_idx, bool looping, u64 frame_duration_ms = 100);
+struct Anim_Start_Opts {
+    u32  anim_idx;
+    bool looping;
+    u64  frame_duration_ms = 100;
+};
+
+void animation_start(Animation& a, Anim_Start_Opts opts);
 void animation_update(Animation& a);
 bool animation_is_finished(const Animation& a);
