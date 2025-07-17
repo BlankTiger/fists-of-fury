@@ -53,6 +53,11 @@ enum struct Player_Anim : u32 {
     Landing
 };
 
+enum struct Barrel_Anim : u32 {
+    Idle,
+    Destroyed
+};
+
 struct Dmg {
     f32       amount;
     Vec2<f32> dir;

@@ -536,8 +536,8 @@ void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
         r,
         screen_coords.x,
         screen_coords.y,
-        p.anim.idx,
-        p.anim.frame_current,
+        p.anim.frames.idx,
+        p.anim.frames.frame_current,
         flip
     );
     if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());

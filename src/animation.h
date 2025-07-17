@@ -4,10 +4,7 @@
 #include "sprite.h"
 #include <SDL3/SDL.h>
 
-struct Animation {
-    // sprite that will be animated
-    const Sprite* sprite;
-
+struct Sprite_Frames {
     // idx of the animation (row in the sprite)
     u32 idx;
 
@@ -17,9 +14,6 @@ struct Animation {
     // Max frames for this animation before it is finished or it loops
     u32 frame_count;
 
-    // Whether the animation is currently playing
-    bool playing;
-
     // Whether this animation should loop
     bool looping;
 
@@ -28,15 +22,32 @@ struct Animation {
 
     // Milliseconds per frame
     u64 frame_duration_ms;
+};
 
-    // TODO: add subsystems to this:
-    // - something like fading for example
+struct Fadeout {
+    bool looping      = false;
+    f32  perc_per_sec = 20;
+};
+
+struct Animation {
+    // sprite that will be animated
+    const Sprite* sprite;
+
+    // Whether the animation is currently playing
+    bool playing;
+
+    // this overrides all of the underyling looping variables for all systems
+    // if set to true, otherwise the underyling systems choose if they loop
+    bool          looping = false;
+    Sprite_Frames frames;
+    Fadeout       fadeout;
 };
 
 struct Anim_Start_Opts {
-    u32  anim_idx;
-    bool looping;
-    u64  frame_duration_ms = 100;
+    u32     anim_idx;
+    bool    looping           = false;
+    u64     frame_duration_ms = 100;
+    Fadeout fadeout           = {};
 };
 
 void animation_start(Animation& a, Anim_Start_Opts opts);
