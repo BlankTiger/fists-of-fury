@@ -34,4 +34,13 @@ struct Src_Rect_With_Size {
 
 Src_Rect_With_Size sprite_get_src_rect(const Sprite& s, u32 row, u32 col);
 
-bool sprite_draw_at_dst(const Sprite& s, SDL_Renderer* r, f32 x_dst, f32 y_dst, u64 row, u64 col, SDL_FlipMode flip);
+struct Sprite_Draw_Opts {
+    f32          x_dst;
+    f32          y_dst;
+    u64          row;
+    u64          col;
+    SDL_FlipMode flip    = SDL_FLIP_NONE;
+    f32          opacity = 1.0f;
+};
+
+bool sprite_draw_at_dst(const Sprite& s, SDL_Renderer* r, Sprite_Draw_Opts opts);

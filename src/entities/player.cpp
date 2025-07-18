@@ -534,16 +534,18 @@ void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
     bool ok = sprite_draw_at_dst(
         g.sprite_player,
         r,
-        screen_coords.x,
-        screen_coords.y,
-        p.anim.frames.idx,
-        p.anim.frames.frame_current,
-        flip
+        {
+            .x_dst = screen_coords.x,
+            .y_dst = screen_coords.y,
+            .row   = p.anim.frames.idx,
+            .col   = p.anim.frames.frame_current,
+            .flip  = flip
+        }
     );
     if (!ok) SDL_Log("Failed to draw player sprite! SDL err: %s\n", SDL_GetError());
 
     Vec2<f32> world_coords = {p.x, p.y};
-    draw_shadow(r, world_coords, p.shadow_offsets, g);
+    draw_shadow(r, { .world_coords = world_coords, .shadow_offsets = p.shadow_offsets, .g = g });
 
     // drawing debug *box
     {

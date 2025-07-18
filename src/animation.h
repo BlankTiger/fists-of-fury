@@ -16,25 +16,26 @@ struct Sprite_Frames {
 
     // Whether this animation should loop
     bool looping;
-
-    // When the last frame was shown
-    u64 last_frame_time;
-
-    // Milliseconds per frame
-    u64 frame_duration_ms;
 };
 
 struct Fadeout {
-    bool looping      = false;
-    f32  perc_per_sec = 20;
+    bool enabled            = false;
+    bool looping            = false;
+    f32  perc_per_sec       = 0.2f;
+    f32  perc_visible_start = 1.0f;
+    f32  perc_visible_end   = 0.0f;
+    f32  perc_visible_curr  = 1.0f;
 };
 
 struct Animation {
     // sprite that will be animated
     const Sprite* sprite;
 
-    // Whether the animation is currently playing
-    bool playing;
+    // When the last frame was shown
+    u64 last_frame_time;
+
+    // Milliseconds per frame
+    u64 frame_duration_ms;
 
     // this overrides all of the underyling looping variables for all systems
     // if set to true, otherwise the underyling systems choose if they loop

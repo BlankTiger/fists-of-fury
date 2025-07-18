@@ -63,6 +63,7 @@ struct Game {
     std::vector<Entity> entities;
     std::vector<u32>    sorted_indices; // for y-sorting when drawing
     std::vector<u32>    removal_queue;  // for removing entities at the end of the frame
+    // TODO: in the future make this a unique type, see handles are better pointers
     u32 idx_player;
 
     Level_Info curr_level_info;

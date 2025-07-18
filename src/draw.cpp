@@ -64,15 +64,24 @@ void draw_level(SDL_Renderer* r, const Game& g) {
     }
 }
 
-void draw_shadow(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRect& offsets, const Game& g) {
+void draw_shadow(SDL_Renderer* r, Draw_Shadow_Opts opts) {
     const SDL_FRect shadow_box_screen = {
-        (world_coords.x + offsets.x) - g.camera.x,
-        (world_coords.y + offsets.y) - g.camera.y,
-        offsets.w,
-        offsets.h
+        (opts.world_coords.x + opts.shadow_offsets.x) - opts.g.camera.x,
+        (opts.world_coords.y + opts.shadow_offsets.y) - opts.g.camera.y,
+        opts.shadow_offsets.w,
+        opts.shadow_offsets.h
     };
-    bool ok = SDL_RenderTexture(r, g.entity_shadow.img, NULL, &shadow_box_screen);
+    bool ok = true;
+    if (opts.opacity < 1.0f) {
+        ok = SDL_SetTextureBlendMode(opts.g.entity_shadow.img, SDL_BLENDMODE_BLEND);
+        if (!ok) SDL_Log("Failed to draw shadow! SDL err: %s\n", SDL_GetError());
+        ok = SDL_SetTextureAlphaModFloat(opts.g.entity_shadow.img, opts.opacity);
+        if (!ok) SDL_Log("Failed to draw shadow! SDL err: %s\n", SDL_GetError());
+    }
+    ok = SDL_RenderTexture(r, opts.g.entity_shadow.img, NULL, &shadow_box_screen);
     if (!ok) SDL_Log("Failed to draw shadow! SDL err: %s\n", SDL_GetError());
+    ok = SDL_SetTextureAlphaModFloat(opts.g.entity_shadow.img, 1.0f);
+    if (!ok) SDL_Log("Failed to change opacity for shadow! SDL err: %s\n", SDL_GetError());
 }
 
 void draw_box(SDL_Renderer* r, const SDL_FRect dst, const Draw_Box_Opts& opts) {

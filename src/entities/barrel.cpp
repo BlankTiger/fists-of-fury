@@ -26,6 +26,8 @@ Entity barrel_init(Barrel_Init_Opts opts) {
 Update_Result barrel_update(Entity& e) {
     assert(e.type == Entity_Type::Barrel);
 
+    animation_update(e.anim);
+
     switch (e.extra_barrel.state) {
         case (Barrel_State::Idle): {
             while (!e.damage_queue.empty()) {
@@ -36,8 +38,7 @@ Update_Result barrel_update(Entity& e) {
                     e.extra_barrel.state = Barrel_State::Destroyed;
                     animation_start(e.anim, {
                         .anim_idx = (u32)Barrel_Anim::Destroyed, 
-                        .frame_duration_ms = 50, 
-                        .fadeout = { .perc_per_sec = 33.0f }
+                        .fadeout = { .enabled = true, .perc_per_sec = 0.33f }
                     });
                 }
             }
@@ -65,16 +66,27 @@ void barrel_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
     bool ok = sprite_draw_at_dst(
         g.sprite_barrel,
         r,
-        screen_coords.x,
-        screen_coords.y,
-        e.anim.frames.idx,
-        e.anim.frames.frame_current,
-        SDL_FLIP_NONE
+        {
+            .x_dst   = screen_coords.x,
+            .y_dst   = screen_coords.y,
+            .row     = e.anim.frames.idx,
+            .col     = e.anim.frames.frame_current,
+            .flip    = SDL_FLIP_NONE,
+            .opacity = e.anim.fadeout.perc_visible_curr
+        }
     );
     if (!ok) SDL_Log("Failed to draw barrel sprite! SDL err: %s\n", SDL_GetError());
 
     const Vec2<f32> world_coords = {e.x, e.y};
-    draw_shadow(r, world_coords, e.shadow_offsets, g);
+    draw_shadow(
+        r, 
+        {
+            .world_coords   = world_coords,
+            .shadow_offsets = e.shadow_offsets,
+            .g              = g,
+            .opacity        = e.anim.fadeout.perc_visible_curr
+        }
+    );
 
     {
         if (settings.show_collision_boxes) draw_collision_box(r, world_coords, e.collision_box_offsets, g);
