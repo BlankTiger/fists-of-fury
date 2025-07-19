@@ -23,32 +23,29 @@ Entity enemy_init(const Game& g, Enemy_Init_Opts opts) {
     enemy.hitbox_offsets        = {-sprite_frame_w/6.5f, -23, 2*sprite_frame_w/6.5f, 23};
     enemy.shadow_offsets        = {-7,                   -1,  14,                    2};
     enemy.dir                   = Direction::Left;
+    enemy.extra_enemy.state     = Enemy_State::Standing;
 
     switch (opts.type) {
         case Enemy_Type::Goon: {
             enemy.anim.sprite = &g.sprite_enemy_goon;
-            enemy.extra_enemy.state.s_other = Enemy_State::Standing;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Anim::Standing, .looping = true });
             break;
         }
 
         case Enemy_Type::Thug: {
             enemy.anim.sprite = &g.sprite_enemy_thug;
-            enemy.extra_enemy.state.s_other = Enemy_State::Standing;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Anim::Standing, .looping = true });
             break;
         }
 
         case Enemy_Type::Punk: {
             enemy.anim.sprite = &g.sprite_enemy_punk;
-            enemy.extra_enemy.state.s_other = Enemy_State::Standing;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Anim::Standing, .looping = true });
             break;
         }
 
         case Enemy_Type::Boss: {
             enemy.anim.sprite = &g.sprite_enemy_boss;
-            enemy.extra_enemy.state.s_boss = Enemy_Boss_State::Standing;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Boss_Anim::Standing, .looping = true });
             break;
         }
@@ -61,7 +58,7 @@ void enemy_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
     entity_draw(r, e, &g);
 }
 
-static void go_towards_player(Entity& e, const Entity& player, const Game& g) {
+static void handle_movement(Entity& e, const Entity& player, const Game& g) {
     if (e.health <= 0) return;
 
     auto dir = Vec2{player.x, player.y} - Vec2{e.x, e.y};
@@ -85,16 +82,25 @@ static void receive_damage(Entity& e) {
     for (auto dmg : e.damage_queue) {
         got_hit = true;
         e.health -= dmg.amount;
+        e.y_vel = 0.0f;
+        if (dmg.going_to == Direction::Left) {
+            e.x_vel = -settings.enemy_knockback_velocity;
+        }
+        else if (dmg.going_to == Direction::Right) {
+            e.x_vel = settings.enemy_knockback_velocity;
+        }
+        else {
+            unreachable("shouldnt ever get a different direction");
+        }
     }
 
     if (got_hit) {
         u32 anim_idx = 0;
+        e.extra_enemy.state = Enemy_State::Got_Hit;
         if (e.extra_enemy.type == Enemy_Type::Boss) {
-            e.extra_enemy.state.s_boss = Enemy_Boss_State::Got_Hit;
             anim_idx = (u32)Enemy_Boss_Anim::Got_Hit;
         } 
         else {
-            e.extra_enemy.state.s_other = Enemy_State::Got_Hit;
             anim_idx = (u32)Enemy_Anim::Got_Hit;
         }
 
@@ -107,88 +113,82 @@ static void receive_damage(Entity& e) {
     e.damage_queue.clear();
 }
 
+static bool handle_knockback(Entity& e, const Game& g) {
+    entity_movement_handle_collisions_and_pos_change(e, &g);
+
+    if (e.x_vel > 0) e.x_vel -= settings.enemy_friction;
+    else             e.x_vel += settings.enemy_friction;
+
+    return e.x_vel == 0.0f;
+}
+
 Update_Result enemy_update(Entity& e, const Entity& player, const Game& g) {
     assert(e.type == Entity_Type::Enemy);
 
     animation_update(e.anim);
-    go_towards_player(e, player, g);
-    receive_damage(e);
+    if (e.extra_enemy.state != Enemy_State::Got_Hit) {
+        handle_movement(e, player, g);
+        receive_damage(e);
+    }
+    else {
+        // this makes it so that when the enemy is in Got_Hit state
+        // he doesnt receive more damage
+        e.damage_queue.clear();
+    }
 
-    switch (e.extra_enemy.type) {
-        case Enemy_Type::Goon: // fallthrough
-        case Enemy_Type::Thug: // fallthrough
-        case Enemy_Type::Punk: {
-            switch (e.extra_enemy.state.s_other) {
-                case Enemy_State::Standing: {
-                    e.extra_enemy.state.s_other = Enemy_State::Running;
-                    animation_start(
-                        e.anim,
-                        {
-                            .anim_idx = (u32)Enemy_Anim::Running,
-                            .looping = true,
-                        }
-                    );
-
-                    break;
+    switch (e.extra_enemy.state) {
+        case Enemy_State::Standing: {
+            e.extra_enemy.state = Enemy_State::Running;
+            animation_start(
+                e.anim,
+                {
+                    .anim_idx = (u32)Enemy_Anim::Running,
+                    .looping = true,
                 }
+            );
 
-                case Enemy_State::Running: {
-                    break;
-                }
+            break;
+        }
 
-                case Enemy_State::Punching: break;
-                case Enemy_State::Throwing_Knife: break;
+        case Enemy_State::Running: {
+            break;
+        }
 
-                case Enemy_State::Got_Hit: {
-                    const auto anim_finished = animation_is_finished(e.anim);
-                    if (anim_finished && e.health <= 0.0f) {
-                        e.extra_enemy.state.s_other = Enemy_State::Dying;
-                        animation_start(
-                            e.anim,
-                            { 
-                                .anim_idx          = (u32)Enemy_Anim::Dying,
-                                .frame_duration_ms = 200,
-                                .fadeout           = { .enabled = true, .perc_per_sec = 0.05 },
-                            }
-                        );
+        case Enemy_State::Punching: break;
+        case Enemy_State::Throwing_Knife: break;
+
+        case Enemy_State::Got_Hit: {
+            const auto knockback_finished = handle_knockback(e, g);
+            const auto anim_finished = animation_is_finished(e.anim);
+            if (knockback_finished && anim_finished && e.health <= 0.0f) {
+                e.extra_enemy.state = Enemy_State::Dying;
+                animation_start(
+                    e.anim,
+                    { 
+                        .anim_idx          = (u32)Enemy_Anim::Dying,
+                        .frame_duration_ms = 200,
+                        .fadeout           = { .enabled = true, .perc_per_sec = 0.05 },
                     }
-                    else if (anim_finished) {
-                        e.extra_enemy.state.s_other = Enemy_State::Standing;
-                    }
-
-                    break;
-                }
-
-                case Enemy_State::Dying: {
-                    if (animation_is_finished(e.anim)) {
-                        return Update_Result::Remove_Me;
-                    }
-                    break;
-                }
-
-                case Enemy_State::Landing: break;
+                );
+            }
+            else if (knockback_finished && anim_finished) {
+                e.extra_enemy.state = Enemy_State::Standing;
             }
 
             break;
         }
 
-        case Enemy_Type::Boss: {
-            switch (e.extra_enemy.state.s_boss) {
-                case Enemy_Boss_State::Standing:
-                case Enemy_Boss_State::Running:
-                case Enemy_Boss_State::Punching:
-                case Enemy_Boss_State::Kicking:
-                case Enemy_Boss_State::Throwing_Knife:
-                case Enemy_Boss_State::Got_Hit:
-                case Enemy_Boss_State::Dying:
-                case Enemy_Boss_State::Landing:
-                case Enemy_Boss_State::Guarding:
-                case Enemy_Boss_State::Guarding_Running:
-                    unreachable("unimplemented");
+        case Enemy_State::Dying: {
+            if (animation_is_finished(e.anim)) {
+                return Update_Result::Remove_Me;
             }
-
             break;
         }
+
+        case Enemy_State::Landing: break;
+        case Enemy_State::Kicking: break;
+        case Enemy_State::Guarding: break;
+        case Enemy_State::Guarding_Running: break;
     }
 
     return Update_Result::None;

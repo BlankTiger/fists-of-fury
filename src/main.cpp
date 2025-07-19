@@ -166,31 +166,31 @@ static bool init() {
         // enemies setup
         Entity goon1 = enemy_init(g, {
             .type = Enemy_Type::Goon,
-            .health = 80.0f,
+            .health = 800.0f,
             .damage = 10.0f,
             .speed = 0.02f,
             .x = SCREEN_WIDTH - 15,
             .y = 55,
         });
         g.entities.push_back(goon1);
-        Entity punk1 = enemy_init(g, {
-            .type = Enemy_Type::Punk,
-            .health = 80.0f,
-            .damage = 10.0f,
-            .speed = 0.02f,
-            .x = SCREEN_WIDTH - 10,
-            .y = 62,
-        });
-        g.entities.push_back(punk1);
-        Entity thug1 = enemy_init(g, {
-            .type = Enemy_Type::Thug,
-            .health = 80.0f,
-            .damage = 10.0f,
-            .speed = 0.02f,
-            .x = SCREEN_WIDTH - 25,
-            .y = 60,
-        });
-        g.entities.push_back(thug1);
+        // Entity punk1 = enemy_init(g, {
+        //     .type = Enemy_Type::Punk,
+        //     .health = 80.0f,
+        //     .damage = 10.0f,
+        //     .speed = 0.02f,
+        //     .x = SCREEN_WIDTH - 10,
+        //     .y = 62,
+        // });
+        // g.entities.push_back(punk1);
+        // Entity thug1 = enemy_init(g, {
+        //     .type = Enemy_Type::Thug,
+        //     .health = 80.0f,
+        //     .damage = 10.0f,
+        //     .speed = 0.02f,
+        //     .x = SCREEN_WIDTH - 25,
+        //     .y = 60,
+        // });
+        // g.entities.push_back(thug1);
     }
 
     return true;

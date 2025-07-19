@@ -100,16 +100,6 @@ enum struct Enemy_State {
     Standing,
     Running,
     Punching,
-    Throwing_Knife,
-    Got_Hit,
-    Dying,
-    Landing
-};
-
-enum struct Enemy_Boss_State {
-    Standing,
-    Running,
-    Punching,
     Kicking,
     Throwing_Knife,
     Got_Hit,
@@ -158,11 +148,8 @@ struct Entity {
         } extra_player;
 
         struct {
-            Enemy_Type type;
-            union {
-                Enemy_State      s_other;
-                Enemy_Boss_State s_boss;
-            } state;
+            Enemy_Type  type;
+            Enemy_State state;
         } extra_enemy;
 
         struct {
