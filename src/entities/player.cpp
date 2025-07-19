@@ -322,13 +322,13 @@ static void player_kick(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Kicking;
     switch (g.input.last_kick) {
         case Kick_State::Right: {
-            animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Kicking_Right, .looping = false, .frame_duration_ms = 80});
+            animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Kicking_Right, .frame_duration_ms = 80});
             g.input.last_kick = Kick_State::Left;
             break;
         }
 
         case Kick_State::Left: {
-            animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Kicking_Left, .looping = false, .frame_duration_ms = 50});
+            animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Kicking_Left, .frame_duration_ms = 50});
             g.input.last_kick = Kick_State::Right;
             break;
         }
@@ -340,10 +340,10 @@ static void player_kick(Entity& p, Game& g) {
 static void player_punch(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Punching;
     if (g.input.last_punch_was_left) {
-        animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Punching_Right, .looping = false, .frame_duration_ms = 60});
+        animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Punching_Right, .frame_duration_ms = 60});
         g.input.last_punch_was_left = false;
     } else {
-        animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Punching_Left, .looping = false, .frame_duration_ms = 60});
+        animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Punching_Left, .frame_duration_ms = 60});
         g.input.last_punch_was_left = true;
     }
 
