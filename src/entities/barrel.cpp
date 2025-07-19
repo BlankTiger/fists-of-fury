@@ -84,41 +84,5 @@ Update_Result barrel_update(Entity& e, u64 dt) {
 }
 
 void barrel_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
-    assert(e.type == Entity_Type::Barrel);
-
-    const Vec2<f32> drawing_coords = entity_offset_to_bottom_center(e);
-    const Vec2<f32> screen_coords = game_get_screen_coords(g, drawing_coords);
-
-    bool ok = sprite_draw_at_dst(
-        g.sprite_barrel,
-        r,
-        {
-            .x_dst   = screen_coords.x,
-            .y_dst   = screen_coords.y + e.z,
-            .row     = e.anim.frames.idx,
-            .col     = e.anim.frames.frame_current,
-            .flip    = SDL_FLIP_NONE,
-            .opacity = e.anim.fadeout.perc_visible_curr
-        }
-    );
-    if (!ok) SDL_Log("Failed to draw barrel sprite! SDL err: %s\n", SDL_GetError());
-
-    const Vec2<f32> world_coords = {e.x, e.y};
-    draw_shadow(
-        r,
-        {
-            .world_coords   = world_coords,
-            .shadow_offsets = e.shadow_offsets,
-            .g              = g,
-            .opacity        = e.anim.fadeout.perc_visible_curr
-        }
-    );
-
-    {
-        if (settings.show_collision_boxes) draw_collision_box(r, world_coords, e.collision_box_offsets, g);
-
-        if (settings.show_hitboxes) draw_hitbox(r, world_coords, e.hitbox_offsets, g);
-
-        // NOTE: barrels dont have hurtboxes obviously
-    }
+    entity_draw(r, e, &g);
 }
