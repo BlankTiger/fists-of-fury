@@ -21,7 +21,7 @@ Entity player_init(const Sprite* player_sprite) {
     player.sprite_frame_w            = sprite_frame_w;
     player.sprite_frame_h            = sprite_frame_h;
     player.collision_box_offsets     = {-sprite_frame_w/7, -3, 2*sprite_frame_w/7, 4};
-    player.hurtbox_offsets           = {sprite_frame_w/7, -14, 10, 6};
+    player.hurtbox_offsets           = {sprite_frame_w/7, -16, 10, 6};
     player.hitbox_offsets            = {-sprite_frame_w/6.5f, -23, 2*sprite_frame_w/6.5f, 23};
     player.shadow_offsets            = {-7, -1, 14, 2};
     player.extra_player.state        = Player_State::Standing;
