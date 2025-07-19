@@ -28,6 +28,14 @@ bool animation_is_finished(const Animation& a) {
 
     if (any_looping(a)) return false;
     if (!fadeout_finished(a.fadeout)) return false;
+    
+    // For single-frame animations, check if enough time has passed
+    if (a.frames.frame_count == 1) {
+        u64 current_time = SDL_GetTicks();
+        u64 elapsed = current_time - a.last_frame_time;
+        return elapsed >= a.frame_duration_ms;
+    }
+    
     return a.frames.frame_current >= a.frames.frame_count - 1;
 }
 

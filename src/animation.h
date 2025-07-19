@@ -36,7 +36,7 @@ struct Animation {
 
     // Milliseconds per frame
     u64 frame_duration_ms;
-
+    
     // this overrides all of the underyling looping variables for all systems
     // if set to true, otherwise the underyling systems choose if they loop
     bool          looping = false;

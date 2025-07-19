@@ -353,7 +353,13 @@ static void player_punch(Entity& p, Game& g) {
 static void player_takeoff(Entity& p) {
     p.extra_player.state = Player_State::Takeoff;
     p.z_vel = settings.jump_velocity;
-    animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Takeoff, .looping = false, .frame_duration_ms = 200});
+    animation_start(
+        p.anim,
+        {
+            .anim_idx = (u32)Player_Anim::Takeoff,
+            .frame_duration_ms = 100
+        }
+    );
 }
 
 static void player_jump(Entity& p) {
@@ -363,7 +369,13 @@ static void player_jump(Entity& p) {
 
 static void player_land(Entity& p) {
     p.extra_player.state = Player_State::Landing;
-    animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Landing, .looping = false});
+    animation_start(
+        p.anim,
+        {
+            .anim_idx = (u32)Player_Anim::Landing,
+            .frame_duration_ms = 200
+        }
+    );
 }
 
 static void player_drop_kick(Entity& p, Game& g) {
@@ -483,9 +495,6 @@ Update_Result player_update(Entity& p, Game& g) {
             if (just_pressed(g, Action::Kick)) {
                 player_drop_kick(p, g);
             }
-            else if (animation_is_finished(p.anim)) {
-                player_land(p);
-            }
 
             handle_movement(p, g);
             handle_jump_physics(p, g);
@@ -498,17 +507,14 @@ Update_Result player_update(Entity& p, Game& g) {
                 player_stand(p);
             }
 
-            handle_movement(p, g);
             handle_jump_physics(p, g);
 
             break;
         }
 
         case Player_State::Kicking_Drop: {
-            // deal damage if in hitbox
-
             if (p.z == settings.ground_level) {
-                player_stand(p);
+                player_land(p);
             }
 
             handle_movement(p, g);
