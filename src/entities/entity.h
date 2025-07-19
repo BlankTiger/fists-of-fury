@@ -60,7 +60,7 @@ enum struct Barrel_Anim : u32 {
 
 struct Dmg {
     f32       amount;
-    Vec2<f32> dir;
+    Direction came_from_dir;
 };
 
 enum struct Barrel_State : u32 { Idle, Destroyed };
@@ -72,6 +72,7 @@ struct Entity {
     f32 x;
     f32 y;
     f32 z;
+    f32 x_vel;
     f32 z_vel;
 
     // used to collect all the received damage in a frame

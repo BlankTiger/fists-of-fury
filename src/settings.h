@@ -10,8 +10,8 @@ const int WINDOW_HEIGHT = 640;
 
 struct Settings {
     bool show_collision_boxes  = false;
-    bool show_hurtboxes        = true;
-    bool show_hitboxes         = true;
+    bool show_hurtboxes        = false;
+    bool show_hitboxes         = false;
     bool dev_mode              = true;
 
     std::array<f32, 4> colors_collision_box_border = {255,      2,        0,        200};
@@ -25,11 +25,12 @@ struct Settings {
 
     std::array<f32, 4> color_text                  = {0,        0,        0,        255};
 
-    f32 font_size_default = 9.0f;
-    f32 fps_max       = 144.0f;
-    f32 gravity       = 0.00038f;
-    f32 jump_velocity = -0.15f;
-    f32 ground_level  = 0.0f;
+    f32 font_size_default         = 9.0f;
+    f32 fps_max                   = 144.0f;
+    f32 gravity                   = 0.00038f;
+    f32 jump_velocity             = -0.15f;
+    f32 barrel_knockback_velocity = -0.05f;
+    f32 ground_level              = 0.0f;
 };
 
 extern Settings settings;

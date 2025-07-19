@@ -13,5 +13,5 @@ struct Barrel_Init_Opts {
 };
 
 Entity barrel_init(Barrel_Init_Opts opts);
-Update_Result barrel_update(Entity& e);
+Update_Result barrel_update(Entity& e, u64 dt);
 void barrel_draw(SDL_Renderer* r, const Entity& e, const Game& g);

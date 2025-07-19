@@ -158,7 +158,7 @@ static Update_Result update_entity(Entity& e) {
         }
 
         case Entity_Type::Barrel: {
-            res = barrel_update(e);
+            res = barrel_update(e, g.dt);
             break;
         }
     }
