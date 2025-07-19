@@ -32,20 +32,6 @@ bool sprite_load(Sprite& s, SDL_Renderer* r, const char* path) {
     return img_load(s.img, r, path);
 }
 
-Src_Rect_With_Size sprite_get_src_rect(const Sprite& s, u32 row, u32 col) {
-    assert(row < s.frames_in_each_row.size());
-    assert(col < s.frames_in_each_row[row]);
-    f32 x = 5;
-    f32 y = 5;
-    f32 width = 10;
-    f32 height = 10;
-    return {
-        .src    = { x, y, width, height },
-        .width  = 8.,
-        .height = 8.,
-    };
-}
-
 // provided x_dst and y_dst must be in screen coordinates (in other words relative to the camera), not world coordinates
 bool sprite_draw_at_dst(const Sprite& s, SDL_Renderer* r, Sprite_Draw_Opts opts) {
     assert(opts.row < s.frames_in_each_row.size());

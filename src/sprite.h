@@ -26,14 +26,6 @@ struct Sprite {
 // are already initialized.
 bool sprite_load(Sprite& s, SDL_Renderer* r, const char* path);
 
-struct Src_Rect_With_Size {
-    SDL_FRect src;
-    f32       width;
-    f32       height;
-};
-
-Src_Rect_With_Size sprite_get_src_rect(const Sprite& s, u32 row, u32 col);
-
 struct Sprite_Draw_Opts {
     f32          x_dst;
     f32          y_dst;
