@@ -14,13 +14,13 @@ enum struct Direction {
     Right
 };
 
-enum struct Entity_Type : u8 {
+enum struct Entity_Type {
     Player,
     Enemy,
     Barrel
 };
 
-enum struct Player_State : u32 {
+enum struct Player_State {
     Standing,
     Running,
     Punching,
@@ -63,11 +63,65 @@ struct Dmg {
     Direction came_from_dir;
 };
 
-enum struct Barrel_State : u32 { Idle, Destroyed };
+enum struct Barrel_State { Idle, Destroyed };
+
+enum struct Enemy_Type {
+    Goon,
+    Punk,
+    Thug,
+    Boss
+};
+
+enum struct Enemy_Anim : u32 {
+    Standing,
+    Running,
+    Punch_Left,
+    Punch_Right,
+    Got_Hit,
+    Dying,
+    Throw_Knife,
+    Landing
+};
+
+enum struct Enemy_Boss_Anim : u32 {
+    Standing,
+    Running,
+    Punch_Left,
+    Punch_Right,
+    Kick,
+    Got_Hit,
+    Dying,
+    Landing,
+    Guard_Standing,
+    Guard_Running
+};
+
+enum struct Enemy_State {
+    Standing,
+    Running,
+    Punching,
+    Throwing_Knife,
+    Got_Hit,
+    Dying,
+    Landing
+};
+
+enum struct Enemy_Boss_State {
+    Standing,
+    Running,
+    Punching,
+    Kicking,
+    Throwing_Knife,
+    Got_Hit,
+    Dying,
+    Landing,
+    Guarding,
+    Guarding_Running
+};
 
 struct Entity {
-    int health;
-    int damage;
+    f32 health;
+    f32 damage;
     f32 speed;
     f32 x;
     f32 y;
@@ -93,7 +147,6 @@ struct Entity {
     // same thing goes for shadow_offset
     SDL_FRect shadow_offsets;
 
-    const Sprite* sprite;
     Animation     anim;
 
     // extra data unique to an Entity_Type
@@ -103,7 +156,13 @@ struct Entity {
             Player_State state;
         } extra_player;
 
-        struct {} extra_enemy;
+        struct {
+            Enemy_Type type;
+            union {
+                Enemy_State      e;
+                Enemy_Boss_State e_boss;
+            } state;
+        } extra_enemy;
 
         struct {
             Barrel_State state;

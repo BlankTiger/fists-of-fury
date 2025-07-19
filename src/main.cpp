@@ -137,7 +137,42 @@ static bool init() {
     }
 
     {
+        bool ok = sprite_load(g.sprite_enemy_goon, g.renderer, "assets/art/characters/enemy_goon.png");
+        if (!ok) {
+            SDL_Log("Failed to load enemy_goon sprite! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+
+        ok = sprite_load(g.sprite_enemy_punk, g.renderer, "assets/art/characters/enemy_punk.png");
+        if (!ok) {
+            SDL_Log("Failed to load enemy_punk sprite! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+
+        ok = sprite_load(g.sprite_enemy_thug, g.renderer, "assets/art/characters/enemy_thug.png");
+        if (!ok) {
+            SDL_Log("Failed to load enemy_thug sprite! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+
+        ok = sprite_load(g.sprite_enemy_boss, g.renderer, "assets/art/characters/enemy_boss.png");
+        if (!ok) {
+            SDL_Log("Failed to load enemy_boss sprite! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+    }
+
+    {
         // enemies setup
+        Entity goon1 = enemy_init(g, {
+            .type = Enemy_Type::Goon,
+            .health = 80.0f,
+            .damage = 10.0f,
+            .speed = 0.02f,
+            .x = SCREEN_WIDTH - 5,
+            .y = 50,
+        });
+        g.entities.push_back(goon1);
     }
 
     return true;

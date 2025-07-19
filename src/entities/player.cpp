@@ -539,7 +539,7 @@ void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
 
     const SDL_FlipMode flip = (p.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     bool ok = sprite_draw_at_dst(
-        g.sprite_player,
+        *p.anim.sprite,
         r,
         {
             .x_dst = screen_coords.x,

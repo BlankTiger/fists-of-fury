@@ -57,6 +57,30 @@ struct Game {
         .frames_in_each_row      = std::span{sprite_barrel_frames},
     };
 
+    static constexpr u32 sprite_enemy_frames[] = { 1, 8, 3, 3, 3, 3, 4, 1 };
+    Sprite sprite_enemy_goon = {
+        .img                     = {},
+        .max_frames_in_row_count = 10,
+        .frames_in_each_row      = std::span{sprite_enemy_frames},
+    };
+    Sprite sprite_enemy_punk = {
+        .img                     = {},
+        .max_frames_in_row_count = 10,
+        .frames_in_each_row      = std::span{sprite_enemy_frames},
+    };
+    Sprite sprite_enemy_thug = {
+        .img                     = {},
+        .max_frames_in_row_count = 10,
+        .frames_in_each_row      = std::span{sprite_enemy_frames},
+    };
+
+    static constexpr u32 sprite_enemy_boss_frames[] = { 1, 8, 4, 3, 5, 2, 3, 1, 1, 8 };
+    Sprite sprite_enemy_boss = {
+        .img                     = {},
+        .max_frames_in_row_count = 10,
+        .frames_in_each_row      = std::span{sprite_enemy_boss_frames},
+    };
+
     Input_State input;
     Input_State input_prev; // for detecting press -> release
 
