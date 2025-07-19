@@ -31,8 +31,8 @@ struct Settings {
     f32 jump_velocity             = -0.15f;
     f32 barrel_jump_velocity      = -0.10f;
     f32 barrel_knockback_velocity = 0.05f;
-    f32 enemy_knockback_velocity  = 0.05f;
-    f32 enemy_friction            = 0.01f;
+    f32 enemy_knockback_velocity  = 0.09f;
+    f32 enemy_friction            = 0.003f;
     f32 ground_level              = 0.0f;
 };
 

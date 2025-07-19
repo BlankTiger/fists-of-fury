@@ -116,8 +116,14 @@ static void receive_damage(Entity& e) {
 static bool handle_knockback(Entity& e, const Game& g) {
     entity_movement_handle_collisions_and_pos_change(e, &g);
 
-    if (e.x_vel > 0) e.x_vel -= settings.enemy_friction;
-    else             e.x_vel += settings.enemy_friction;
+    if (e.x_vel > 0) {
+        e.x_vel -= settings.enemy_friction;
+        if (e.x_vel < 0) e.x_vel = 0;
+    }
+    else if (e.x_vel < 0) {
+        e.x_vel += settings.enemy_friction;
+        if (e.x_vel > 0) e.x_vel = 0;
+    }
 
     return e.x_vel == 0.0f;
 }
