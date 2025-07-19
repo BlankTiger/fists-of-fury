@@ -51,10 +51,10 @@ Update_Result barrel_update(Entity& e, u64 dt) {
                 e.damage_queue.pop_back();
                 if (e.health <= 0) {
                     e.extra_barrel.state = Barrel_State::Destroyed;
-                    if (dmg.came_from_dir == Direction::Left) {
+                    if (dmg.going_to == Direction::Left) {
                         e.x_vel = -e.speed;
                     }
-                    else if (dmg.came_from_dir == Direction::Right) {
+                    else if (dmg.going_to == Direction::Right) {
                         e.x_vel = e.speed;
                     }
                     else {

@@ -60,7 +60,7 @@ enum struct Barrel_Anim : u32 {
 
 struct Dmg {
     f32       amount;
-    Direction came_from_dir;
+    Direction going_to;
 };
 
 enum struct Barrel_State { Idle, Destroyed };
