@@ -3,6 +3,7 @@
 #include "barrel.h"
 #include "../draw.h"
 #include "../settings.h"
+#include "../utils.h"
 
 Entity barrel_init(Barrel_Init_Opts opts) {
     const f32 barrel_w = 32;
@@ -55,6 +56,9 @@ Update_Result barrel_update(Entity& e, u64 dt) {
                     }
                     else if (dmg.came_from_dir == Direction::Right) {
                         e.x_vel = e.speed;
+                    }
+                    else {
+                        unreachable("shouldnt ever get a different direction");
                     }
                     e.z_vel = settings.barrel_knockback_velocity;
                     animation_start(e.anim, {

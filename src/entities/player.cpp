@@ -6,6 +6,7 @@
 #include "../game.h"
 #include "../settings.h"
 #include "../draw.h"
+#include "../utils.h"
 
 Entity player_init(const Sprite* player_sprite) {
     const auto sprite_frame_h = 48;
@@ -458,12 +459,12 @@ Update_Result player_update(Entity& p, Game& g) {
         };
 
         case Player_State::Got_Hit: {
-            assert(false); // unimplemented
+            unreachable("unimplemented");
             break;
         }
 
         case Player_State::Dying: {
-            assert(false); // unimplemented
+            unreachable("unimplemented");
             break;
         }
 
