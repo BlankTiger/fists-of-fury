@@ -127,6 +127,7 @@ struct Entity {
     f32 y;
     f32 z;
     f32 x_vel;
+    f32 y_vel;
     f32 z_vel;
 
     // used to collect all the received damage in a frame
@@ -159,8 +160,8 @@ struct Entity {
         struct {
             Enemy_Type type;
             union {
-                Enemy_State      e;
-                Enemy_Boss_State e_boss;
+                Enemy_State      s_other;
+                Enemy_Boss_State s_boss;
             } state;
         } extra_enemy;
 
@@ -180,3 +181,4 @@ SDL_FRect entity_get_world_hurtbox(const Entity& e);
 
 struct Game;
 void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g);
+void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g);

@@ -230,70 +230,36 @@ static void handle_movement(Entity& p, const Game& g) {
     const auto in = g.input;
 
     bool is_moving = false;
-    f32 x_vel = 0., y_vel = 0.;
 
     if (in.left) {
-        x_vel -= 1.0f;
+        p.x_vel -= 1.0f;
         p.dir = Direction::Left;
         is_moving = true;
     }
     if (in.right) {
-        x_vel += 1.0f;
+        p.x_vel += 1.0f;
         p.dir = Direction::Right;
         is_moving = true;
     }
     if (in.up) {
-        y_vel -= 1.0f;
+        p.y_vel -= 1.0f;
         is_moving = true;
     }
     if (in.down) {
-        y_vel += 1.0f;
+        p.y_vel += 1.0f;
         is_moving = true;
     }
 
     // Normalize the velocity vector for diagonal movement
     if (is_moving) {
-        f32 length = sqrt(x_vel * x_vel + y_vel * y_vel);
+        f32 length = sqrt(p.x_vel * p.x_vel + p.y_vel * p.y_vel);
         if (length > 0.0f) {
-            x_vel = (x_vel / length) * p.speed;
-            y_vel = (y_vel / length) * p.speed;
+            p.x_vel = (p.x_vel / length) * p.speed;
+            p.y_vel = (p.y_vel / length) * p.speed;
         }
     }
 
-    // handle collisions and position change
-    {
-        f32 x_old = p.x;
-        f32 y_old = p.y;
-        p.x += x_vel * g.dt;
-        p.y += y_vel * g.dt;
-
-        bool in_bounds = true;
-        SDL_FRect player_collision_box = entity_get_world_collision_box(p);
-
-        for (const auto& box : level_info_get_collision_boxes(g.curr_level_info)) {
-            if (SDL_HasRectIntersectionFloat(&box, &player_collision_box)) {
-                in_bounds = false;
-                break;
-            }
-        }
-
-        if (in_bounds) {
-            for (const auto& e : g.entities) {
-                if (e.type == Entity_Type::Player) continue;
-
-                const auto& e_box = entity_get_world_collision_box(e);
-                if (SDL_HasRectIntersectionFloat(&e_box, &player_collision_box)) {
-                    in_bounds = false;
-                    break;
-                }
-            }
-        }
-
-        if (!in_bounds) {
-            p.x = x_old;
-            p.y = y_old;
-        }
-    }
+    entity_movement_handle_collisions_and_pos_change(p, &g);
 
     // rotate the hurtbox around the player when turning
     if (p.dir != p.dir_prev) {

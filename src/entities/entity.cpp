@@ -79,3 +79,42 @@ void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g) {
         if (settings.show_hitboxes) draw_hitbox(r, world_coords, e.hitbox_offsets, *g);
     }
 }
+
+void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g) {
+    assert(g != nullptr);
+
+    f32 x_old = e.x;
+    f32 y_old = e.y;
+    e.x += e.x_vel * g->dt;
+    e.y += e.y_vel * g->dt;
+
+    bool in_bounds = true;
+    SDL_FRect player_collision_box = entity_get_world_collision_box(e);
+
+    if (e.type == Entity_Type::Player) {
+        for (const auto& box : level_info_get_collision_boxes(g->curr_level_info)) {
+            if (SDL_HasRectIntersectionFloat(&box, &player_collision_box)) {
+                in_bounds = false;
+                break;
+            }
+        }
+    }
+
+    if (in_bounds) {
+        for (const auto& e_other : g->entities) {
+            if (&e == &e_other) continue;
+
+            const auto& e_box = entity_get_world_collision_box(e_other);
+            if (SDL_HasRectIntersectionFloat(&e_box, &player_collision_box)) {
+                in_bounds = false;
+                break;
+            }
+        }
+    }
+
+    if (!in_bounds) {
+        e.x = x_old;
+        e.y = y_old;
+    }
+}
+

@@ -169,10 +169,28 @@ static bool init() {
             .health = 80.0f,
             .damage = 10.0f,
             .speed = 0.02f,
-            .x = SCREEN_WIDTH - 5,
-            .y = 50,
+            .x = SCREEN_WIDTH - 15,
+            .y = 55,
         });
         g.entities.push_back(goon1);
+        Entity punk1 = enemy_init(g, {
+            .type = Enemy_Type::Punk,
+            .health = 80.0f,
+            .damage = 10.0f,
+            .speed = 0.02f,
+            .x = SCREEN_WIDTH - 10,
+            .y = 62,
+        });
+        g.entities.push_back(punk1);
+        Entity thug1 = enemy_init(g, {
+            .type = Enemy_Type::Thug,
+            .health = 80.0f,
+            .damage = 10.0f,
+            .speed = 0.02f,
+            .x = SCREEN_WIDTH - 25,
+            .y = 60,
+        });
+        g.entities.push_back(thug1);
     }
 
     return true;
@@ -188,7 +206,7 @@ static Update_Result update_entity(Entity& e) {
         }
 
         case Entity_Type::Enemy: {
-            res = enemy_update(e);
+            res = enemy_update(e, game_get_player(g), g);
             break;
         }
 
