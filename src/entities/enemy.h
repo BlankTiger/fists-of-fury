@@ -12,6 +12,9 @@ struct Enemy_Init_Opts {
     f32 y;
 };
 
+static constexpr Entity_Type dont_collide_with[] = {Entity_Type::Enemy};
+static const Collide_Opts collide_opts = { .dont_collide_with = std::span{dont_collide_with} };
+
 Entity enemy_init(const Game& g, Enemy_Init_Opts opts);
 void enemy_draw(SDL_Renderer* r, const Entity& e, const Game& g);
 Update_Result enemy_update(Entity& e, const Entity& player, const Game& g);

@@ -80,7 +80,7 @@ void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g) {
     }
 }
 
-void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g) {
+void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts) {
     assert(g != nullptr);
 
     f32 x_old = e.x;
@@ -89,11 +89,11 @@ void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g) 
     e.y += e.y_vel * g->dt;
 
     bool in_bounds = true;
-    SDL_FRect player_collision_box = entity_get_world_collision_box(e);
+    SDL_FRect entity_collision_box = entity_get_world_collision_box(e);
 
     if (e.type == Entity_Type::Player) {
         for (const auto& box : level_info_get_collision_boxes(g->curr_level_info)) {
-            if (SDL_HasRectIntersectionFloat(&box, &player_collision_box)) {
+            if (SDL_HasRectIntersectionFloat(&box, &entity_collision_box)) {
                 in_bounds = false;
                 break;
             }
@@ -103,9 +103,14 @@ void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g) 
     if (in_bounds) {
         for (const auto& e_other : g->entities) {
             if (&e == &e_other) continue;
+            auto skip = false;
+            for (auto dont_with_type : opts.dont_collide_with) {
+                if (e_other.type == dont_with_type) skip = true;
+            }
+            if (skip) continue;
 
             const auto& e_box = entity_get_world_collision_box(e_other);
-            if (SDL_HasRectIntersectionFloat(&e_box, &player_collision_box)) {
+            if (SDL_HasRectIntersectionFloat(&e_box, &entity_collision_box)) {
                 in_bounds = false;
                 break;
             }

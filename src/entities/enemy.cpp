@@ -73,7 +73,7 @@ static void handle_movement(Entity& e, const Entity& player, const Game& g) {
     e.x_vel = dir.x * e.speed;
     e.y_vel = dir.y * e.speed;
 
-    entity_movement_handle_collisions_and_pos_change(e, &g);
+    entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts);
 }
 
 static void receive_damage(Entity& e) {
@@ -99,7 +99,7 @@ static void receive_damage(Entity& e) {
         e.extra_enemy.state = Enemy_State::Got_Hit;
         if (e.extra_enemy.type == Enemy_Type::Boss) {
             anim_idx = (u32)Enemy_Boss_Anim::Got_Hit;
-        } 
+        }
         else {
             anim_idx = (u32)Enemy_Anim::Got_Hit;
         }
@@ -114,7 +114,7 @@ static void receive_damage(Entity& e) {
 }
 
 static bool handle_knockback(Entity& e, const Game& g) {
-    entity_movement_handle_collisions_and_pos_change(e, &g);
+    entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts);
 
     if (e.x_vel > 0) {
         e.x_vel -= settings.enemy_friction;
@@ -170,7 +170,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, const Game& g) {
                 e.extra_enemy.state = Enemy_State::Dying;
                 animation_start(
                     e.anim,
-                    { 
+                    {
                         .anim_idx          = (u32)Enemy_Anim::Dying,
                         .frame_duration_ms = 200,
                         .fadeout           = { .enabled = true, .perc_per_sec = 0.05 },

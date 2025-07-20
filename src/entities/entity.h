@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <span>
 #include <SDL3/SDL.h>
 #include "../number_types.h"
 #include "../vec2.h"
@@ -168,4 +169,9 @@ SDL_FRect entity_get_world_hurtbox(const Entity& e);
 
 struct Game;
 void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g);
-void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g);
+
+struct Collide_Opts {
+    std::span<const Entity_Type> dont_collide_with;
+};
+
+void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts = {});
