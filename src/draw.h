@@ -21,15 +21,17 @@ void draw_collision_box(SDL_Renderer* r, const Vec2<f32>& world_coords, const SD
 void draw_hurtbox(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRect& hurtbox_offsets, const Game& g);
 void draw_hitbox(SDL_Renderer* r, const Vec2<f32>& world_coords, const SDL_FRect& hitbox_offsets, const Game& g);
 
+using Color = std::array<f32, 4>;
+
 struct Draw_Box_Opts {
-    std::array<f32, 4> colors_border;
-    std::array<f32, 4> colors_fill;
+    Color colors_border;
+    Color colors_fill;
 };
 
 void draw_box(SDL_Renderer* r, const SDL_FRect dst, Draw_Box_Opts opts);
 
 struct Draw_Text_Opts {
-    std::array<f32, 4> color;
+    Color color;
 };
 
 void draw_text(SDL_Renderer* r, const SDL_FRect dst, Draw_Text_Opts opts);
