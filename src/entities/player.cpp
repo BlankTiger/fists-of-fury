@@ -25,8 +25,18 @@ Entity player_init(const Sprite* player_sprite) {
     player.hurtbox_offsets           = {sprite_frame_w/7, -16, 10, 6};
     player.hitbox_offsets            = {-sprite_frame_w/6.5f, -23, 2*sprite_frame_w/6.5f, 23};
     player.shadow_offsets            = {-7, -1, 14, 2};
-    player.extra_player.state        = Player_State::Standing;
     player.anim.sprite               = player_sprite;
+    player.extra_player.state        = Player_State::Standing;
+    player.extra_player.slots        = {
+        .offset_top_left     = {-sprite_frame_w/4, -9},
+        .offset_top_right    = {sprite_frame_w/4,  -9},
+        .offset_bottom_left  = {-sprite_frame_w/4, 4},
+        .offset_bottom_right = {sprite_frame_w/4,  4},
+        .top_left_free       = true,
+        .top_right_free      = true,
+        .bottom_left_free    = true,
+        .bottom_right_free   = true,
+    };
     animation_start(player.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true});
     return player;
 }
@@ -499,6 +509,26 @@ Update_Result player_update(Entity& p, Game& g) {
     return Update_Result::None;
 }
 
+static void slots_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
+    const auto& slots = p.extra_player.slots;
+    // TODO: maybe consider making the entity position being Vec2 instead of doing that all over the codebase..
+    const Vec2<f32> player_pos = {p.x, p.y};
+    const auto top_left = player_pos + slots.offset_top_left;
+    draw_point(r, {top_left, g, {0, 255, 0, 255}});
+
+    const auto top_right = player_pos + slots.offset_top_right;
+    draw_point(r, {top_right, g, {0, 0, 255, 255}});
+
+    const auto bottom_left = player_pos + slots.offset_bottom_left;
+    draw_point(r, {bottom_left, g, {5, 5, 5, 255}});
+
+    const auto bottom_right = player_pos + slots.offset_bottom_right;
+    draw_point(r, {bottom_right, g, {125, 125, 125, 255}});
+}
+
 void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
+    assert(p.type == Entity_Type::Player);
+
     entity_draw(r, p, &g);
+    if (settings.show_attack_slots) slots_draw(r, p, g);
 }

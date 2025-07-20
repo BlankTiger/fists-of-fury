@@ -12,6 +12,7 @@ struct Settings {
     bool show_collision_boxes  = false;
     bool show_hurtboxes        = false;
     bool show_hitboxes         = false;
+    bool show_attack_slots     = true;
     bool dev_mode              = true;
 
     std::array<f32, 4> colors_collision_box_border = {255,      2,        0,        200};

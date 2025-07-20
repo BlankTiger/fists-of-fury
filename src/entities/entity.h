@@ -37,6 +37,17 @@ enum struct Player_State {
 static_assert((u32)Player_State::Standing == 0);
 static_assert((u32)Player_State::Running  == 1);
 
+struct Player_Attack_Slots {
+    Vec2<f32> offset_top_left;
+    Vec2<f32> offset_top_right;
+    Vec2<f32> offset_bottom_left;
+    Vec2<f32> offset_bottom_right;
+    bool top_left_free;
+    bool top_right_free;
+    bool bottom_left_free;
+    bool bottom_right_free;
+};
+
 // this has to be synced with the player sprite
 // each enum value is the next row in the sprite
 enum struct Player_Anim : u32 {
@@ -145,7 +156,8 @@ struct Entity {
     Entity_Type type;
     union {
         struct {
-            Player_State state;
+            Player_State        state;
+            Player_Attack_Slots slots;
         } extra_player;
 
         struct {
