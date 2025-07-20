@@ -35,3 +35,11 @@ struct Draw_Text_Opts {
 };
 
 void draw_text(SDL_Renderer* r, const SDL_FRect dst, Draw_Text_Opts opts);
+
+struct Draw_Point_Opts {
+    Vec2<f32>   dst_world_coords; 
+    const Game& g;
+    Color       color = {255, 0, 0, 255};
+};
+
+void draw_point(SDL_Renderer* r, Draw_Point_Opts opts);

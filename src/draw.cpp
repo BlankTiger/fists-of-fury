@@ -92,4 +92,12 @@ void draw_text(SDL_Renderer* r, const SDL_FRect dst, Draw_Text_Opts opts) {
 
 }
 
+void draw_point(SDL_Renderer* r, Draw_Point_Opts opts) {
+    const SDL_FRect dst_box_screen_coords = {
+        opts.dst_world_coords.x - opts.g.camera.x,
+        opts.dst_world_coords.y - opts.g.camera.y,
+        1,
+        1
+    };
+    _draw_box(r, dst_box_screen_coords, opts.color, opts.color);
 }
