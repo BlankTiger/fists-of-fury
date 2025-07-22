@@ -37,11 +37,14 @@ enum struct Player_State {
 static_assert((u32)Player_State::Standing == 0);
 static_assert((u32)Player_State::Running  == 1);
 
+enum struct Slot { Top_Left, Top_Right, Bottom_Left, Bottom_Right };
+
 struct Player_Attack_Slots {
     Vec2<f32> offset_top_left;
     Vec2<f32> offset_top_right;
     Vec2<f32> offset_bottom_left;
     Vec2<f32> offset_bottom_right;
+
     bool top_left_free;
     bool top_right_free;
     bool bottom_left_free;
@@ -163,6 +166,8 @@ struct Entity {
         struct {
             Enemy_Type  type;
             Enemy_State state;
+            Vec2<f32>   target_pos;
+            Slot        slot;
         } extra_enemy;
 
         struct {
@@ -187,3 +192,5 @@ struct Collide_Opts {
 };
 
 void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts = {});
+
+Vec2<f32> claim_slot_position(Game& game, Slot slot);

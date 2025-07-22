@@ -128,7 +128,7 @@ static bool handle_knockback(Entity& e, const Game& g) {
     return e.x_vel == 0.0f;
 }
 
-Update_Result enemy_update(Entity& e, const Entity& player, const Game& g) {
+Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
     assert(e.type == Entity_Type::Enemy);
 
     animation_update(e.anim);
@@ -140,6 +140,28 @@ Update_Result enemy_update(Entity& e, const Entity& player, const Game& g) {
         // this makes it so that when the enemy is in Got_Hit state
         // he doesnt receive more damage
         e.damage_queue.clear();
+    }
+
+    const auto slots = player.extra_player.slots;
+    if (slots.top_left_free) {
+        const auto slot = Slot::Top_Left;
+        e.extra_enemy.target_pos = claim_slot_position(g, slot);
+        e.extra_enemy.slot = slot;
+    }
+    else if (slots.top_right_free) {
+        const auto slot = Slot::Top_Right;
+        e.extra_enemy.target_pos = claim_slot_position(g, slot);
+        e.extra_enemy.slot = slot;
+    }
+    else if (slots.bottom_left_free) {
+        const auto slot = Slot::Bottom_Left;
+        e.extra_enemy.target_pos = claim_slot_position(g, slot);
+        e.extra_enemy.slot = slot;
+    }
+    else if (slots.bottom_right_free) {
+        const auto slot = Slot::Bottom_Right;
+        e.extra_enemy.target_pos = claim_slot_position(g, slot);
+        e.extra_enemy.slot = slot;
     }
 
     switch (e.extra_enemy.state) {

@@ -123,3 +123,30 @@ void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, 
     }
 }
 
+Vec2<f32> claim_slot_position(Game& game, Slot slot) {
+    Entity& player = game_get_player_mutable(game);
+
+    switch (slot) {
+        case Slot::Top_Left: {
+            player.extra_player.slots.top_left_free = false;
+            break;
+        }
+
+        case Slot::Top_Right: {
+            player.extra_player.slots.top_right_free = false;
+            break;
+        }
+
+        case Slot::Bottom_Left: {
+            player.extra_player.slots.bottom_left_free = false;
+            break;
+        }
+
+        case Slot::Bottom_Right: {
+            player.extra_player.slots.bottom_right_free = false;
+            break;
+        }
+    }
+
+    return {};
+}
