@@ -124,8 +124,35 @@ void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, 
     }
 }
 
+Vec2<f32> calc_world_coordinates_of_slot(Vec2<f32> player_world_pos, const Player_Attack_Slots& slots, Slot slot) {
+    switch (slot) {
+        case Slot::None: {
+            unreachable("coordinates can only be calculated for a valid slot");
+            break;
+        }
+
+        case Slot::Top_Left: {
+            return player_world_pos + slots.offset_top_left;
+        }
+
+        case Slot::Top_Right: {
+            return player_world_pos + slots.offset_top_right;
+        }
+
+        case Slot::Bottom_Left: {
+            return player_world_pos + slots.offset_bottom_left;
+        }
+
+        case Slot::Bottom_Right: {
+            return player_world_pos + slots.offset_bottom_right;
+        }
+    }
+}
+
 Vec2<f32> claim_slot_position(Game& game, Slot slot) {
     Entity& player = game_get_player_mutable(game);
+    const auto& slots = player.extra_player.slots;
+    const Vec2<f32> player_pos = {player.x, player.y};
 
     switch (slot) {
         case Slot::None: {
@@ -134,31 +161,37 @@ Vec2<f32> claim_slot_position(Game& game, Slot slot) {
         }
 
         case Slot::Top_Left: {
-            if (player.extra_player.slots.top_left_free)
+            if (slots.top_left_free) {
                 player.extra_player.slots.top_left_free = false;
+                return calc_world_coordinates_of_slot(player_pos, slots, slot);
+            }
             break;
         }
 
         case Slot::Top_Right: {
-            if (player.extra_player.slots.top_right_free)
+            if (slots.top_right_free) {
                 player.extra_player.slots.top_right_free = false;
+                return calc_world_coordinates_of_slot(player_pos, slots, slot);
+            }
             break;
         }
 
         case Slot::Bottom_Left: {
-            if (player.extra_player.slots.bottom_left_free)
+            if (slots.bottom_left_free) {
                 player.extra_player.slots.bottom_left_free = false;
+                return calc_world_coordinates_of_slot(player_pos, slots, slot);
+            }
             break;
         }
 
         case Slot::Bottom_Right: {
-            if (player.extra_player.slots.bottom_right_free)
+            if (slots.bottom_right_free) {
                 player.extra_player.slots.bottom_right_free = false;
+                return calc_world_coordinates_of_slot(player_pos, slots, slot);
+            }
             break;
         }
     }
-
-    return {};
 }
 
 void return_claimed_slot(Game& game, Slot slot) {

@@ -60,8 +60,9 @@ void enemy_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
 
 static void handle_movement(Entity& e, const Entity& player, const Game& g) {
     if (e.health <= 0) return;
+    if (e.extra_enemy.slot == Slot::None) return;
 
-    auto dir = Vec2{player.x, player.y} - Vec2{e.x, e.y};
+    auto dir = e.extra_enemy.target_pos - Vec2{e.x, e.y};
     if (dir.x > 0) {
         e.dir = Direction::Right;
     }
@@ -153,9 +154,15 @@ static void enemy_claim_slot(Entity& e, const Entity& player, Game& g) {
 }
 
 static void enemy_return_claimed_slot(Entity& e, const Entity& player, Game& g) {
-    if (e.extra_enemy.slot == Slot::None) return;
+    if (e.extra_enemy.slot == Slot::None) unreachable("we shouldnt ever hit this code path if slot is invalid");
 
     return_claimed_slot(g, e.extra_enemy.slot);
+}
+
+static void enemy_update_target_pos(Entity& e, const Entity& player) {
+    if (e.extra_enemy.slot == Slot::None) unreachable("we shouldnt ever hit this code path if slot is invalid");
+
+    e.extra_enemy.target_pos = calc_world_coordinates_of_slot({player.x, player.y}, player.extra_player.slots, e.extra_enemy.slot);
 }
 
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
@@ -173,6 +180,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
     }
 
     if (e.extra_enemy.slot == Slot::None) enemy_claim_slot(e, player, g);
+    else enemy_update_target_pos(e, player);
 
     switch (e.extra_enemy.state) {
         case Enemy_State::Standing: {
