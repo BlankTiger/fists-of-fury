@@ -12,7 +12,7 @@ struct Enemy_Init_Opts {
     f32 y;
 };
 
-static constexpr Entity_Type dont_collide_with[] = {Entity_Type::Enemy};
+static constexpr Entity_Type dont_collide_with[] = {Entity_Type::Enemy, Entity_Type::Player};
 static const Collide_Opts collide_opts = { .dont_collide_with = std::span{dont_collide_with} };
 
 Entity enemy_init(const Game& g, Enemy_Init_Opts opts);

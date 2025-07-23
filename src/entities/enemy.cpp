@@ -58,23 +58,46 @@ void enemy_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
     entity_draw(r, e, &g);
 }
 
+static Direction dir_for_dir_vec(Vec2<f32> dir_vec) {
+    if (dir_vec.x > 0) {
+        return Direction::Right;
+    }
+    else {
+        return Direction::Left;
+    }
+}
+
+static void enemy_rotate_towards_player(Entity& e, const Vec2<f32> enemy_pos, const Vec2<f32> player_pos) {
+    auto dir = player_pos - enemy_pos;
+    e.dir = dir_for_dir_vec(dir);
+}
+
 static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g) {
     if (e.health <= 0) return;
     if (e.extra_enemy.slot == Slot::None) return;
 
-    auto dir = e.extra_enemy.target_pos - Vec2{e.x, e.y};
-    if (dir.x > 0) {
-        e.dir = Direction::Right;
+    const Vec2<f32> enemy_pos = {e.x, e.y};
+    const Vec2<f32> player_pos = {player.x, player.y};
+    if (enemy_pos.within_len_from(e.extra_enemy.target_pos, 0.3f)) {
+        enemy_rotate_towards_player(e, enemy_pos, player_pos);
+        e.x_vel = 0.0f;
+        e.y_vel = 0.0f;
+        e.extra_enemy.state = Enemy_State::Standing;
     }
     else {
-        e.dir = Direction::Left;
+        auto dir = e.extra_enemy.target_pos - enemy_pos;
+        e.dir = dir_for_dir_vec(dir);
+
+        dir.normalize();
+        e.x_vel = dir.x * e.speed;
+        e.y_vel = dir.y * e.speed;
     }
 
-    dir.normalize();
-    e.x_vel = dir.x * e.speed;
-    e.y_vel = dir.y * e.speed;
-
-    entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts);
+    bool could_go = entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts);
+    if (!could_go) {
+        enemy_rotate_towards_player(e, enemy_pos, player_pos);
+        e.extra_enemy.state = Enemy_State::Standing;
+    }
 }
 
 static void enemy_receive_damage(Entity& e) {

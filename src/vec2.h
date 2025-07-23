@@ -32,8 +32,12 @@ struct Vec2 {
         y /= len;
     }
 
-    f32 len() {
+    T len() {
         return std::sqrt(x * x + y * y);
+    }
+
+    bool within_len_from(const Vec2<T> from, const T len) const {
+        return (from - *this).len() < len;
     }
 };
 
