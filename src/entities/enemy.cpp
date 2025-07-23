@@ -58,7 +58,7 @@ void enemy_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
     entity_draw(r, e, &g);
 }
 
-static void handle_movement(Entity& e, const Entity& player, const Game& g) {
+static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g) {
     if (e.health <= 0) return;
     if (e.extra_enemy.slot == Slot::None) return;
 
@@ -77,7 +77,7 @@ static void handle_movement(Entity& e, const Entity& player, const Game& g) {
     entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts);
 }
 
-static void receive_damage(Entity& e) {
+static void enemy_receive_damage(Entity& e) {
     if (e.health <= 0.0f) return;
     auto got_hit = false;
     for (auto dmg : e.damage_queue) {
@@ -114,7 +114,7 @@ static void receive_damage(Entity& e) {
     e.damage_queue.clear();
 }
 
-static bool handle_knockback(Entity& e, const Game& g) {
+static bool enemy_handle_knockback(Entity& e, const Game& g) {
     entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts);
 
     if (e.x_vel > 0) {
@@ -170,8 +170,8 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
     animation_update(e.anim);
     if (e.extra_enemy.state != Enemy_State::Got_Hit) {
-        handle_movement(e, player, g);
-        receive_damage(e);
+        enemy_handle_movement(e, player, g);
+        enemy_receive_damage(e);
     }
     else {
         // this makes it so that when the enemy is in Got_Hit state
@@ -204,7 +204,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         case Enemy_State::Throwing_Knife: break;
 
         case Enemy_State::Got_Hit: {
-            const auto knockback_finished = handle_knockback(e, g);
+            const auto knockback_finished = enemy_handle_knockback(e, g);
             const auto anim_finished = animation_is_finished(e.anim);
             if (knockback_finished && anim_finished && e.health <= 0.0f) {
                 e.extra_enemy.state = Enemy_State::Dying;
