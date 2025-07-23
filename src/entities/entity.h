@@ -37,7 +37,7 @@ enum struct Player_State {
 static_assert((u32)Player_State::Standing == 0);
 static_assert((u32)Player_State::Running  == 1);
 
-enum struct Slot { Top_Left, Top_Right, Bottom_Left, Bottom_Right };
+enum struct Slot { None, Top_Left, Top_Right, Bottom_Left, Bottom_Right };
 
 struct Player_Attack_Slots {
     Vec2<f32> offset_top_left;

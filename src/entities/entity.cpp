@@ -3,6 +3,7 @@
 #include "entity.h"
 #include "../settings.h"
 #include "../draw.h"
+#include "../utils.h"
 
 Vec2<f32> entity_offset_to_bottom_center(const Entity& e) {
     return {e.x - e.sprite_frame_w / 2, e.y - e.sprite_frame_h};
@@ -127,6 +128,11 @@ Vec2<f32> claim_slot_position(Game& game, Slot slot) {
     Entity& player = game_get_player_mutable(game);
 
     switch (slot) {
+        case Slot::None: {
+            unreachable("only a valid position can be claimed");
+            break;
+        }
+
         case Slot::Top_Left: {
             player.extra_player.slots.top_left_free = false;
             break;
