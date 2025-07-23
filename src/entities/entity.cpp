@@ -134,25 +134,60 @@ Vec2<f32> claim_slot_position(Game& game, Slot slot) {
         }
 
         case Slot::Top_Left: {
-            player.extra_player.slots.top_left_free = false;
+            if (player.extra_player.slots.top_left_free)
+                player.extra_player.slots.top_left_free = false;
             break;
         }
 
         case Slot::Top_Right: {
-            player.extra_player.slots.top_right_free = false;
+            if (player.extra_player.slots.top_right_free)
+                player.extra_player.slots.top_right_free = false;
             break;
         }
 
         case Slot::Bottom_Left: {
-            player.extra_player.slots.bottom_left_free = false;
+            if (player.extra_player.slots.bottom_left_free)
+                player.extra_player.slots.bottom_left_free = false;
             break;
         }
 
         case Slot::Bottom_Right: {
-            player.extra_player.slots.bottom_right_free = false;
+            if (player.extra_player.slots.bottom_right_free)
+                player.extra_player.slots.bottom_right_free = false;
             break;
         }
     }
 
     return {};
+}
+
+void return_claimed_slot(Game& game, Slot slot) {
+    Entity& player = game_get_player_mutable(game);
+
+    switch (slot) {
+        case Slot::None: {
+            unreachable("only a valid position can be returned");
+            break;
+        }
+
+        case Slot::Top_Left: {
+            player.extra_player.slots.top_left_free = true;
+            break;
+        }
+
+        case Slot::Top_Right: {
+            player.extra_player.slots.top_right_free = true;
+            break;
+        }
+
+        case Slot::Bottom_Left: {
+            player.extra_player.slots.bottom_left_free = true;
+            break;
+        }
+
+        case Slot::Bottom_Right: {
+            player.extra_player.slots.bottom_right_free = true;
+            break;
+        }
+    }
 }

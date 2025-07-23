@@ -194,3 +194,4 @@ struct Collide_Opts {
 void entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts = {});
 
 Vec2<f32> claim_slot_position(Game& game, Slot slot);
+void return_claimed_slot(Game& game, Slot slot);

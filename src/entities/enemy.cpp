@@ -128,20 +128,7 @@ static bool handle_knockback(Entity& e, const Game& g) {
     return e.x_vel == 0.0f;
 }
 
-Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
-    assert(e.type == Entity_Type::Enemy);
-
-    animation_update(e.anim);
-    if (e.extra_enemy.state != Enemy_State::Got_Hit) {
-        handle_movement(e, player, g);
-        receive_damage(e);
-    }
-    else {
-        // this makes it so that when the enemy is in Got_Hit state
-        // he doesnt receive more damage
-        e.damage_queue.clear();
-    }
-
+static void enemy_claim_slot(Entity& e, const Entity& player, Game& g) {
     const auto slots = player.extra_player.slots;
     if (slots.top_left_free) {
         const auto slot = Slot::Top_Left;
@@ -163,6 +150,29 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         e.extra_enemy.target_pos = claim_slot_position(g, slot);
         e.extra_enemy.slot = slot;
     }
+}
+
+static void enemy_return_claimed_slot(Entity& e, const Entity& player, Game& g) {
+    if (e.extra_enemy.slot == Slot::None) return;
+
+    return_claimed_slot(g, e.extra_enemy.slot);
+}
+
+Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
+    assert(e.type == Entity_Type::Enemy);
+
+    animation_update(e.anim);
+    if (e.extra_enemy.state != Enemy_State::Got_Hit) {
+        handle_movement(e, player, g);
+        receive_damage(e);
+    }
+    else {
+        // this makes it so that when the enemy is in Got_Hit state
+        // he doesnt receive more damage
+        e.damage_queue.clear();
+    }
+
+    if (e.extra_enemy.slot == Slot::None) enemy_claim_slot(e, player, g);
 
     switch (e.extra_enemy.state) {
         case Enemy_State::Standing: {
@@ -208,6 +218,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
         case Enemy_State::Dying: {
             if (animation_is_finished(e.anim)) {
+                enemy_return_claimed_slot(e, player, g);
                 return Update_Result::Remove_Me;
             }
             break;
