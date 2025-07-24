@@ -20,7 +20,7 @@ Entity enemy_init(const Game& g, Enemy_Init_Opts opts) {
     enemy.sprite_frame_h        = sprite_frame_h;
     enemy.collision_box_offsets = {-sprite_frame_w/7,    -3,  2*sprite_frame_w/7,    4};
     enemy.hurtbox_offsets       = {sprite_frame_w/7,     -16, 10,                    6};
-    enemy.hitbox_offsets        = {-sprite_frame_w/6.5f, -23, 2*sprite_frame_w/6.5f, 23};
+    enemy.hitbox_offsets        = {-sprite_frame_w/6.5f, -20, 2*sprite_frame_w/6.5f, 10};
     enemy.shadow_offsets        = {-7,                   -1,  14,                    2};
     enemy.dir                   = Direction::Left;
     enemy.extra_enemy.state     = Enemy_State::Standing;
