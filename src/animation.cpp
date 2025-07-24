@@ -44,7 +44,7 @@ void animation_update(Animation& a) {
 
     u64 current_time = SDL_GetTicks();
     const auto dt = current_time - a.last_frame_time;
-    if (dt >= a.frame_duration_ms) {
+    if (dt >= a.frame_duration_ms && a.frames.frame_count != 1) {
         a.frames.frame_current++;
         a.last_frame_time = current_time;
 
