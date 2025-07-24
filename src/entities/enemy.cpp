@@ -103,6 +103,7 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
 static void enemy_receive_damage(Entity& e) {
     if (e.health <= 0.0f) return;
     auto got_hit = false;
+    auto hit_type = Hit_Type::Normal;
     for (auto dmg : e.damage_queue) {
         got_hit = true;
         e.health -= dmg.amount;
@@ -116,16 +117,40 @@ static void enemy_receive_damage(Entity& e) {
         else {
             unreachable("shouldnt ever get a different direction");
         }
+
+        if (dmg.type != Hit_Type::Normal) {
+            hit_type = dmg.type;
+        }
     }
 
     if (got_hit) {
         u32 anim_idx = 0;
         e.extra_enemy.state = Enemy_State::Got_Hit;
-        if (e.extra_enemy.type == Enemy_Type::Boss) {
-            anim_idx = (u32)Enemy_Boss_Anim::Got_Hit;
-        }
-        else {
-            anim_idx = (u32)Enemy_Anim::Got_Hit;
+        switch (hit_type) {
+            case Hit_Type::Normal: {
+                if (e.extra_enemy.type == Enemy_Type::Boss) {
+                    anim_idx = (u32)Enemy_Boss_Anim::Got_Hit;
+                }
+                else {
+                    anim_idx = (u32)Enemy_Anim::Got_Hit;
+                }
+                break;
+            }
+
+            case Hit_Type::Knockdown: {
+                e.extra_enemy.state = Enemy_State::Knocked_Down;
+                if (e.extra_enemy.type == Enemy_Type::Boss) {
+                    anim_idx = (u32)Enemy_Boss_Anim::Knocked_Down;
+                }
+                else {
+                    anim_idx = (u32)Enemy_Anim::Knocked_Down;
+                }
+                break;
+            }
+
+            case Hit_Type::Special: {
+                unreachable("idk what to do here at this point");
+            }
         }
 
         animation_start(
@@ -173,11 +198,28 @@ static void enemy_update_target_pos(Entity& e, const Entity& player) {
     e.extra_enemy.target_pos = calc_world_coordinates_of_slot({player.x, player.y}, player.extra_player.slots, e.extra_enemy.slot);
 }
 
+static bool enemy_can_move(const Entity& e) {
+    const auto& s = e.extra_enemy.state;
+    return s != Enemy_State::Got_Hit && s != Enemy_State::Knocked_Down && s != Enemy_State::On_The_Ground;
+}
+
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
     assert(e.type == Entity_Type::Enemy);
 
+    // TODO: currently the hurtbox isnt rotated, sooooo... Do the same behavior
+    // we do for the player with the hurtbox rotation when we do the logic
+    // of hitting the player
+    //
+    // also, enemies should collide with the top wall no matter what, the other walls
+    // its probably fine for them not to (bottom and left one especially, maybe they
+    // be coming out of that area off screen from the bottom or something)
+
     animation_update(e.anim);
-    if (e.extra_enemy.state != Enemy_State::Got_Hit) {
+
+    if (e.extra_enemy.slot == Slot::None) enemy_claim_slot(e, player, g);
+    else enemy_update_target_pos(e, player);
+
+    if (enemy_can_move(e)) {
         enemy_handle_movement(e, player, g);
         enemy_receive_damage(e);
     }
@@ -186,9 +228,6 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         // he doesnt receive more damage
         e.damage_queue.clear();
     }
-
-    if (e.extra_enemy.slot == Slot::None) enemy_claim_slot(e, player, g);
-    else enemy_update_target_pos(e, player);
 
     switch (e.extra_enemy.state) {
         case Enemy_State::Standing: {
@@ -201,12 +240,10 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
                 }
             );
 
-            break;
-        }
+        } break;
 
         case Enemy_State::Running: {
-            break;
-        }
+        } break;
 
         case Enemy_State::Punching: break;
         case Enemy_State::Throwing_Knife: break;
@@ -219,7 +256,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
                 animation_start(
                     e.anim,
                     {
-                        .anim_idx          = (u32)Enemy_Anim::Dying,
+                        .anim_idx          = (u32)Enemy_Anim::Knocked_Down,
                         .frame_duration_ms = 200,
                         .fadeout           = { .enabled = true, .perc_per_sec = 0.05 },
                     }
@@ -228,17 +265,34 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             else if (knockback_finished && anim_finished) {
                 e.extra_enemy.state = Enemy_State::Standing;
             }
+        } break;
 
-            break;
-        }
+        case Enemy_State::Knocked_Down: {
+            if (animation_is_finished(e.anim)) {
+                e.extra_enemy.state = Enemy_State::On_The_Ground;
+                animation_start(
+                    e.anim,
+                    {
+                        .anim_idx          = (u32)Enemy_Anim::On_The_Ground,
+                        .frame_duration_ms = 750,
+                    }
+                );
+            }
+        } break;
+
+        case Enemy_State::On_The_Ground: {
+            if (animation_is_finished(e.anim)) {
+                e.extra_enemy.state = Enemy_State::Standing;
+            }
+
+        } break;
 
         case Enemy_State::Dying: {
             if (animation_is_finished(e.anim)) {
-                enemy_return_claimed_slot(e, player, g);
+                if (e.extra_enemy.slot != Slot::None) enemy_return_claimed_slot(e, player, g);
                 return Update_Result::Remove_Me;
             }
-            break;
-        }
+        } break;
 
         case Enemy_State::Landing: break;
         case Enemy_State::Kicking: break;

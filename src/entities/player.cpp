@@ -285,14 +285,15 @@ static void handle_movement(Entity& p, const Game& g) {
     p.dir_prev = p.dir;
 }
 
-static void handle_attack(Entity& p, Game& g) {
+static void handle_attack(Entity& p, Game& g, Hit_Type type = Hit_Type::Normal) {
+    SDL_FRect player_hurtbox = entity_get_world_hurtbox(p);
+
     for (auto& e : g.entities) {
         if (e.type == Entity_Type::Player) continue;
 
-        SDL_FRect player_hurtbox = entity_get_world_hurtbox(p);
         SDL_FRect entity_hitbox = entity_get_world_hitbox(e);
         if (SDL_HasRectIntersectionFloat(&entity_hitbox, &player_hurtbox)) {
-            e.damage_queue.push_back({(f32)p.damage, p.dir});
+            e.damage_queue.push_back({(f32)p.damage, p.dir, type});
         }
     }
 }
@@ -360,7 +361,7 @@ static void player_land(Entity& p) {
 static void player_drop_kick(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Kicking_Drop;
     animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Kicking_Drop, .looping =  false, .frame_duration_ms = 80});
-    handle_attack(p, g);
+    handle_attack(p, g, Hit_Type::Knockdown);
 }
 
 static void player_stand(Entity& p) {

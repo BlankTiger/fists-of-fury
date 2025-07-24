@@ -62,7 +62,8 @@ enum struct Player_Anim : u32 {
     Kicking_Right,
     Kicking_Drop,
     Got_Hit,
-    Dying,
+    Knocked_Down,
+    On_The_Ground,
     Takeoff,
     Jumping,
     Landing
@@ -73,9 +74,12 @@ enum struct Barrel_Anim : u32 {
     Destroyed
 };
 
+enum struct Hit_Type { Normal, Knockdown, Special };
+
 struct Dmg {
     f32       amount;
     Direction going_to;
+    Hit_Type  type;
 };
 
 enum struct Barrel_State { Idle, Destroyed };
@@ -93,7 +97,8 @@ enum struct Enemy_Anim : u32 {
     Punch_Left,
     Punch_Right,
     Got_Hit,
-    Dying,
+    Knocked_Down,
+    On_The_Ground,
     Throw_Knife,
     Landing
 };
@@ -105,7 +110,8 @@ enum struct Enemy_Boss_Anim : u32 {
     Punch_Right,
     Kick,
     Got_Hit,
-    Dying,
+    Knocked_Down,
+    On_The_Ground,
     Landing,
     Guard_Standing,
     Guard_Running
@@ -118,6 +124,8 @@ enum struct Enemy_State {
     Kicking,
     Throwing_Knife,
     Got_Hit,
+    Knocked_Down,
+    On_The_Ground,
     Dying,
     Landing,
     Guarding,

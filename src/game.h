@@ -43,7 +43,8 @@ struct Game {
     Img bg;
     Img entity_shadow;
 
-    static constexpr u32 sprite_player_frames[] = { 4, 8, 4, 3, 6, 6, 1, 3, 3, 1, 1, 1 };
+    // TODO: move this definition closer to the Anim enums
+    static constexpr u32 sprite_player_frames[] = { 4, 8, 4, 3, 6, 6, 1, 3, 3, 1, 1, 1, 1 };
     Sprite sprite_player = {
         .img                     = {},
         .max_frames_in_row_count = 10,
@@ -57,7 +58,7 @@ struct Game {
         .frames_in_each_row      = std::span{sprite_barrel_frames},
     };
 
-    static constexpr u32 sprite_enemy_frames[] = { 1, 8, 3, 3, 3, 3, 4, 1 };
+    static constexpr u32 sprite_enemy_frames[] = { 1, 8, 3, 3, 3, 3, 1, 4, 1 };
     Sprite sprite_enemy_goon = {
         .img                     = {},
         .max_frames_in_row_count = 10,
@@ -74,7 +75,7 @@ struct Game {
         .frames_in_each_row      = std::span{sprite_enemy_frames},
     };
 
-    static constexpr u32 sprite_enemy_boss_frames[] = { 1, 8, 4, 3, 5, 2, 3, 1, 1, 8 };
+    static constexpr u32 sprite_enemy_boss_frames[] = { 1, 8, 4, 3, 5, 2, 3, 1, 1, 1, 8 };
     Sprite sprite_enemy_boss = {
         .img                     = {},
         .max_frames_in_row_count = 10,
