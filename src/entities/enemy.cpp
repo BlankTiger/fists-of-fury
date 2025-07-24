@@ -154,25 +154,10 @@ static bool enemy_handle_knockback(Entity& e, const Game& g) {
 
 static void enemy_claim_slot(Entity& e, const Entity& player, Game& g) {
     const auto slots = player.extra_player.slots;
-    if (slots.top_left_free) {
-        const auto slot = Slot::Top_Left;
-        e.extra_enemy.target_pos = claim_slot_position(g, slot);
-        e.extra_enemy.slot = slot;
-    }
-    else if (slots.top_right_free) {
-        const auto slot = Slot::Top_Right;
-        e.extra_enemy.target_pos = claim_slot_position(g, slot);
-        e.extra_enemy.slot = slot;
-    }
-    else if (slots.bottom_left_free) {
-        const auto slot = Slot::Bottom_Left;
-        e.extra_enemy.target_pos = claim_slot_position(g, slot);
-        e.extra_enemy.slot = slot;
-    }
-    else if (slots.bottom_right_free) {
-        const auto slot = Slot::Bottom_Right;
-        e.extra_enemy.target_pos = claim_slot_position(g, slot);
-        e.extra_enemy.slot = slot;
+    const auto empty_slot = find_empty_slot(slots);
+    if (empty_slot != Slot::None) {
+        e.extra_enemy.target_pos = claim_slot_position(g, empty_slot);
+        e.extra_enemy.slot = empty_slot;
     }
 }
 

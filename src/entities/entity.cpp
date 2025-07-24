@@ -152,6 +152,25 @@ Vec2<f32> calc_world_coordinates_of_slot(Vec2<f32> player_world_pos, const Playe
     }
 }
 
+Slot find_empty_slot(const Player_Attack_Slots& slots) {
+    auto result = Slot::None;
+
+    if (slots.top_right_free) {
+        result = Slot::Top_Right;
+    }
+    else if (slots.bottom_right_free) {
+        result = Slot::Bottom_Right;
+    }
+    else if (slots.top_left_free) {
+        result = Slot::Top_Left;
+    }
+    else if (slots.bottom_left_free) {
+        result = Slot::Bottom_Left;
+    }
+
+    return result;
+}
+
 Vec2<f32> claim_slot_position(Game& game, Slot slot) {
     Entity& player = game_get_player_mutable(game);
     const auto& slots = player.extra_player.slots;
