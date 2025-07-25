@@ -124,39 +124,37 @@ static void enemy_receive_damage(Entity& e) {
     }
 
     if (got_hit) {
-        u32 anim_idx = 0;
         e.extra_enemy.state = Enemy_State::Got_Hit;
         switch (hit_type) {
             case Hit_Type::Normal: {
+                auto anim_idx = (u32)Enemy_Anim::Got_Hit;
                 if (e.extra_enemy.type == Enemy_Type::Boss) {
                     anim_idx = (u32)Enemy_Boss_Anim::Got_Hit;
                 }
-                else {
-                    anim_idx = (u32)Enemy_Anim::Got_Hit;
-                }
-                break;
-            }
+
+                animation_start(
+                    e.anim,
+                    { .anim_idx = anim_idx, .frame_duration_ms = 200 }
+                );
+            } break;
 
             case Hit_Type::Knockdown: {
+                auto anim_idx = (u32)Enemy_Anim::Knocked_Down;
                 e.extra_enemy.state = Enemy_State::Knocked_Down;
                 if (e.extra_enemy.type == Enemy_Type::Boss) {
                     anim_idx = (u32)Enemy_Boss_Anim::Knocked_Down;
                 }
-                else {
-                    anim_idx = (u32)Enemy_Anim::Knocked_Down;
-                }
-                break;
-            }
+
+                animation_start(
+                    e.anim,
+                    { .anim_idx = anim_idx, .frame_duration_ms = 200 }
+                );
+            } break;
 
             case Hit_Type::Special: {
                 unreachable("idk what to do here at this point");
             }
         }
-
-        animation_start(
-            e.anim,
-            { .anim_idx = anim_idx, .frame_duration_ms = 200 }
-        );
     }
 
     e.damage_queue.clear();
