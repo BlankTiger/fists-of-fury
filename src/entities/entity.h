@@ -126,6 +126,7 @@ enum struct Enemy_State {
     Got_Hit,
     Knocked_Down,
     On_The_Ground,
+    Standing_Up,
     Dying,
     Landing,
     Guarding,

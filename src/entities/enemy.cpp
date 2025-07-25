@@ -200,7 +200,10 @@ static void enemy_update_target_pos(Entity& e, const Entity& player) {
 
 static bool enemy_can_move(const Entity& e) {
     const auto& s = e.extra_enemy.state;
-    return s != Enemy_State::Got_Hit && s != Enemy_State::Knocked_Down && s != Enemy_State::On_The_Ground;
+    return s != Enemy_State::Got_Hit
+        && s != Enemy_State::Knocked_Down
+        && s != Enemy_State::On_The_Ground
+        && s != Enemy_State::Standing_Up;
 }
 
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
@@ -303,9 +306,25 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
         case Enemy_State::On_The_Ground: {
             if (animation_is_finished(e.anim)) {
+                e.extra_enemy.state = Enemy_State::Standing_Up;
+                auto anim_idx = (u32)Enemy_Anim::Landing;
+                if (e.extra_enemy.type == Enemy_Type::Boss) {
+                    anim_idx = (u32)Enemy_Boss_Anim::Landing;
+                }
+                animation_start(
+                    e.anim,
+                    {
+                        .anim_idx = anim_idx,
+                        .frame_duration_ms = 500,
+                    }
+                );
+            }
+        } break;
+
+        case Enemy_State::Standing_Up: {
+            if (animation_is_finished(e.anim)) {
                 e.extra_enemy.state = Enemy_State::Standing;
             }
-
         } break;
 
         case Enemy_State::Dying: {
