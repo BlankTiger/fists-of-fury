@@ -206,6 +206,13 @@ static bool enemy_can_move(const Entity& e) {
         && s != Enemy_State::Standing_Up;
 }
 
+static bool enemy_can_receive_damage(const Entity& e) {
+    const auto& s = e.extra_enemy.state;
+    return s == Enemy_State::Standing
+        || s == Enemy_State::Running
+        || s == Enemy_State::Landing;
+}
+
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
     assert(e.type == Entity_Type::Enemy);
 
@@ -222,8 +229,9 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
     if (e.extra_enemy.slot == Slot::None) enemy_claim_slot(e, player, g);
     else enemy_update_target_pos(e, player);
 
-    if (enemy_can_move(e)) {
-        enemy_handle_movement(e, player, g);
+    if (enemy_can_move(e)) enemy_handle_movement(e, player, g);
+
+    if (enemy_can_receive_damage(e)) {
         enemy_receive_damage(e);
     }
     else {
