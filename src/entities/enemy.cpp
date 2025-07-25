@@ -134,7 +134,7 @@ static void enemy_receive_damage(Entity& e) {
 
                 animation_start(
                     e.anim,
-                    { .anim_idx = anim_idx, .frame_duration_ms = 200 }
+                    { .anim_idx = anim_idx, .frame_duration_ms = 75 }
                 );
             } break;
 
