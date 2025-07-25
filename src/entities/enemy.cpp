@@ -273,9 +273,10 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
                 anim_idx = (u32)Enemy_Boss_Anim::On_The_Ground;
             }
 
+            const auto knockback_finished = enemy_handle_knockback(e, g);
             const auto anim_finished = animation_is_finished(e.anim);
 
-            if (anim_finished && e.health <= 0.0f) {
+            if (knockback_finished && anim_finished && e.health <= 0.0f) {
                 e.extra_enemy.state = Enemy_State::Dying;
 
                 animation_start(
@@ -287,7 +288,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
                     }
                 );
             }
-            else if (anim_finished) {
+            else if (knockback_finished && anim_finished) {
                 e.extra_enemy.state = Enemy_State::On_The_Ground;
 
                 animation_start(
