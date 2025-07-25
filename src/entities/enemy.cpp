@@ -268,12 +268,32 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         } break;
 
         case Enemy_State::Knocked_Down: {
-            if (animation_is_finished(e.anim)) {
-                e.extra_enemy.state = Enemy_State::On_The_Ground;
+            auto anim_idx = (u32)Enemy_Anim::On_The_Ground;
+            if (e.extra_enemy.type == Enemy_Type::Boss) {
+                anim_idx = (u32)Enemy_Boss_Anim::On_The_Ground;
+            }
+
+            const auto anim_finished = animation_is_finished(e.anim);
+
+            if (anim_finished && e.health <= 0.0f) {
+                e.extra_enemy.state = Enemy_State::Dying;
+
                 animation_start(
                     e.anim,
                     {
-                        .anim_idx          = (u32)Enemy_Anim::On_The_Ground,
+                        .anim_idx          = anim_idx,
+                        .frame_duration_ms = 200,
+                        .fadeout           = { .enabled = true, .perc_per_sec = 0.05 },
+                    }
+                );
+            }
+            else if (anim_finished) {
+                e.extra_enemy.state = Enemy_State::On_The_Ground;
+
+                animation_start(
+                    e.anim,
+                    {
+                        .anim_idx          = anim_idx,
                         .frame_duration_ms = 750,
                     }
                 );
