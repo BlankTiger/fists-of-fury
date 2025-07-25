@@ -1,6 +1,5 @@
 #include <cmath>
 #include <cassert>
-#include <iostream>
 
 #include "player.h"
 #include "../game.h"
@@ -241,6 +240,11 @@ static void handle_movement(Entity& p, const Game& g) {
     const auto in = g.input;
 
     bool is_moving = false;
+
+    // for some reason there was leftover 0.03 when
+    // we werent doing an explicit reset of these
+    p.x_vel = 0.0f;
+    p.y_vel = 0.0f;
 
     if (in.left) {
         p.x_vel -= 1.0f;
