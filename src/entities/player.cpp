@@ -303,8 +303,9 @@ static void player_attack(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Attacking;
     handle_attack(p, g);
 
-    u32 attack_anim      = (u32)Player_Anim::Punching_Right;
-    Anim_Start_Opts opts = { .frame_duration_ms = 60 };
+    u32 attack_anim        = (u32)Player_Anim::Punching_Right;
+    Anim_Start_Opts opts   = {};
+    opts.frame_duration_ms = 60;
 
     auto should_be = p.extra_player.combo % AMOUNT_OF_ATTACKS;
     switch (should_be) {
