@@ -206,6 +206,7 @@ struct Entity {
             Player_Attack_Slots slots;
             u32                 combo;
             bool                last_attack_successful;
+            u64                 last_attack_timestamp; // for resetting combo after some time
         } extra_player;
 
         struct {

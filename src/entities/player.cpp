@@ -290,6 +290,7 @@ static void handle_attack(Entity& p, Game& g, Hit_Type type = Hit_Type::Normal) 
     p.extra_player.last_attack_successful = attack_success;
     if (attack_success) {
         p.extra_player.combo++;
+        p.extra_player.last_attack_timestamp = SDL_GetTicks();
     }
     else {
         p.extra_player.combo = 0;
@@ -391,6 +392,12 @@ static void handle_jump_physics(Entity& p, const Game& g) {
 
 Update_Result player_update(Entity& p, Game& g) {
     assert(p.type == Entity_Type::Player);
+
+    if (p.extra_player.combo > 0) {
+        if (SDL_GetTicks() - p.extra_player.last_attack_timestamp > settings.player_combo_timeout) {
+            p.extra_player.combo = 0;
+        }
+    }
 
     switch (p.extra_player.state) {
         case Player_State::Standing: {
