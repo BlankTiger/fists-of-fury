@@ -105,7 +105,7 @@ static bool init() {
 
     // player setup
     {
-        Entity player = player_init(&g.sprite_player);
+        Entity player = player_init(&g.sprite_player, g);
         g.entities.push_back(player);
         g.idx_player = g.entities.size() - 1;
     }
@@ -119,7 +119,7 @@ static bool init() {
     }
 
     {
-        Entity barrel = barrel_init({
+        Entity barrel = barrel_init(g, {
             .x = SCREEN_WIDTH / 2,
             .y = 38,
             .health = 20,
@@ -127,7 +127,7 @@ static bool init() {
         });
         g.entities.push_back(barrel);
 
-        Entity barrel2 = barrel_init({
+        Entity barrel2 = barrel_init(g, {
             .x = SCREEN_WIDTH,
             .y = 38,
             .health = 20,

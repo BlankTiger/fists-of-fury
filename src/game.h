@@ -83,8 +83,10 @@ struct Game {
     Level_Info curr_level_info;
     Camera     camera;
     u64        dt;
+    u32        last_entity_id = 0;
 };
 
 Vec2<f32> game_get_screen_coords(const Game& g, Vec2<f32> worlds_coords);
 Entity game_get_player(const Game& g);
 Entity& game_get_player_mutable(Game& g);
+Handle game_generate_entity_handle(Game& g);

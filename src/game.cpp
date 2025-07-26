@@ -14,3 +14,9 @@ Entity game_get_player(const Game& g) {
 Entity& game_get_player_mutable(Game& g) {
     return g.entities[g.idx_player];
 }
+
+Handle game_generate_entity_handle(Game& g) {
+    Handle h = { .id = g.last_entity_id + 1 };
+    g.last_entity_id++;
+    return h;
+}

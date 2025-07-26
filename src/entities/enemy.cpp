@@ -5,10 +5,11 @@
 #include "../utils.h"
 #include "entity.h"
 
-Entity enemy_init(const Game& g, Enemy_Init_Opts opts) {
+Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
     const auto sprite_frame_h = 48;
     const auto sprite_frame_w = 48;
     Entity enemy{};
+    enemy.handle                = game_generate_entity_handle(g);
     enemy.x                     = opts.x;
     enemy.y                     = opts.y;
     enemy.health                = opts.health;

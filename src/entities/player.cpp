@@ -7,10 +7,11 @@
 #include "../draw.h"
 #include "../utils.h"
 
-Entity player_init(const Sprite* player_sprite) {
+Entity player_init(const Sprite* player_sprite, Game& g) {
     const auto sprite_frame_h = 48;
     const auto sprite_frame_w = 48;
     Entity player{};
+    player.handle                    = game_generate_entity_handle(g);
     player.health                    = 100;
     player.damage                    = 20;
     player.speed                     = 0.03;

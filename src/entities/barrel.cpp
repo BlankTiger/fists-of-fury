@@ -4,11 +4,13 @@
 #include "../draw.h"
 #include "../settings.h"
 #include "../utils.h"
+#include "../game.h"
 
-Entity barrel_init(Barrel_Init_Opts opts) {
+Entity barrel_init(Game& g, Barrel_Init_Opts opts) {
     const f32 barrel_w = 32;
     const f32 barrel_h = 32;
     Entity barrel{};
+    barrel.handle                = game_generate_entity_handle(g);
     barrel.type                  = Entity_Type::Barrel;
     barrel.x                     = opts.x;
     barrel.y                     = opts.y;

@@ -154,7 +154,20 @@ enum struct Enemy_State {
     Guarding_Running
 };
 
+struct Handle { 
+    u32 id;
+
+    bool operator==(const Handle& other) const {
+        return id == other.id;
+    }
+
+    bool operator!=(const Handle& other) const {
+        return id != other.id;
+    }
+};
+
 struct Entity {
+    Handle handle;
     f32 health;
     f32 damage;
     f32 speed;
