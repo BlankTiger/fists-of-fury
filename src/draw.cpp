@@ -89,7 +89,7 @@ void draw_box(SDL_Renderer* r, const SDL_FRect dst, Draw_Box_Opts opts) {
 }
 
 void draw_text(SDL_Renderer* r, const SDL_FRect dst, Draw_Text_Opts opts) {
-
+    _draw_box(r, dst, opts.color, opts.color);
 }
 
 void draw_point(SDL_Renderer* r, Draw_Point_Opts opts) {

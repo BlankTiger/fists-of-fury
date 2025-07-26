@@ -10,7 +10,7 @@ void debug_menu_update(Debug_Menu& dm) {
     if (!dm.show) return;
 }
 
-static std::string debug_menu_get_content(const Debug_Menu& dm) {
+static std::string debug_menu_get_content(/*const Debug_Menu& dm*/) {
     return "heyyyyy";
 }
 
@@ -23,7 +23,7 @@ void debug_menu_draw(const Debug_Menu& dm, SDL_Renderer* r) {
     };
     draw_box(r, dst_box, opts_box);
 
-    const auto content = debug_menu_get_content(dm);
+    const auto content = debug_menu_get_content();
     const auto font_width_from_border = dm.width_border + dm.width_font;
     const auto width_max = dm.width_box - 2*dm.width_border; // will probably need some additional space for breathing
     const auto height_max = dm.height_box - 2*dm.width_border; // same thing here

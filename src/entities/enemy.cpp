@@ -72,6 +72,10 @@ static void enemy_rotate_towards_player(Entity& e, const Vec2<f32> enemy_pos, co
     e.dir = dir_for_dir_vec(dir);
 }
 
+// static void enemy_handle_flying_back(Entity& e, const Game& g) {
+//
+// }
+
 static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g) {
     if (e.health <= 0) return;
     if (e.extra_enemy.slot == Slot::None) return;
@@ -184,7 +188,7 @@ static void enemy_claim_slot(Entity& e, const Entity& player, Game& g) {
     }
 }
 
-static void enemy_return_claimed_slot(Entity& e, const Entity& player, Game& g) {
+static void enemy_return_claimed_slot(Entity& e, Game& g) {
     if (e.extra_enemy.slot == Slot::None) unreachable("we shouldnt ever hit this code path if slot is invalid");
 
     return_claimed_slot(g, e.extra_enemy.slot);
@@ -335,7 +339,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
         case Enemy_State::Dying: {
             if (animation_is_finished(e.anim)) {
-                if (e.extra_enemy.slot != Slot::None) enemy_return_claimed_slot(e, player, g);
+                if (e.extra_enemy.slot != Slot::None) enemy_return_claimed_slot(e, g);
                 return Update_Result::Remove_Me;
             }
         } break;

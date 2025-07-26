@@ -157,6 +157,9 @@ Vec2<f32> calc_world_coordinates_of_slot(Vec2<f32> player_world_pos, const Playe
             return player_world_pos + slots.offset_bottom_right;
         }
     }
+
+    unreachable("just to make the compiler happy");
+    return {};
 }
 
 Slot find_empty_slot(const Player_Attack_Slots& slots) {
@@ -186,41 +189,39 @@ Vec2<f32> claim_slot_position(Game& game, Slot slot) {
     switch (slot) {
         case Slot::None: {
             unreachable("only a valid position can be claimed");
-            break;
-        }
+        } break;
 
         case Slot::Top_Left: {
             if (slots.top_left_free) {
                 player.extra_player.slots.top_left_free = false;
                 return calc_world_coordinates_of_slot(player_pos, slots, slot);
             }
-            break;
-        }
+        } break;
 
         case Slot::Top_Right: {
             if (slots.top_right_free) {
                 player.extra_player.slots.top_right_free = false;
                 return calc_world_coordinates_of_slot(player_pos, slots, slot);
             }
-            break;
-        }
+        } break;
 
         case Slot::Bottom_Left: {
             if (slots.bottom_left_free) {
                 player.extra_player.slots.bottom_left_free = false;
                 return calc_world_coordinates_of_slot(player_pos, slots, slot);
             }
-            break;
-        }
+        } break;
 
         case Slot::Bottom_Right: {
             if (slots.bottom_right_free) {
                 player.extra_player.slots.bottom_right_free = false;
                 return calc_world_coordinates_of_slot(player_pos, slots, slot);
             }
-            break;
-        }
+        } break;
     }
+
+    unreachable("just to make the compiler happy");
+    return {};
 }
 
 void return_claimed_slot(Game& game, Slot slot) {
