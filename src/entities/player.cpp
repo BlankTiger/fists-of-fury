@@ -45,13 +45,16 @@ static void update_borders_for_curr_level(Game& g) {
     auto new_left   = level_info_get_collision_box(g.curr_level_info, Border::Left);
     auto new_top    = level_info_get_collision_box(g.curr_level_info, Border::Top);
     auto new_bottom = level_info_get_collision_box(g.curr_level_info, Border::Bottom);
+    auto new_right  = level_info_get_collision_box(g.curr_level_info, Border::Right);
     // -1 to be 1 pixel off the screen to the left
     new_left.x      = g.camera.x - 1;
     new_top.x       = g.camera.x - 1;
     new_bottom.x    = g.camera.x - 1;
+    new_right.x     = g.camera.x + SCREEN_WIDTH;
     level_info_update_collision_box(g.curr_level_info, Border::Left,   new_left);
     level_info_update_collision_box(g.curr_level_info, Border::Top,    new_top);
     level_info_update_collision_box(g.curr_level_info, Border::Bottom, new_bottom);
+    level_info_update_collision_box(g.curr_level_info, Border::Right,  new_right);
 }
 
 const f32 w_half_screen = SCREEN_WIDTH / 2;

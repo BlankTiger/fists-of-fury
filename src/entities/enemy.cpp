@@ -206,7 +206,8 @@ static bool enemy_handle_knockback(Entity& e, const Game& g) {
 static bool enemy_handle_flying_back(Entity& e, const Game& g) {
     auto new_collide_opts = collide_opts;
     new_collide_opts.collide_with_walls = true;
-    return !entity_movement_handle_collisions_and_pos_change(e, &g, new_collide_opts);
+    auto in_bounds = entity_movement_handle_collisions_and_pos_change(e, &g, new_collide_opts);
+    return !in_bounds;
 }
 
 static void enemy_claim_slot(Entity& e, const Entity& player, Game& g) {
@@ -319,6 +320,8 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             const auto hit_wall = enemy_handle_flying_back(e, g);
             // make sure that this path doesnt let the enemy live even tho he has 0hp
             if (hit_wall) {
+                // this makes them bounce off of the wall
+                e.x_vel = -e.x_vel;
                 e.extra_enemy.state = Enemy_State::Knocked_Down;
                 auto opts = enemy_get_anim_knocked_down(e);
                 animation_start(e.anim, opts);
