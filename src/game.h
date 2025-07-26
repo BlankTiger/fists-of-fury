@@ -37,42 +37,37 @@ struct Game {
     Img bg;
     Img entity_shadow;
 
-    // TODO: move this definition closer to the Anim enums
-    static constexpr u32 sprite_player_frames[] = { 4, 8, 4, 3, 6, 6, 1, 3, 3, 1, 1, 1, 1 };
     Sprite sprite_player = {
         .img                     = {},
-        .max_frames_in_row_count = 10,
+        .max_frames_in_row_count = 10, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
         .frames_in_each_row      = std::span{sprite_player_frames},
     };
 
-    static constexpr u32 sprite_barrel_frames[] = { 1, 1 };
     Sprite sprite_barrel = {
         .img                     = {},
-        .max_frames_in_row_count = 1,
+        .max_frames_in_row_count = 1, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
         .frames_in_each_row      = std::span{sprite_barrel_frames},
     };
 
-    static constexpr u32 sprite_enemy_frames[] = { 1, 8, 3, 3, 3, 3, 1, 4, 1 };
     Sprite sprite_enemy_goon = {
         .img                     = {},
-        .max_frames_in_row_count = 10,
+        .max_frames_in_row_count = 10, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
         .frames_in_each_row      = std::span{sprite_enemy_frames},
     };
     Sprite sprite_enemy_punk = {
         .img                     = {},
-        .max_frames_in_row_count = 10,
+        .max_frames_in_row_count = 10, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
         .frames_in_each_row      = std::span{sprite_enemy_frames},
     };
     Sprite sprite_enemy_thug = {
         .img                     = {},
-        .max_frames_in_row_count = 10,
+        .max_frames_in_row_count = 10, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
         .frames_in_each_row      = std::span{sprite_enemy_frames},
     };
 
-    static constexpr u32 sprite_enemy_boss_frames[] = { 1, 8, 4, 3, 5, 2, 3, 1, 1, 1, 8 };
     Sprite sprite_enemy_boss = {
         .img                     = {},
-        .max_frames_in_row_count = 10,
+        .max_frames_in_row_count = 10, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
         .frames_in_each_row      = std::span{sprite_enemy_boss_frames},
     };
 

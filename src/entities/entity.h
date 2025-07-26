@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <span>
+#include <array>
 #include <SDL3/SDL.h>
 #include "../number_types.h"
 #include "../vec2.h"
@@ -65,13 +66,21 @@ enum struct Player_Anim : u32 {
     On_The_Ground  = 9,
     Takeoff        = 10,
     Jumping        = 11,
-    Landing        = 12
+    Landing        = 12,
+    COUNT // keep this last
 };
 
+static constexpr u32 sprite_player_frames[] = { 4, 8, 4, 3, 6, 6, 1, 3, 3, 1, 1, 1, 1 };
+static_assert(std::size(sprite_player_frames) == (u32)Player_Anim::COUNT);
+
 enum struct Barrel_Anim : u32 {
-    Idle,
-    Destroyed
+    Idle      = 0,
+    Destroyed = 1,
+    COUNT // keep this last
 };
+
+static constexpr u32 sprite_barrel_frames[] = { 1, 1 };
+static_assert(std::size(sprite_barrel_frames) == (u32)Barrel_Anim::COUNT);
 
 enum struct Hit_Type { Normal, Knockdown, Special };
 
@@ -101,8 +110,12 @@ enum struct Enemy_Anim : u32 {
     On_The_Ground = 6,
     Throw_Knife   = 7,
     Landing       = 8,
-    Flying_Back   = 9
+    Flying_Back   = 9,
+    COUNT // keep this last
 };
+
+static constexpr u32 sprite_enemy_frames[] = { 1, 8, 3, 3, 3, 3, 1, 4, 1, 1 };
+static_assert(std::size(sprite_enemy_frames) == (u32)Enemy_Anim::COUNT);
 
 // the value should always correspond to the sprite row for the animation
 enum struct Enemy_Boss_Anim : u32 {
@@ -117,8 +130,12 @@ enum struct Enemy_Boss_Anim : u32 {
     Landing        = 8,
     Guard_Standing = 9,
     Guard_Running  = 10,
-    Flying_Back    = 11
+    Flying_Back    = 11,
+    COUNT // keep this last
 };
+
+static constexpr u32 sprite_enemy_boss_frames[] = { 1, 8, 4, 3, 5, 2, 3, 1, 1, 1, 8, 1 };
+static_assert(std::size(sprite_enemy_boss_frames) == (u32)Enemy_Boss_Anim::COUNT);
 
 enum struct Enemy_State {
     Standing,
