@@ -7,6 +7,7 @@
 #include <span>
 
 #include "number_types.h"
+#include "settings.h"
 
 enum struct Level : usize {
     Street,
@@ -37,18 +38,18 @@ constexpr std::array<Level_Info, (usize)Level::Count> level_data = []() {
     std::array<Level_Info, (usize)Level::Count> data{};
 
     data[(usize)Level::Street] = {};
-    data[(usize)Level::Street].bg_path  = "assets/art/backgrounds/street-background.png";
-    data[(usize)Level::Street].collision_boxes[(usize)Border::Top]    = {0,   0,  150, 30};
-    data[(usize)Level::Street].collision_boxes[(usize)Border::Bottom] = {0,   64, 150, 10};
-    data[(usize)Level::Street].collision_boxes[(usize)Border::Left]   = {-1,  0,  1,   64};
-    data[(usize)Level::Street].collision_boxes[(usize)Border::Right]  = {400, 0,  1,   64};
+    data[(usize)Level::Street].bg_path = "assets/art/backgrounds/street-background.png";
+    data[(usize)Level::Street].collision_boxes[(usize)Border::Top]    = {0,            0,  150, 30};
+    data[(usize)Level::Street].collision_boxes[(usize)Border::Bottom] = {0,            64, 150, 10};
+    data[(usize)Level::Street].collision_boxes[(usize)Border::Left]   = {-1,           0,  1,   64};
+    data[(usize)Level::Street].collision_boxes[(usize)Border::Right]  = {SCREEN_WIDTH, 0,  1,   64};
 
     data[(usize)Level::Bar] = {};
-    data[(usize)Level::Bar].bg_path  = "assets/art/backgrounds/bar-background.png";
-    data[(usize)Level::Bar].collision_boxes[(usize)Border::Top]    = {0,   0,  150, 32};
-    data[(usize)Level::Bar].collision_boxes[(usize)Border::Bottom] = {0,   64, 150, 10};
-    data[(usize)Level::Bar].collision_boxes[(usize)Border::Left]   = {-1,  0,  1,   64};
-    data[(usize)Level::Bar].collision_boxes[(usize)Border::Right]  = {400, 0,  1,   64};
+    data[(usize)Level::Bar].bg_path = "assets/art/backgrounds/bar-background.png";
+    data[(usize)Level::Bar].collision_boxes[(usize)Border::Top]    = {0,            0,  150, 32};
+    data[(usize)Level::Bar].collision_boxes[(usize)Border::Bottom] = {0,            64, 150, 10};
+    data[(usize)Level::Bar].collision_boxes[(usize)Border::Left]   = {-1,           0,  1,   64};
+    data[(usize)Level::Bar].collision_boxes[(usize)Border::Right]  = {SCREEN_WIDTH, 0,  1,   64};
 
     return data;
 }();
