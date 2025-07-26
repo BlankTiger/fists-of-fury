@@ -89,10 +89,6 @@ static bool input_pressed(bool curr, bool prev) {
     return curr && !prev;
 }
 
-// static bool input_released(bool curr, bool prev) {
-//     return !curr && prev;
-// }
-
 enum struct Action {
     Left,
     Right,
