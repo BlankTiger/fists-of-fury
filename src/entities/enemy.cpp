@@ -114,6 +114,12 @@ static void enemy_make_stationary(Entity& e) {
     e.y_vel = 0.0f;
 }
 
+static void enemy_stand_up(Entity& e) {
+    e.extra_enemy.state = Enemy_State::Standing;
+    auto opts = enemy_get_anim_standing(e);
+    animation_start(e.anim, opts);
+}
+
 static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g) {
     if (e.health <= 0) return;
     if (e.extra_enemy.slot == Slot::None) return;
@@ -123,9 +129,7 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
     if (enemy_pos.within_len_from(e.extra_enemy.target_pos, 0.3f)) {
         enemy_rotate_towards_player(e, enemy_pos, player_pos);
         enemy_make_stationary(e);
-        e.extra_enemy.state = Enemy_State::Standing;
-        auto opts = enemy_get_anim_standing(e);
-        animation_start(e.anim, opts);
+        enemy_stand_up(e);
     }
     else {
         auto dir = e.extra_enemy.target_pos - enemy_pos;
@@ -139,9 +143,7 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
     bool could_go = entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts);
     if (!could_go) {
         enemy_rotate_towards_player(e, enemy_pos, player_pos);
-        e.extra_enemy.state = Enemy_State::Standing;
-        auto opts = enemy_get_anim_standing(e);
-        animation_start(e.anim, opts);
+        enemy_stand_up(e);
     }
 }
 
@@ -337,9 +339,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
         case Enemy_State::Running: {
             if (!enemy_is_moving(e)) {
-                e.extra_enemy.state = Enemy_State::Standing;
-                auto opts = enemy_get_anim_standing(e);
-                animation_start(e.anim, opts);
+                enemy_stand_up(e);
             }
         } break;
 
@@ -356,9 +356,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
                 animation_start(e.anim, opts);
             }
             else if (knockback_finished && anim_finished) {
-                e.extra_enemy.state = Enemy_State::Standing;
-                auto opts = enemy_get_anim_standing(e);
-                animation_start(e.anim, opts);
+                enemy_stand_up(e);
             }
         } break;
 
@@ -428,9 +426,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
         case Enemy_State::Standing_Up: {
             if (animation_is_finished(e.anim)) {
-                e.extra_enemy.state = Enemy_State::Standing;
-                auto opts = enemy_get_anim_standing(e);
-                animation_start(e.anim, opts);
+                enemy_stand_up(e);
             }
         } break;
 
