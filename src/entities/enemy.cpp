@@ -120,6 +120,12 @@ static void enemy_stand_up(Entity& e) {
     animation_start(e.anim, opts);
 }
 
+static void enemy_run(Entity& e) {
+    e.extra_enemy.state = Enemy_State::Running;
+    auto opts = enemy_get_anim_running(e);
+    animation_start(e.anim, opts);
+}
+
 static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g) {
     if (e.health <= 0) return;
     if (e.extra_enemy.slot == Slot::None) return;
@@ -331,9 +337,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
     switch (e.extra_enemy.state) {
         case Enemy_State::Standing: {
             if (enemy_is_moving(e)) {
-                e.extra_enemy.state = Enemy_State::Running;
-                auto opts = enemy_get_anim_running(e);
-                animation_start(e.anim, opts);
+                enemy_run(e);
             }
         } break;
 
