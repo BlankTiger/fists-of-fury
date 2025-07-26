@@ -140,9 +140,7 @@ static_assert(std::size(sprite_enemy_boss_frames) == (u32)Enemy_Boss_Anim::COUNT
 enum struct Enemy_State {
     Standing,
     Running,
-    Punching,
-    Kicking,
-    Throwing_Knife,
+    Attacking,
     Got_Hit,
     Knocked_Down,
     On_The_Ground,
@@ -154,7 +152,7 @@ enum struct Enemy_State {
     Guarding_Running
 };
 
-struct Handle { 
+struct Handle {
     u32 id;
 
     bool operator==(const Handle& other) const {
@@ -214,6 +212,8 @@ struct Entity {
             Enemy_State state;
             Vec2<f32>   target_pos;
             Slot        slot;
+            u64         last_attack_timestamp;
+            u64         idx_attack;
         } extra_enemy;
 
         struct {
@@ -225,6 +225,8 @@ struct Entity {
 // gives coordinates such that when they are used to draw the center point of the bottom border
 // of the sprite is at the entity x, y
 Vec2<f32> entity_offset_to_bottom_center(const Entity& e);
+
+Vec2<f32> entity_get_pos(const Entity& e);
 
 SDL_FRect entity_get_world_collision_box(const Entity& e);
 SDL_FRect entity_get_world_hitbox(const Entity& e);

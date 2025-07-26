@@ -394,7 +394,7 @@ Update_Result player_update(Entity& p, Game& g) {
     assert(p.type == Entity_Type::Player);
 
     if (p.extra_player.combo > 0) {
-        if (SDL_GetTicks() - p.extra_player.last_attack_timestamp > settings.player_combo_timeout) {
+        if (SDL_GetTicks() - p.extra_player.last_attack_timestamp > settings.player_combo_timeout_ms) {
             p.extra_player.combo = 0;
         }
     }
