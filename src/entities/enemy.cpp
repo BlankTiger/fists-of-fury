@@ -73,10 +73,6 @@ static void enemy_rotate_towards_player(Entity& e, const Vec2<f32> enemy_pos, co
     e.dir = dir_for_dir_vec(dir);
 }
 
-// static void enemy_handle_flying_back(Entity& e, const Game& g) {
-//
-// }
-
 static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g) {
     if (e.health <= 0) return;
     if (e.extra_enemy.slot == Slot::None) return;
@@ -204,6 +200,30 @@ static bool enemy_handle_knockback(Entity& e, const Game& g) {
     return e.x_vel == 0.0f;
 }
 
+static void enemy_handle_flying_back_collateral_dmg(Entity& e, Game& g) {
+    SDL_FRect hitbox = entity_get_world_hitbox(e);
+
+    for (auto& other_e : g.entities) {
+        if (e.handle == other_e.handle) continue;
+
+        SDL_FRect other_e_hitbox = entity_get_world_hitbox(other_e);
+        if (SDL_HasRectIntersectionFloat(&hitbox, &other_e_hitbox)) {
+            auto dir = Direction::Left;
+            if (e.dir == Direction::Left) {
+                dir = Direction::Right;
+            }
+            else if (e.dir == Direction::Right) {
+                dir = Direction::Left;
+            }
+            else {
+                unreachable("shouldnt ever get a different direction here in this game");
+            }
+
+            other_e.damage_queue.push_back({settings.enemy_flying_back_dmg_collateral_dmg, dir, Hit_Type::Knockdown});
+        }
+    }
+}
+
 static bool enemy_handle_flying_back(Entity& e, const Game& g) {
     auto new_collide_opts = collide_opts;
     new_collide_opts.collide_with_walls = true;
@@ -318,6 +338,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         } break;
 
         case Enemy_State::Flying_Back: {
+            enemy_handle_flying_back_collateral_dmg(e, g);
             const auto hit_wall = enemy_handle_flying_back(e, g);
             // make sure that this path doesnt let the enemy live even tho he has 0hp
             if (hit_wall) {
