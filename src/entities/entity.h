@@ -53,19 +53,19 @@ struct Player_Attack_Slots {
 // this has to be synced with the player sprite
 // each enum value is the next row in the sprite
 enum struct Player_Anim : u32 {
-    Standing,
-    Running,
-    Punching_Left,
-    Punching_Right,
-    Kicking_Left,
-    Kicking_Right,
-    Kicking_Drop,
-    Got_Hit,
-    Knocked_Down,
-    On_The_Ground,
-    Takeoff,
-    Jumping,
-    Landing
+    Standing       = 0,
+    Running        = 1,
+    Punching_Left  = 2,
+    Punching_Right = 3,
+    Kicking_Left   = 4,
+    Kicking_Right  = 5,
+    Kicking_Drop   = 6,
+    Got_Hit        = 7,
+    Knocked_Down   = 8,
+    On_The_Ground  = 9,
+    Takeoff        = 10,
+    Jumping        = 11,
+    Landing        = 12
 };
 
 enum struct Barrel_Anim : u32 {
@@ -90,30 +90,34 @@ enum struct Enemy_Type {
     Boss
 };
 
+// the value should always correspond to the sprite row for the animation
 enum struct Enemy_Anim : u32 {
-    Standing,
-    Running,
-    Punch_Left,
-    Punch_Right,
-    Got_Hit,
-    Knocked_Down,
-    On_The_Ground,
-    Throw_Knife,
-    Landing
+    Standing      = 0,
+    Running       = 1,
+    Punch_Left    = 2,
+    Punch_Right   = 3,
+    Got_Hit       = 4,
+    Knocked_Down  = 5,
+    On_The_Ground = 6,
+    Throw_Knife   = 7,
+    Landing       = 8,
+    Flying_Back   = 9
 };
 
+// the value should always correspond to the sprite row for the animation
 enum struct Enemy_Boss_Anim : u32 {
-    Standing,
-    Running,
-    Punch_Left,
-    Punch_Right,
-    Kick,
-    Got_Hit,
-    Knocked_Down,
-    On_The_Ground,
-    Landing,
-    Guard_Standing,
-    Guard_Running
+    Standing       = 0,
+    Running        = 1,
+    Punch_Left     = 2,
+    Punch_Right    = 3,
+    Kick           = 4,
+    Got_Hit        = 5,
+    Knocked_Down   = 6,
+    On_The_Ground  = 7,
+    Landing        = 8,
+    Guard_Standing = 9,
+    Guard_Running  = 10,
+    Flying_Back    = 11
 };
 
 enum struct Enemy_State {
