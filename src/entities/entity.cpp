@@ -102,6 +102,13 @@ bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, 
         }
     }
 
+    if (e.type == Entity_Type::Enemy) {
+        const auto& box = g->curr_level_info.collision_boxes[(usize)Border::Top];
+        if (SDL_HasRectIntersectionFloat(&box, &entity_collision_box)) {
+            in_bounds = false;
+        }
+    }
+
     if (in_bounds) {
         for (const auto& e_other : g->entities) {
             if (&e == &e_other) continue;
