@@ -32,10 +32,18 @@ bool sprite_load(Sprite& s, SDL_Renderer* r, const char* path) {
     return img_load(s.img, r, path);
 }
 
+static bool sprite_range_check(const Sprite& s, const Sprite_Draw_Opts& opts) {
+    return opts.row < s.frames_in_each_row.size()
+        && opts.col < s.frames_in_each_row[opts.row];
+}
+
 // provided x_dst and y_dst must be in screen coordinates (in other words relative to the camera), not world coordinates
 bool sprite_draw_at_dst(const Sprite& s, SDL_Renderer* r, Sprite_Draw_Opts opts) {
-    assert(opts.row < s.frames_in_each_row.size());
-    assert(opts.col < s.frames_in_each_row[opts.row]);
+    if (!opts.return_on_failed_range_checks) {
+        assert(sprite_range_check(s, opts));
+    } else {
+        if (!sprite_range_check(s, opts)) return false;
+    }
 
     const f32 width = s.img.width / s.max_frames_in_row_count;
     const f32 height = s.img.height / s.frames_in_each_row.size();

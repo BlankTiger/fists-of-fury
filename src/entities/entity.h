@@ -70,8 +70,10 @@ enum struct Player_Anim : u32 {
     COUNT // keep this last
 };
 
-static constexpr u32 sprite_player_frames[] = { 4, 8, 4, 3, 6, 6, 1, 3, 3, 1, 1, 1, 1 };
+static constexpr u32 sprite_player_frames[]       = { 4, 8, 4, 3, 6, 6, 1, 3, 3, 1, 1, 1, 1 };
+static constexpr u32 sprite_knife_player_frames[] = { 4, 8, 0, 3, 0, 0, 1, 0, 0, 0, 1, 1, 1 };
 static_assert(std::size(sprite_player_frames) == (u32)Player_Anim::COUNT);
+static_assert(std::size(sprite_knife_player_frames) == (u32)Player_Anim::COUNT);
 
 enum struct Barrel_Anim : u32 {
     Idle      = 0,
@@ -205,6 +207,7 @@ struct Entity {
             u32                 combo;
             bool                last_attack_successful;
             u64                 last_attack_timestamp; // for resetting combo after some time
+            bool                has_knife;
         } extra_player;
 
         struct {
@@ -234,6 +237,7 @@ SDL_FRect entity_get_world_hurtbox(const Entity& e);
 
 struct Game;
 void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g);
+void entity_draw_knife(SDL_Renderer* r, const Entity& e, const Game* g);
 
 struct Collide_Opts {
     std::span<const Entity_Type> dont_collide_with;

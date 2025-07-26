@@ -85,6 +85,30 @@ void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g) {
     }
 }
 
+void entity_draw_knife(SDL_Renderer* r, const Entity& e, const Game* g) {
+    assert(g != nullptr);
+
+    const Vec2<f32> drawing_coords = entity_offset_to_bottom_center(e);
+    Vec2<f32> screen_coords = game_get_screen_coords(*g, drawing_coords);
+    screen_coords.y += e.z; // for jumping
+
+    const SDL_FlipMode flip = (e.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    bool ok = sprite_draw_at_dst(
+        g->sprite_knife_player,
+        r,
+        {
+            .x_dst                         = screen_coords.x,
+            .y_dst                         = screen_coords.y,
+            .row                           = e.anim.frames.idx,
+            .col                           = e.anim.frames.frame_current,
+            .flip                          = flip,
+            .opacity                       = e.anim.fadeout.perc_visible_curr,
+            .return_on_failed_range_checks = true,
+        }
+    );
+    if (!ok) SDL_Log("Failed to draw enemy sprite! SDL err: %s\n", SDL_GetError());
+}
+
 // returns whether the movement was in bounds or not
 bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts) {
     assert(g != nullptr);
