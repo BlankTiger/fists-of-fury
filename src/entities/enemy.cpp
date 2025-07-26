@@ -104,10 +104,30 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
     }
 }
 
+static Anim_Start_Opts enemy_get_anim_knocked_down(const Entity& e) {
+    auto anim_idx = (u32)Enemy_Anim::Knocked_Down;
+    if (e.extra_enemy.type == Enemy_Type::Boss) anim_idx = (u32)Enemy_Boss_Anim::Knocked_Down;
+    return { .anim_idx = anim_idx, .frame_duration_ms = 200 };
+}
+
+static Anim_Start_Opts enemy_get_anim_flying_back(const Entity& e) {
+    auto anim_idx = (u32)Enemy_Anim::Flying_Back;
+    if (e.extra_enemy.type == Enemy_Type::Boss) anim_idx = (u32)Enemy_Boss_Anim::Flying_Back;
+    return { .anim_idx = anim_idx, .looping = true };
+}
+
+static Anim_Start_Opts enemy_get_anim_got_hit(const Entity& e) {
+    auto anim_idx = (u32)Enemy_Anim::Got_Hit;
+    if (e.extra_enemy.type == Enemy_Type::Boss) {
+        anim_idx = (u32)Enemy_Boss_Anim::Got_Hit;
+    }
+    return { .anim_idx = anim_idx, .frame_duration_ms = 75 };
+}
+
 static void enemy_receive_damage(Entity& e) {
     if (e.health <= 0.0f) return;
     auto got_hit = false;
-    auto hit_type = Hit_Type::Normal;
+    Dmg most_significant_dmg = {};
     for (auto dmg : e.damage_queue) {
         got_hit = true;
         e.health -= dmg.amount;
@@ -123,41 +143,45 @@ static void enemy_receive_damage(Entity& e) {
         }
 
         if (dmg.type != Hit_Type::Normal) {
-            hit_type = dmg.type;
+            most_significant_dmg = dmg;
         }
     }
 
     if (got_hit) {
         e.extra_enemy.state = Enemy_State::Got_Hit;
-        switch (hit_type) {
+        switch (most_significant_dmg.type) {
             case Hit_Type::Normal: {
-                auto anim_idx = (u32)Enemy_Anim::Got_Hit;
-                if (e.extra_enemy.type == Enemy_Type::Boss) {
-                    anim_idx = (u32)Enemy_Boss_Anim::Got_Hit;
-                }
-
-                animation_start(
-                    e.anim,
-                    { .anim_idx = anim_idx, .frame_duration_ms = 75 }
-                );
+                auto opts = enemy_get_anim_got_hit(e);
+                animation_start(e.anim, opts);
             } break;
 
             case Hit_Type::Knockdown: {
-                auto anim_idx = (u32)Enemy_Anim::Knocked_Down;
-                e.extra_enemy.state = Enemy_State::Knocked_Down;
-                if (e.extra_enemy.type == Enemy_Type::Boss) {
-                    anim_idx = (u32)Enemy_Boss_Anim::Knocked_Down;
+                e.z_vel = -settings.enemy_knockdown_velocity;
+
+                if (most_significant_dmg.going_to == Direction::Left) {
+                    e.x_vel = -settings.enemy_knockdown_velocity;
+                }
+                else if (most_significant_dmg.going_to == Direction::Right) {
+                    e.x_vel = settings.enemy_knockdown_velocity;
                 }
 
-                animation_start(
-                    e.anim,
-                    { .anim_idx = anim_idx, .frame_duration_ms = 200 }
-                );
+                e.extra_enemy.state = Enemy_State::Knocked_Down;
+                auto opts = enemy_get_anim_knocked_down(e);
+                animation_start(e.anim, opts);
             } break;
 
-            case Hit_Type::Special: {
-                unreachable("idk what to do here at this point");
-            }
+            case Hit_Type::Power: {
+                if (most_significant_dmg.going_to == Direction::Left) {
+                    e.x_vel = -settings.enemy_flying_back_velocity;
+                }
+                else if (most_significant_dmg.going_to == Direction::Right) {
+                    e.x_vel = settings.enemy_flying_back_velocity;
+                }
+
+                e.extra_enemy.state = Enemy_State::Flying_Back;
+                auto opts = enemy_get_anim_flying_back(e);
+                animation_start(e.anim, opts);
+            } break;
         }
     }
 
@@ -177,6 +201,12 @@ static bool enemy_handle_knockback(Entity& e, const Game& g) {
     }
 
     return e.x_vel == 0.0f;
+}
+
+static bool enemy_handle_flying_back(Entity& e, const Game& g) {
+    auto new_collide_opts = collide_opts;
+    new_collide_opts.collide_with_walls = true;
+    return !entity_movement_handle_collisions_and_pos_change(e, &g, new_collide_opts);
 }
 
 static void enemy_claim_slot(Entity& e, const Entity& player, Game& g) {
@@ -205,6 +235,7 @@ static bool enemy_can_move(const Entity& e) {
     return s != Enemy_State::Got_Hit
         && s != Enemy_State::Knocked_Down
         && s != Enemy_State::On_The_Ground
+        && s != Enemy_State::Flying_Back
         && s != Enemy_State::Standing_Up;
 }
 
@@ -266,10 +297,14 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             const auto anim_finished = animation_is_finished(e.anim);
             if (knockback_finished && anim_finished && e.health <= 0.0f) {
                 e.extra_enemy.state = Enemy_State::Dying;
+                auto anim_idx = (u32)Enemy_Anim::Knocked_Down;
+                if (e.extra_enemy.type == Enemy_Type::Boss) {
+                    anim_idx = (u32)Enemy_Boss_Anim::Knocked_Down;
+                }
                 animation_start(
                     e.anim,
                     {
-                        .anim_idx          = (u32)Enemy_Anim::Knocked_Down,
+                        .anim_idx          = anim_idx,
                         .frame_duration_ms = 200,
                         .fadeout           = { .enabled = true, .perc_per_sec = 0.05 },
                     }
@@ -277,6 +312,16 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             }
             else if (knockback_finished && anim_finished) {
                 e.extra_enemy.state = Enemy_State::Standing;
+            }
+        } break;
+
+        case Enemy_State::Flying_Back: {
+            const auto hit_wall = enemy_handle_flying_back(e, g);
+            // make sure that this path doesnt let the enemy live even tho he has 0hp
+            if (hit_wall) {
+                e.extra_enemy.state = Enemy_State::Knocked_Down;
+                auto opts = enemy_get_anim_knocked_down(e);
+                animation_start(e.anim, opts);
             }
         } break;
 

@@ -300,14 +300,12 @@ const u32 AMOUNT_OF_ATTACKS = 4;
 
 // make this player_attack and then swap animations on combo
 static void player_attack(Entity& p, Game& g) {
-    p.extra_player.state = Player_State::Attacking;
-    handle_attack(p, g);
-
     u32 attack_anim        = (u32)Player_Anim::Punching_Right;
     Anim_Start_Opts opts   = {};
     opts.frame_duration_ms = 60;
 
     auto should_be = p.extra_player.combo % AMOUNT_OF_ATTACKS;
+    auto type = Hit_Type::Normal;
     switch (should_be) {
         case 0: {
             attack_anim = (u32)Player_Anim::Punching_Right;
@@ -323,11 +321,14 @@ static void player_attack(Entity& p, Game& g) {
 
         case 3: {
             attack_anim = (u32)Player_Anim::Kicking_Right;
+            type = Hit_Type::Power;
         } break;
     }
 
     opts.anim_idx = attack_anim;
     animation_start(p.anim, opts);
+    p.extra_player.state = Player_State::Attacking;
+    handle_attack(p, g, type);
 }
 
 static void player_takeoff(Entity& p) {

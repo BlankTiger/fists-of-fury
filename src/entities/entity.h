@@ -82,7 +82,7 @@ enum struct Barrel_Anim : u32 {
 static constexpr u32 sprite_barrel_frames[] = { 1, 1 };
 static_assert(std::size(sprite_barrel_frames) == (u32)Barrel_Anim::COUNT);
 
-enum struct Hit_Type { Normal, Knockdown, Special };
+enum struct Hit_Type { Normal, Knockdown, Power };
 
 struct Dmg {
     f32       amount;
@@ -147,6 +147,7 @@ enum struct Enemy_State {
     Knocked_Down,
     On_The_Ground,
     Standing_Up,
+    Flying_Back,
     Dying,
     Landing,
     Guarding,
@@ -220,6 +221,7 @@ void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g);
 
 struct Collide_Opts {
     std::span<const Entity_Type> dont_collide_with;
+    bool                         collide_with_walls;
 };
 
 bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts = {});

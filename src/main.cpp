@@ -163,10 +163,11 @@ static bool init() {
     }
 
     {
+        const auto health = 200.0f;
         // enemies setup
         Entity goon1 = enemy_init(g, {
             .type = Enemy_Type::Goon,
-            .health = 80.0f,
+            .health = health,
             .damage = 10.0f,
             .speed = 0.02f,
             .x = SCREEN_WIDTH - 15,
@@ -175,22 +176,24 @@ static bool init() {
         g.entities.push_back(goon1);
         Entity punk1 = enemy_init(g, {
             .type = Enemy_Type::Punk,
-            .health = 80.0f,
+            .health = health,
             .damage = 10.0f,
             .speed = 0.02f,
             .x = SCREEN_WIDTH - 10,
             .y = 62,
         });
         g.entities.push_back(punk1);
-        Entity thug1 = enemy_init(g, {
-            .type = Enemy_Type::Thug,
-            .health = 80.0f,
-            .damage = 10.0f,
-            .speed = 0.02f,
-            .x = SCREEN_WIDTH - 25,
-            .y = 60,
-        });
-        g.entities.push_back(thug1);
+        for (int i = 0; i < 6; i++) {
+            Entity thug = enemy_init(g, {
+                .type = Enemy_Type::Thug,
+                .health = health,
+                .damage = 10.0f,
+                .speed = 0.02f,
+                .x = SCREEN_WIDTH - 25,
+                .y = 60,
+            });
+            g.entities.push_back(thug);
+        }
     }
 
     return true;

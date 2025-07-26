@@ -26,15 +26,17 @@ struct Settings {
 
     std::array<f32, 4> color_text                  = {0,        0,        0,        255};
 
-    f32 font_size_default         = 9.0f;
-    f32 fps_max                   = 144.0f;
-    f32 gravity                   = 0.00038f;
-    f32 jump_velocity             = -0.15f;
-    f32 barrel_jump_velocity      = -0.10f;
-    f32 barrel_knockback_velocity = 0.05f;
-    f32 enemy_knockback_velocity  = 0.06f;
-    f32 enemy_friction            = 0.003f;
-    f32 ground_level              = 0.0f;
+    f32 font_size_default          = 9.0f;
+    f32 fps_max                    = 144.0f;
+    f32 gravity                    = 0.00038f;
+    f32 jump_velocity              = -0.15f;
+    f32 barrel_jump_velocity       = -0.10f;
+    f32 barrel_knockback_velocity  = 0.05f;
+    f32 enemy_knockback_velocity   = 0.04f;
+    f32 enemy_knockdown_velocity   = 0.1f;
+    f32 enemy_flying_back_velocity = 0.1f;
+    f32 enemy_friction             = 0.003f;
+    f32 ground_level               = 0.0f;
 };
 
 extern Settings settings;
