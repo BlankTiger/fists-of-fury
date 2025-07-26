@@ -259,7 +259,7 @@ static void handle_movement(Entity& p, const Game& g) {
     }
 
     static constexpr Entity_Type dont_collide_with[] = {Entity_Type::Enemy};
-    static const Collide_Opts collide_opts = { .dont_collide_with = std::span{dont_collide_with} };
+    static const Collide_Opts collide_opts = { .dont_collide_with = std::span{dont_collide_with}, .collide_with_walls = false };
     entity_movement_handle_collisions_and_pos_change(p, &g, collide_opts);
 
     // rotate the hurtbox around the player when turning
