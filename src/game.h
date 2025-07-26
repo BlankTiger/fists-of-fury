@@ -14,19 +14,13 @@
 
 enum struct Update_Result { Remove_Me, None };
 
-enum struct Kick_State { Left, Right };
-
 struct Input_State {
-    bool left  = false;
-    bool right = false;
-    bool up    = false;
-    bool down  = false;
-    bool punch = false;
-    bool kick  = false;
-    bool jump  = false;
-
-    Kick_State last_kick     = Kick_State::Left;
-    bool last_punch_was_left = true;
+    bool left   = false;
+    bool right  = false;
+    bool up     = false;
+    bool down   = false;
+    bool attack = false;
+    bool jump   = false;
 };
 
 using Camera = SDL_FRect;

@@ -24,8 +24,7 @@ enum struct Entity_Type {
 enum struct Player_State {
     Standing,
     Running,
-    Punching,
-    Kicking,
+    Attacking,
     Kicking_Drop,
     Got_Hit,
     Dying,
@@ -170,6 +169,8 @@ struct Entity {
         struct {
             Player_State        state;
             Player_Attack_Slots slots;
+            u32                 combo;
+            bool                last_attack_successful;
         } extra_player;
 
         struct {

@@ -94,20 +94,14 @@ enum struct Action {
     Right,
     Up,
     Down,
-    Punch,
-    Kick,
+    Attack,
     Jump
 };
 
 static bool is_pressed(const Game& g, Action a) {
     switch (a) {
-        case Action::Punch: {
-            return g.input.punch;
-            break;
-        }
-
-        case Action::Kick: {
-            return g.input.kick;
+        case Action::Attack: {
+            return g.input.attack;
             break;
         }
 
@@ -142,13 +136,8 @@ static bool is_pressed(const Game& g, Action a) {
 
 static bool just_pressed(const Game& g, Action a) {
     switch (a) {
-        case Action::Punch: {
-            return input_pressed(g.input.punch, g.input_prev.punch);
-            break;
-        }
-
-        case Action::Kick: {
-            return input_pressed(g.input.kick, g.input_prev.kick);
+        case Action::Attack: {
+            return input_pressed(g.input.attack, g.input_prev.attack);
             break;
         }
 
@@ -203,13 +192,8 @@ static bool not_pressed(const Game& g, Action a) {
             break;
         }
 
-        case Action::Punch: {
-            return !g.input.punch;
-            break;
-        }
-
-        case Action::Kick: {
-            return !g.input.kick;
+        case Action::Attack: {
+            return !g.input.attack;
             break;
         }
 
@@ -291,47 +275,58 @@ static void handle_movement(Entity& p, const Game& g) {
 
 static void handle_attack(Entity& p, Game& g, Hit_Type type = Hit_Type::Normal) {
     SDL_FRect player_hurtbox = entity_get_world_hurtbox(p);
+    bool attack_success = false;
 
     for (auto& e : g.entities) {
         if (e.type == Entity_Type::Player) continue;
 
         SDL_FRect entity_hitbox = entity_get_world_hitbox(e);
         if (SDL_HasRectIntersectionFloat(&entity_hitbox, &player_hurtbox)) {
+            attack_success = true;
             e.damage_queue.push_back({(f32)p.damage, p.dir, type});
         }
     }
+
+    p.extra_player.last_attack_successful = attack_success;
+    if (attack_success) {
+        p.extra_player.combo++;
+    }
+    else {
+        p.extra_player.combo = 0;
+    }
 }
 
-static void player_kick(Entity& p, Game& g) {
-    p.extra_player.state = Player_State::Kicking;
-    switch (g.input.last_kick) {
-        case Kick_State::Right: {
-            animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Kicking_Right, .frame_duration_ms = 80});
-            g.input.last_kick = Kick_State::Left;
-            break;
-        }
+const u32 AMOUNT_OF_ATTACKS = 4;
 
-        case Kick_State::Left: {
-            animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Kicking_Left, .frame_duration_ms = 50});
-            g.input.last_kick = Kick_State::Right;
-            break;
-        }
+// make this player_attack and then swap animations on combo
+static void player_attack(Entity& p, Game& g) {
+    p.extra_player.state = Player_State::Attacking;
+    handle_attack(p, g);
+
+    u32 attack_anim      = (u32)Player_Anim::Punching_Right;
+    Anim_Start_Opts opts = { .frame_duration_ms = 60 };
+
+    auto should_be = p.extra_player.combo % AMOUNT_OF_ATTACKS;
+    switch (should_be) {
+        case 0: {
+            attack_anim = (u32)Player_Anim::Punching_Right;
+        } break;
+
+        case 1: {
+            attack_anim = (u32)Player_Anim::Punching_Left;
+        } break;
+
+        case 2: {
+            attack_anim = (u32)Player_Anim::Kicking_Left;
+        } break;
+
+        case 3: {
+            attack_anim = (u32)Player_Anim::Kicking_Right;
+        } break;
     }
 
-    handle_attack(p, g);
-}
-
-static void player_punch(Entity& p, Game& g) {
-    p.extra_player.state = Player_State::Punching;
-    if (g.input.last_punch_was_left) {
-        animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Punching_Right, .frame_duration_ms = 60});
-        g.input.last_punch_was_left = false;
-    } else {
-        animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Punching_Left, .frame_duration_ms = 60});
-        g.input.last_punch_was_left = true;
-    }
-
-    handle_attack(p, g);
+    opts.anim_idx = attack_anim;
+    animation_start(p.anim, opts);
 }
 
 static void player_takeoff(Entity& p) {
@@ -401,11 +396,8 @@ Update_Result player_update(Entity& p, Game& g) {
                 player_run(p);
                 handle_movement(p, g);
             }
-            else if (just_pressed(g, Action::Punch)) {
-                player_punch(p, g);
-            }
-            else if (just_pressed(g, Action::Kick)) {
-                player_kick(p, g);
+            else if (just_pressed(g, Action::Attack)) {
+                player_attack(p, g);
             }
             else if (just_pressed(g, Action::Jump)) {
                 player_takeoff(p);
@@ -418,11 +410,8 @@ Update_Result player_update(Entity& p, Game& g) {
             if (stopped_moving(g)) {
                 player_stand(p);
             }
-            else if (just_pressed(g, Action::Punch)) {
-                player_punch(p, g);
-            }
-            else if (just_pressed(g, Action::Kick)) {
-                player_kick(p, g);
+            else if (just_pressed(g, Action::Attack)) {
+                player_attack(p, g);
             }
             else if (just_pressed(g, Action::Jump)) {
                 player_takeoff(p);
@@ -434,7 +423,7 @@ Update_Result player_update(Entity& p, Game& g) {
             break;
         }
 
-        case Player_State::Punching: {
+        case Player_State::Attacking: {
             // deal damage if in hitbox
 
             if (animation_is_finished(p.anim)) {
@@ -443,16 +432,6 @@ Update_Result player_update(Entity& p, Game& g) {
 
             break;
         }
-
-        case Player_State::Kicking: {
-            // deal damage if in hitbox
-
-            if (animation_is_finished(p.anim)) {
-                player_stand(p);
-            }
-
-            break;
-        };
 
         case Player_State::Got_Hit: {
             unreachable("unimplemented");
@@ -476,7 +455,7 @@ Update_Result player_update(Entity& p, Game& g) {
         }
 
         case Player_State::Jumping: {
-            if (just_pressed(g, Action::Kick)) {
+            if (just_pressed(g, Action::Attack)) {
                 player_drop_kick(p, g);
             }
 

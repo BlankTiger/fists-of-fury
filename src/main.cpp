@@ -246,8 +246,7 @@ static void update(Game& g) {
     y_sort_entities(g);
 
     g.input_prev  = g.input;
-    g.input.punch = false;
-    g.input.kick  = false;
+    g.input.attack = false;
 
     debug_menu_update(g.menu);
 }
@@ -295,8 +294,7 @@ Key_Binding bindings[] = {
     {SDLK_F,     &g.input.right},
     {SDLK_E,     &g.input.up},
     {SDLK_D,     &g.input.down},
-    {SDLK_J,     &g.input.punch},
-    {SDLK_K,     &g.input.kick},
+    {SDLK_J,     &g.input.attack},
     {SDLK_SPACE, &g.input.jump},
 };
 
