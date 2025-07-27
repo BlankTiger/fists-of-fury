@@ -56,7 +56,9 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
 }
 
 void enemy_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
+    assert(e.type == Entity_Type::Enemy);
     entity_draw(r, e, &g);
+    if (e.extra_enemy.has_knife) entity_draw_knife(r, e, &g);
 }
 
 static Anim_Start_Opts enemy_get_anim_knocked_down(const Entity& e) {

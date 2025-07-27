@@ -93,8 +93,11 @@ void entity_draw_knife(SDL_Renderer* r, const Entity& e, const Game* g) {
     screen_coords.y += e.z; // for jumping
 
     const SDL_FlipMode flip = (e.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+
+    const Sprite* s = &g->sprite_knife_player;
+    if (e.type == Entity_Type::Enemy) s = &g->sprite_knife_enemy;
     bool ok = sprite_draw_at_dst(
-        g->sprite_knife_player,
+        *s,
         r,
         {
             .x_dst                         = screen_coords.x,

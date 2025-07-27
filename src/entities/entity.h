@@ -72,7 +72,7 @@ enum struct Player_Anim : u32 {
 
 static constexpr u32 sprite_player_frames[]       = { 4, 8, 4, 3, 6, 6, 1, 3, 3, 1, 1, 1, 1 };
 static constexpr u32 sprite_knife_player_frames[] = { 4, 8, 0, 3, 0, 0, 1, 0, 0, 0, 1, 1, 1 };
-static_assert(std::size(sprite_player_frames) == (u32)Player_Anim::COUNT);
+static_assert(std::size(sprite_player_frames)       == (u32)Player_Anim::COUNT);
 static_assert(std::size(sprite_knife_player_frames) == (u32)Player_Anim::COUNT);
 
 enum struct Barrel_Anim : u32 {
@@ -116,8 +116,10 @@ enum struct Enemy_Anim : u32 {
     COUNT // keep this last
 };
 
-static constexpr u32 sprite_enemy_frames[] = { 1, 8, 3, 3, 3, 3, 1, 4, 1, 1 };
-static_assert(std::size(sprite_enemy_frames) == (u32)Enemy_Anim::COUNT);
+static constexpr u32 sprite_enemy_frames[]       = { 1, 8, 3, 3, 3, 3, 1, 4, 1, 1 };
+static constexpr u32 sprite_knife_enemy_frames[] = { 1, 8, 0, 3, 0, 0, 0, 4, 0, 0 };
+static_assert(std::size(sprite_enemy_frames)       == (u32)Enemy_Anim::COUNT);
+static_assert(std::size(sprite_knife_enemy_frames) == (u32)Enemy_Anim::COUNT);
 
 // the value should always correspond to the sprite row for the animation
 enum struct Enemy_Boss_Anim : u32 {
@@ -217,6 +219,7 @@ struct Entity {
             Slot        slot;
             u64         last_attack_timestamp;
             u64         idx_attack;
+            bool        has_knife;
         } extra_enemy;
 
         struct {
