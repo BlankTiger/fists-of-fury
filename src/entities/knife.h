@@ -8,7 +8,7 @@ struct Knife_Init_Opts {
     Vec2<f32>   position;
     Direction   dir;
     Knife_State state;
-    Entity_Type thrown_by;
+    Entity_Type done_by;
 };
 
 static constexpr Entity_Type knife_dont_collide_with[] = {
@@ -25,3 +25,5 @@ static const Collide_Opts knife_collide_opts = {
 Entity knife_init(Game& g, Knife_Init_Opts opts);
 Update_Result knife_update(Entity& e, Game& g);
 void knife_draw(SDL_Renderer* r, const Entity& e, const Game& g);
+void knife_throw(Game& g, const Entity& e);
+void knife_drop(Game& g, const Entity& e);

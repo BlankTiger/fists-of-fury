@@ -1,8 +1,11 @@
 #pragma once
 
+#include <vector>
+
+#include <SDL3/SDL.h>
+
 #include "number_types.h"
 #include "sprite.h"
-#include <SDL3/SDL.h>
 
 struct Sprite_Frames {
     // idx of the animation (row in the sprite)
@@ -27,6 +30,22 @@ struct Fadeout {
     f32  perc_visible_curr  = 1.0f;
 };
 
+// should always contain positive numbers
+// because when checking we take the absolute
+// value of the deg_curr
+struct Rotation_Range { f32 start, end; };
+
+struct Rotation {
+    bool                        enabled        = false;
+    bool                        looping        = false;
+    std::vector<Rotation_Range> finish_ranges  = {};
+    f32                         deg_per_sec    = 30.0f;
+    f32                         deg_curr       = 0.0f;
+    f32                         deg_start      = 0.0f;
+    u32                         rotations_min  = 1;
+    u32                         rotations_curr = 0;
+};
+
 struct Animation {
     // sprite that will be animated
     const Sprite* sprite;
@@ -42,13 +61,15 @@ struct Animation {
     bool          looping = false;
     Sprite_Frames frames;
     Fadeout       fadeout;
+    Rotation      rotation;
 };
 
 struct Anim_Start_Opts {
-    u32     anim_idx;
-    u64     frame_duration_ms = 100;
-    Fadeout fadeout           = {};
-    bool    looping           = false;
+    u32      anim_idx;
+    u64      frame_duration_ms = 100;
+    Fadeout  fadeout           = {};
+    Rotation rotation          = {};
+    bool     looping           = false;
 };
 
 void animation_start(Animation& a, Anim_Start_Opts opts);

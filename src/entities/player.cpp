@@ -2,6 +2,7 @@
 #include <cassert>
 
 #include "player.h"
+#include "knife.h"
 #include "../game.h"
 #include "../settings.h"
 #include "../draw.h"
@@ -37,7 +38,7 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
         .bottom_left_free    = true,
         .bottom_right_free   = true,
     };
-    player.extra_player.has_knife = false;
+    player.extra_player.has_knife = true;
     animation_start(player.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true});
     return player;
 }
@@ -296,7 +297,7 @@ static void handle_attack(Entity& p, Game& g, Hit_Type type = Hit_Type::Normal) 
 const u32 AMOUNT_OF_ATTACKS = 4;
 
 // make this player_attack and then swap animations on combo
-static Update_Result player_attack(Entity& p, Game& g) {
+static void player_attack(Entity& p, Game& g) {
     u32 attack_anim        = (u32)Player_Anim::Punching_Right;
     Anim_Start_Opts opts   = {};
     opts.frame_duration_ms = 60;
@@ -305,8 +306,9 @@ static Update_Result player_attack(Entity& p, Game& g) {
         p.extra_player.state = Player_State::Attacking;
         opts.anim_idx = (u32)Player_Anim::Punching_Right;
         animation_start(p.anim, opts);
+        knife_throw(g, p);
         p.extra_player.has_knife = false;
-        return Update_Result::Knife_Thrown;
+        return;
     }
 
     auto should_be = p.extra_player.combo % AMOUNT_OF_ATTACKS;
@@ -334,7 +336,6 @@ static Update_Result player_attack(Entity& p, Game& g) {
     animation_start(p.anim, opts);
     p.extra_player.state = Player_State::Attacking;
     handle_attack(p, g, type);
-    return Update_Result::None;
 }
 
 static void player_takeoff(Entity& p) {
@@ -512,8 +513,6 @@ Update_Result player_update(Entity& p, Game& g) {
         player_receive_damage(p);
     }
 
-    auto res = Update_Result::None;
-
     switch (p.extra_player.state) {
         case Player_State::Standing: {
             if (started_moving(g)) {
@@ -521,7 +520,7 @@ Update_Result player_update(Entity& p, Game& g) {
                 handle_movement(p, g);
             }
             else if (just_pressed(g, Action::Attack)) {
-                res = player_attack(p, g);
+                player_attack(p, g);
             }
             else if (just_pressed(g, Action::Jump)) {
                 player_takeoff(p);
@@ -533,7 +532,7 @@ Update_Result player_update(Entity& p, Game& g) {
                 player_stand(p);
             }
             else if (just_pressed(g, Action::Attack)) {
-                res = player_attack(p, g);
+                player_attack(p, g);
             }
             else if (just_pressed(g, Action::Jump)) {
                 player_takeoff(p);
@@ -563,7 +562,7 @@ Update_Result player_update(Entity& p, Game& g) {
 
         case Player_State::Dying: {
             if (animation_is_finished(p.anim)) {
-                res = Update_Result::Remove_Me;
+                return Update_Result::Remove_Me;
             }
         } break;
 
@@ -610,7 +609,7 @@ Update_Result player_update(Entity& p, Game& g) {
     animation_update(p.anim);
     camera_update(p, g);
 
-    return res;
+    return Update_Result::None;
 }
 
 static void slots_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
@@ -630,7 +629,7 @@ static void slots_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
     draw_point(r, {bottom_right, g, {125, 125, 125, 255}});
 }
 
-void player_draw(SDL_Renderer* r, const Entity& p, const Game& g) {
+void player_draw(SDL_Renderer* r, const Entity& p, Game& g) {
     assert(p.type == Entity_Type::Player);
 
     entity_draw(r, p, &g);

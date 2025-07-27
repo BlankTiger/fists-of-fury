@@ -31,8 +31,10 @@ struct Sprite_Draw_Opts {
     f32          y_dst;
     u64          row;
     u64          col;
-    SDL_FlipMode flip    = SDL_FLIP_NONE;
-    f32          opacity = 1.0f;
+    SDL_FlipMode flip                          = SDL_FLIP_NONE;
+    f32          opacity                       = 1.0f;
+    f32          rotation_deg                  = 0.0f;
+    SDL_FPoint*  center_of_rotation_offsets    = NULL;
     bool         return_on_failed_range_checks = false;
 };
 

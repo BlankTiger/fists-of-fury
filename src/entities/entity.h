@@ -171,12 +171,14 @@ struct Handle {
 
 enum struct Knife_State {
     Thrown,
-    Falling,
+    Dropped,
+    On_The_Ground,
+    Picked_Up,
 };
 
 enum struct Knife_Anim {
     Thrown  = 0,
-    Falling = 1,
+    Dropped = 1,
     COUNT // keep this last
 };
 
@@ -193,6 +195,12 @@ struct Knife_Thrown_Info {
     Vec2<f32>   position;
     Direction   dir;
     Entity_Type thrown_by;
+};
+
+struct Knife_Dropped_Info {
+    Vec2<f32>   position;
+    Direction   dir;
+    Entity_Type dropped_by;
 };
 
 struct Entity {
@@ -224,6 +232,8 @@ struct Entity {
     SDL_FRect hitbox_offsets;
     // same thing goes for shadow_offset
     SDL_FRect shadow_offsets;
+    // same thing goes for rotation_center_offsets
+    SDL_FPoint rotation_center_offsets;
 
     Animation     anim;
 
@@ -255,7 +265,7 @@ struct Entity {
 
         struct {
             Knife_State state;
-            Entity_Type thrown_by;
+            Entity_Type created_by;
             bool        started_going_off_screen;
         } extra_knife;
     };
@@ -273,7 +283,7 @@ SDL_FRect entity_get_world_hurtbox(const Entity& e);
 
 struct Game;
 void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g);
-void entity_draw_knife(SDL_Renderer* r, const Entity& e, const Game* g);
+void entity_draw_knife(SDL_Renderer* r, const Entity& e, Game* g);
 
 bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts = {});
 void entity_handle_rotating_hurtbox(Entity& e);

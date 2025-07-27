@@ -59,7 +59,13 @@ bool sprite_draw_at_dst(const Sprite& s, SDL_Renderer* r, Sprite_Draw_Opts opts)
         ok = SDL_SetTextureAlphaModFloat(s.img.img, opts.opacity);
         if (!ok) SDL_Log("Failed to draw sprite! SDL err: %s\n", SDL_GetError());
     }
-    ok = SDL_RenderTextureRotated(r, s.img.img, &src, &dst, 0., NULL, opts.flip);
+    SDL_FPoint* center_of_rot = NULL;
+    SDL_FPoint correct_center = {};
+    if (opts.center_of_rotation_offsets) {
+        correct_center = {dst.x + opts.center_of_rotation_offsets->x, dst.y + opts.center_of_rotation_offsets->y};
+        center_of_rot = &correct_center;
+    }
+    ok = SDL_RenderTextureRotated(r, s.img.img, &src, &dst, opts.rotation_deg, center_of_rot, opts.flip);
     if (!ok) SDL_Log("Failed to draw sprite! SDL err: %s\n", SDL_GetError());
     ok = SDL_SetTextureAlphaModFloat(s.img.img, 1.0f);
     if (!ok) SDL_Log("Failed to change opacity for drawn sprite! SDL err: %s\n", SDL_GetError());

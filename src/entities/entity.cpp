@@ -4,6 +4,7 @@
 #include "../settings.h"
 #include "../draw.h"
 #include "../utils.h"
+#include "../game.h"
 
 Vec2<f32> entity_offset_to_bottom_center(const Entity& e) {
     return {e.x - e.sprite_frame_w / 2, e.y - e.sprite_frame_h};
@@ -52,12 +53,13 @@ void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g) {
         *e.anim.sprite,
         r,
         {
-            .x_dst   = screen_coords.x,
-            .y_dst   = screen_coords.y,
-            .row     = e.anim.frames.idx,
-            .col     = e.anim.frames.frame_current,
-            .flip    = flip,
-            .opacity = e.anim.fadeout.perc_visible_curr
+            .x_dst        = screen_coords.x,
+            .y_dst        = screen_coords.y,
+            .row          = e.anim.frames.idx,
+            .col          = e.anim.frames.frame_current,
+            .flip         = flip,
+            .opacity      = e.anim.fadeout.perc_visible_curr,
+            .rotation_deg = e.anim.rotation.deg_curr,
         }
     );
     if (!ok) SDL_Log("Failed to draw enemy sprite! SDL err: %s\n", SDL_GetError());
@@ -85,7 +87,7 @@ void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g) {
     }
 }
 
-void entity_draw_knife(SDL_Renderer* r, const Entity& e, const Game* g) {
+void entity_draw_knife(SDL_Renderer* r, const Entity& e, Game* g) {
     assert(g != nullptr);
 
     const Vec2<f32> drawing_coords = entity_offset_to_bottom_center(e);
@@ -106,6 +108,7 @@ void entity_draw_knife(SDL_Renderer* r, const Entity& e, const Game* g) {
             .col                           = e.anim.frames.frame_current,
             .flip                          = flip,
             .opacity                       = e.anim.fadeout.perc_visible_curr,
+            .center_of_rotation_offsets    = &game_get_mutable_entity_by_handle(*g, e.handle)->rotation_center_offsets,
             .return_on_failed_range_checks = true,
         }
     );

@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include "enemy.h"
+#include "knife.h"
 #include "../draw.h"
 #include "../utils.h"
 #include "entity.h"
@@ -25,7 +26,7 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
     enemy.shadow_offsets        = {-7,                   -1,  14,                    2};
     enemy.dir                   = Direction::Left;
     enemy.extra_enemy.state     = Enemy_State::Standing;
-    enemy.extra_enemy.has_knife = false;
+    enemy.extra_enemy.has_knife = true;
 
     switch (opts.type) {
         case Enemy_Type::Goon: {
@@ -56,7 +57,7 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
     return enemy;
 }
 
-void enemy_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
+void enemy_draw(SDL_Renderer* r, const Entity& e, Game& g) {
     assert(e.type == Entity_Type::Enemy);
     entity_draw(r, e, &g);
     if (e.extra_enemy.has_knife) entity_draw_knife(r, e, &g);
@@ -368,14 +369,15 @@ static void enemy_deal_damage(Entity& e, Game& g) {
     }
 }
 
-static Update_Result enemy_attack(Entity& e, Game& g) {
+static void enemy_attack(Entity& e, Game& g) {
     e.extra_enemy.state = Enemy_State::Attacking;
     Anim_Start_Opts opts = {};
     if (e.extra_enemy.has_knife) {
         opts = enemy_get_anim_punch_right(e);
         animation_start(e.anim, opts);
         e.extra_enemy.has_knife = false;
-        return Update_Result::Knife_Thrown;
+        knife_throw(g, e);
+        return;
     }
 
     auto attack_anim = e.extra_enemy.idx_attack % 2;
@@ -393,7 +395,6 @@ static Update_Result enemy_attack(Entity& e, Game& g) {
 
     animation_start(e.anim, opts);
     e.extra_enemy.idx_attack++;
-    return Update_Result::None;
 }
 
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
@@ -418,15 +419,13 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         e.damage_queue.clear();
     }
 
-    auto res = Update_Result::None;
-
     switch (e.extra_enemy.state) {
         case Enemy_State::Standing: {
             if (enemy_is_moving(e)) {
                 enemy_run(e);
             }
             else if (enemy_can_attack(e)) {
-                res = enemy_attack(e, g);
+                enemy_attack(e, g);
             }
         } break;
 
@@ -454,6 +453,11 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             }
             else if (knockback_finished && anim_finished) {
                 enemy_stand(e);
+            }
+
+            if (e.extra_enemy.has_knife) {
+                knife_drop(g, e);
+                e.extra_enemy.has_knife = false;
             }
         } break;
 
@@ -539,6 +543,6 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         case Enemy_State::Guarding_Running: break;
     }
 
-    return res;
+    return Update_Result::None;
 }
 

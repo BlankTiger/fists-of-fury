@@ -19,9 +19,10 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
     knife.sprite_frame_h = sprite_frame_h;
 
     knife.extra_knife.state = opts.state;
-    knife.extra_knife.thrown_by = opts.thrown_by;
+    knife.extra_knife.created_by = opts.done_by;
 
-    knife.hurtbox_offsets       = {-4.8f, -sprite_frame_h/2.8f, sprite_frame_w/4.5f, sprite_frame_h/7.0f};
+    knife.rotation_center_offsets = {-24.0f, -24.0f};
+    knife.hurtbox_offsets         = {-4.8f, -sprite_frame_h/2.8f, sprite_frame_w/4.5f, sprite_frame_h/7.0f};
     switch (knife.extra_knife.state) {
         case Knife_State::Thrown: {
             if (knife.dir == Direction::Right) {
@@ -39,23 +40,36 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
             }
         } break;
 
-        case Knife_State::Falling: {
+        case Knife_State::Dropped: {
+            knife.z_vel = 0.09f;
             knife.collision_box_offsets = knife.hurtbox_offsets;
         } break;
+
+        case Knife_State::Picked_Up: unreachable("not possible");
+        case Knife_State::On_The_Ground: unreachable("not possible");
     }
 
     knife.anim.sprite = &g.sprite_knife;
 
     Anim_Start_Opts anim_opts = {};
-    anim_opts.looping = true;
     switch (knife.extra_knife.state) {
         case Knife_State::Thrown: {
             anim_opts.anim_idx = (u32)Knife_Anim::Thrown;
+            anim_opts.looping = true;
         } break;
 
-        case Knife_State::Falling: {
-            anim_opts.anim_idx = (u32)Knife_Anim::Falling;
+        case Knife_State::Dropped: {
+            anim_opts.anim_idx = (u32)Knife_Anim::Dropped;
+            anim_opts.rotation = {
+                .enabled = true,
+                .finish_ranges = {{220, 300}},
+                .deg_per_sec = 20.0f,
+                .rotations_min = 0,
+            };
         } break;
+
+        case Knife_State::Picked_Up: unreachable("not possible");
+        case Knife_State::On_The_Ground: unreachable("not possible");
     }
     animation_start(knife.anim, anim_opts);
 
@@ -69,7 +83,7 @@ static bool handle_dealing_damage(const Entity& e, Game& g) {
     for (auto& other_e : g.entities) {
         if (other_e.type == Entity_Type::Knife
             || other_e.type == Entity_Type::Barrel
-            || other_e.type == e.extra_knife.thrown_by
+            || other_e.type == e.extra_knife.created_by
         ) continue;
 
         auto hitbox = entity_get_world_hitbox(other_e);
@@ -83,40 +97,70 @@ static bool handle_dealing_damage(const Entity& e, Game& g) {
     return hit_something;
 }
 
-static bool handle_movement(Entity& e, const Game& g) {
-    switch (e.extra_knife.state) {
-        case Knife_State::Thrown: {
-            if (e.dir == Direction::Right) {
-                e.x_vel = settings.knife_velocity;
-            }
-            else if (e.dir == Direction::Left) {
-                e.x_vel = -settings.knife_velocity;
-            }
-            else {
-                unreachable("shouldnt get any other direction");
-            }
-        } break;
-
-        case Knife_State::Falling: {
-
-        } break;
+static bool handle_movement_while_thrown(Entity& e, const Game& g) {
+    if (e.dir == Direction::Right) {
+        e.x_vel = settings.knife_velocity;
+    }
+    else if (e.dir == Direction::Left) {
+        e.x_vel = -settings.knife_velocity;
+    }
+    else {
+        unreachable("shouldnt get any other direction");
     }
 
     auto in_bounds = entity_movement_handle_collisions_and_pos_change(e, &g, knife_collide_opts);
     return in_bounds;
 }
 
+static bool handle_movement_while_dropped(Entity& e, const Game& g) {
+    e.z_vel += settings.gravity * g.dt;
+    e.z += e.z_vel * g.dt;
+
+    // remember that this is reversed (up means negative, down means positive)
+    if (e.z >= settings.ground_level + 20.0f) {
+        e.z = settings.ground_level;
+        e.z_vel = 0.0f;
+        return true;
+    }
+
+    return true;
+}
+
 Update_Result knife_update(Entity& e, Game& g) {
     assert(e.type == Entity_Type::Knife);
 
-    auto in_bounds = handle_movement(e, g);
-    if (!in_bounds) {
-        return Update_Result::Remove_Me;
-    }
+    switch (e.extra_knife.state) {
+        case Knife_State::Thrown: {
+            auto in_bounds = handle_movement_while_thrown(e, g);
+            if (!in_bounds) {
+                return Update_Result::Remove_Me;
+            }
+            auto hit_something = handle_dealing_damage(e, g);
+            if (hit_something) {
+                return Update_Result::Remove_Me;
+            }
+        } break;
 
-    auto hit_something = handle_dealing_damage(e, g);
-    if (hit_something) {
-        return Update_Result::Remove_Me;
+        case Knife_State::Dropped: {
+            auto on_the_ground = handle_movement_while_dropped(e, g);
+            if (on_the_ground && animation_is_finished(e.anim)) {
+                e.extra_knife.state = Knife_State::On_The_Ground;
+                auto rotation = e.anim.rotation; // preserve the rotation so that we draw the sprite in the correct orientation
+                rotation.enabled = false;
+                animation_start(e.anim, {
+                    .anim_idx = (u32)Knife_Anim::Dropped,
+                    .rotation = rotation,
+                });
+            }
+        } break;
+
+        case Knife_State::On_The_Ground: {
+
+        } break;
+
+        case Knife_State::Picked_Up: {
+            return Update_Result::Remove_Me;
+        } break;
     }
 
     animation_update(e.anim);
@@ -127,4 +171,20 @@ void knife_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
     assert(e.type == Entity_Type::Knife);
 
     entity_draw(r, e, &g);
+}
+
+void knife_throw(Game& g, const Entity& e) {
+    g.knives_thrown_queue.push_back({
+        .position = entity_get_pos(e),
+        .dir = e.dir,
+        .thrown_by = e.type,
+    });
+}
+
+void knife_drop(Game& g, const Entity& e) {
+    g.knives_dropped_queue.push_back({
+        .position = entity_get_pos(e),
+        .dir = e.dir,
+        .dropped_by = e.type,
+    });
 }

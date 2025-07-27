@@ -269,14 +269,6 @@ static void update(Game& g) {
         switch (res) {
             case Update_Result::None: break;
 
-            case Update_Result::Knife_Thrown: {
-                g.knives_thrown_queue.push_back({
-                    .position = entity_get_pos(entity),
-                    .dir = entity.dir,
-                    .thrown_by = entity.type,
-                });
-            } break;
-
             case Update_Result::Remove_Me: {
                 g.removal_queue.push_back(idx);
             } break;
@@ -293,12 +285,24 @@ static void update(Game& g) {
         const auto knife_info = g.knives_thrown_queue.back();
         auto knife = knife_init(g, {
             .position = knife_info.position,
-            .dir = knife_info.dir,
-            .state = Knife_State::Thrown,
-            .thrown_by = knife_info.thrown_by,
+            .dir      = knife_info.dir,
+            .state    = Knife_State::Thrown,
+            .done_by  = knife_info.thrown_by,
         });
         g.entities.push_back(knife);
         g.knives_thrown_queue.pop_back();
+    }
+
+    while (!g.knives_dropped_queue.empty()) {
+        const auto knife_info = g.knives_dropped_queue.back();
+        auto knife = knife_init(g, {
+            .position = knife_info.position,
+            .dir      = Direction::Left, // could be whatever
+            .state    = Knife_State::Dropped,
+            .done_by  = knife_info.dropped_by,
+        });
+        g.entities.push_back(knife);
+        g.knives_dropped_queue.pop_back();
     }
 
     y_sort_entities(g);

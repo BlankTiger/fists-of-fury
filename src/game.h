@@ -12,7 +12,7 @@
 #include "vec2.h"
 #include "debug_menu.h"
 
-enum struct Update_Result { None, Knife_Thrown, Remove_Me };
+enum struct Update_Result { None, Remove_Me };
 
 struct Input_State {
     bool left   = false;
@@ -90,10 +90,11 @@ struct Game {
     Input_State input;
     Input_State input_prev; // for detecting press -> release
 
-    std::vector<Entity>            entities;
-    std::vector<u32>               sorted_indices;       // for y-sorting when drawing
-    std::vector<u32>               removal_queue;        // for removing entities at the end of the frame
-    std::vector<Knife_Thrown_Info> knives_thrown_queue;  // gets used when collecting knives thrown in the current frame and emptied when creating them
+    std::vector<Entity>             entities;
+    std::vector<u32>                sorted_indices;       // for y-sorting when drawing
+    std::vector<u32>                removal_queue;        // for removing entities at the end of the frame
+    std::vector<Knife_Thrown_Info>  knives_thrown_queue;  // gets used when collecting knives thrown in the current frame and emptied when creating them
+    std::vector<Knife_Dropped_Info> knives_dropped_queue; // gets used when collecting knives dropped in the current frame and emptied when creating them
 
     // TODO: in the future make this a unique type, see handles are better pointers
     u32 idx_player;
@@ -108,3 +109,4 @@ Vec2<f32> game_get_screen_coords(const Game& g, Vec2<f32> worlds_coords);
 Entity game_get_player(const Game& g);
 Entity& game_get_player_mutable(Game& g);
 Handle game_generate_entity_handle(Game& g);
+Entity* game_get_mutable_entity_by_handle(Game& g, const Handle& h);
