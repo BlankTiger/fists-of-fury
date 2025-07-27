@@ -14,15 +14,15 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
     player.handle                    = game_generate_entity_handle(g);
     player.health                    = 100;
     player.damage                    = 20;
-    player.speed                     = 0.03;
+    player.speed                     = 0.03f;
     player.type                      = Entity_Type::Player;
     player.x                         = 20;
     player.y                         = 50;
     player.dir                       = Direction::Right;
     player.sprite_frame_w            = sprite_frame_w;
     player.sprite_frame_h            = sprite_frame_h;
-    player.collision_box_offsets     = {-sprite_frame_w/7, -3, 2*sprite_frame_w/7, 4};
-    player.hurtbox_offsets           = {sprite_frame_w/7, -16, 10, 6};
+    player.collision_box_offsets     = {-sprite_frame_w/7,    -3,  2*sprite_frame_w/7,    4};
+    player.hurtbox_offsets           = {sprite_frame_w/7,     -16, 10,                    6};
     player.hitbox_offsets            = {-sprite_frame_w/6.5f, -23, 2*sprite_frame_w/6.5f, 23};
     player.shadow_offsets            = {-7, -1, 14, 2};
     player.anim.sprite               = player_sprite;
@@ -259,9 +259,11 @@ static void handle_movement(Entity& p, const Game& g) {
         }
     }
 
-    static constexpr Entity_Type dont_collide_with[] = {Entity_Type::Enemy};
-    static const Collide_Opts collide_opts = { .dont_collide_with = std::span{dont_collide_with}, .collide_with_walls = false };
     static constexpr Entity_Type dont_collide_with[] = {Entity_Type::Enemy, Entity_Type::Knife};
+    static const Collide_Opts collide_opts = {
+        .dont_collide_with = std::span{dont_collide_with},
+        .collide_with_walls = false,
+    };
     entity_movement_handle_collisions_and_pos_change(p, &g, collide_opts);
 
     // rotate the hurtbox around the player when turning
@@ -373,7 +375,14 @@ static void player_land(Entity& p) {
 
 static void player_drop_kick(Entity& p, Game& g) {
     p.extra_player.state = Player_State::Kicking_Drop;
-    animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Kicking_Drop, .looping =  false, .frame_duration_ms = 80});
+    animation_start(
+        p.anim,
+        {
+            .anim_idx          = (u32)Player_Anim::Kicking_Drop,
+            .frame_duration_ms = 80,
+            .looping           = false,
+        }
+    );
     handle_attack(p, g, Hit_Type::Knockdown);
 }
 
