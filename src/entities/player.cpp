@@ -12,7 +12,7 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
     const auto sprite_frame_w = 48;
     Entity player{};
     player.handle                    = game_generate_entity_handle(g);
-    player.health                    = 100;
+    player.health                    = 200.0f;
     player.damage                    = 20;
     player.speed                     = 0.03f;
     player.type                      = Entity_Type::Player;
@@ -28,8 +28,8 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
     player.anim.sprite               = player_sprite;
     player.extra_player.state        = Player_State::Standing;
     player.extra_player.slots        = {
-        .offset_top_left     = {-sprite_frame_w/4, -5.0f},
-        .offset_top_right    = {sprite_frame_w/4,  -5.0f},
+        .offset_top_left     = {-sprite_frame_w/3.0f, -4.0f},
+        .offset_top_right    = {sprite_frame_w/3.0f,  -4.0f},
         .offset_bottom_left  = {-sprite_frame_w/4, 2},
         .offset_bottom_right = {sprite_frame_w/4,  2},
         .top_left_free       = true,
@@ -37,7 +37,7 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
         .bottom_left_free    = true,
         .bottom_right_free   = true,
     };
-    player.extra_player.has_knife    = true;
+    player.extra_player.has_knife = false;
     animation_start(player.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true});
     return player;
 }
@@ -266,15 +266,7 @@ static void handle_movement(Entity& p, const Game& g) {
     };
     entity_movement_handle_collisions_and_pos_change(p, &g, collide_opts);
 
-    // rotate the hurtbox around the player when turning
-    if (p.dir != p.dir_prev) {
-        if ((p.dir_prev == Direction::Right && p.dir == Direction::Left) ||
-            (p.dir_prev == Direction::Left  && p.dir == Direction::Right)) {
-            p.hurtbox_offsets.x = -p.hurtbox_offsets.x - p.hurtbox_offsets.w;
-        }
-    }
-
-    p.dir_prev = p.dir;
+    entity_handle_rotating_hurtbox(p);
 }
 
 static void handle_attack(Entity& p, Game& g, Hit_Type type = Hit_Type::Normal) {
@@ -396,6 +388,20 @@ static void player_run(Entity& p) {
     animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Running, .looping = true});
 }
 
+static void player_die(Entity& p) {
+    p.extra_player.state = Player_State::Dying;
+    animation_start(
+        p.anim,
+        { 
+            .anim_idx = (u32)Player_Anim::Knocked_Down,
+            .fadeout = {
+                .enabled = true,
+                .perc_per_sec = 0.05f,
+            }
+        }
+    );
+}
+
 static void handle_jump_physics(Entity& p, const Game& g) {
     p.z_vel += settings.gravity * g.dt;
     p.z += p.z_vel * g.dt;
@@ -410,6 +416,89 @@ static void handle_jump_physics(Entity& p, const Game& g) {
     }
 }
 
+static bool player_can_receive_damage(const Entity& p) {
+    const auto& s = p.extra_player.state;
+    return s != Player_State::Takeoff
+        && s != Player_State::Jumping
+        && s != Player_State::Kicking_Drop
+        && s != Player_State::Got_Hit
+        && s != Player_State::Dying
+        && s != Player_State::Landing;
+}
+
+static Anim_Start_Opts player_get_anim_got_hit() {
+    Anim_Start_Opts opts = {};
+    opts.anim_idx = (u32)Player_Anim::Got_Hit;
+    opts.frame_duration_ms = 50;
+    return opts;
+}
+
+static void player_receive_damage(Entity& p) {
+    if (p.health <= 0.0f) return;
+
+    bool got_hit = false;
+    Dmg most_significant_dmg = {};
+    for (auto dmg : p.damage_queue) {
+        got_hit = true;
+        p.health -= dmg.amount;
+        p.y_vel = 0.0f;
+        if (dmg.going_to == Direction::Left) {
+            p.x_vel = -settings.player_knockback_velocity;
+        }
+        else if (dmg.going_to == Direction::Right) {
+            p.x_vel = settings.player_knockback_velocity;
+        }
+        else {
+            unreachable("shouldnt ever get a different direction");
+        }
+
+        if (dmg.type != Hit_Type::Normal) {
+            most_significant_dmg = dmg;
+        }
+    }
+
+    if (got_hit) {
+        p.extra_player.state = Player_State::Got_Hit;
+        switch (most_significant_dmg.type) {
+            case Hit_Type::Normal: {
+                auto opts = player_get_anim_got_hit();
+                animation_start(p.anim, opts);
+            } break;
+
+            case Hit_Type::Knockdown: {
+                p.z_vel = -settings.player_knockdown_velocity;
+
+                if (most_significant_dmg.going_to == Direction::Left) {
+                    p.x_vel = -settings.player_knockdown_velocity;
+                }
+                else if (most_significant_dmg.going_to == Direction::Right) {
+                    p.x_vel = settings.player_knockdown_velocity;
+                }
+
+                p.extra_player.state = Player_State::Got_Hit;
+                auto opts = player_get_anim_got_hit();
+                animation_start(p.anim, opts);
+            } break;
+
+            case Hit_Type::Power: {
+                if (most_significant_dmg.going_to == Direction::Left) {
+                    p.x_vel = -settings.player_flying_back_velocity;
+                }
+                else if (most_significant_dmg.going_to == Direction::Right) {
+                    p.x_vel = settings.player_flying_back_velocity;
+                }
+
+                p.extra_player.state = Player_State::Got_Hit;
+                auto opts = player_get_anim_got_hit();
+                animation_start(p.anim, opts);
+            } break;
+        }
+    }
+
+    p.damage_queue.clear();
+    return;
+}
+
 Update_Result player_update(Entity& p, Game& g) {
     assert(p.type == Entity_Type::Player);
 
@@ -417,6 +506,10 @@ Update_Result player_update(Entity& p, Game& g) {
         if (SDL_GetTicks() - p.extra_player.last_attack_timestamp > settings.player_combo_timeout_ms) {
             p.extra_player.combo = 0;
         }
+    }
+
+    if (player_can_receive_damage(p)) {
+        player_receive_damage(p);
     }
 
     auto res = Update_Result::None;
@@ -459,11 +552,19 @@ Update_Result player_update(Entity& p, Game& g) {
         } break;
 
         case Player_State::Got_Hit: {
-            unreachable("unimplemented");
+            if (animation_is_finished(p.anim)) {
+                player_stand(p);
+            }
+
+            if (p.health <= 0.0f) {
+                player_die(p);
+            }
         } break;
 
         case Player_State::Dying: {
-            unreachable("unimplemented");
+            if (animation_is_finished(p.anim)) {
+                res = Update_Result::Remove_Me;
+            }
         } break;
 
         case Player_State::Takeoff: {

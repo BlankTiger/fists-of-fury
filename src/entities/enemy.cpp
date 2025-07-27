@@ -20,12 +20,12 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
     enemy.sprite_frame_w        = sprite_frame_w;
     enemy.sprite_frame_h        = sprite_frame_h;
     enemy.collision_box_offsets = {-sprite_frame_w/7,    -3,  2*sprite_frame_w/7,    4};
-    enemy.hurtbox_offsets       = {sprite_frame_w/7,     -16, 10,                    6};
+    enemy.hurtbox_offsets       = {-sprite_frame_w/7 - 10,    -14, 10,                    6};
     enemy.hitbox_offsets        = {-sprite_frame_w/6.5f, -20, 2*sprite_frame_w/6.5f, 10};
     enemy.shadow_offsets        = {-7,                   -1,  14,                    2};
     enemy.dir                   = Direction::Left;
     enemy.extra_enemy.state     = Enemy_State::Standing;
-    // enemy.extra_enemy.has_knife = true;
+    enemy.extra_enemy.has_knife = false;
 
     switch (opts.type) {
         case Enemy_Type::Goon: {
@@ -165,6 +165,9 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
     else {
         auto dir = e.extra_enemy.target_pos - enemy_pos;
         e.dir = dir_for_dir_vec(dir);
+        if (e.extra_enemy.has_knife) {
+            enemy_rotate_towards_player(e, enemy_pos, player_pos);
+        }
 
         dir.normalize();
         e.x_vel = dir.x * e.speed;
@@ -176,6 +179,8 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
         enemy_rotate_towards_player(e, enemy_pos, player_pos);
         enemy_stand(e);
     }
+
+    entity_handle_rotating_hurtbox(e);
 }
 
 static void enemy_receive_damage(Entity& e) {
@@ -305,9 +310,23 @@ static void enemy_return_claimed_slot(Entity& e, Game& g) {
 }
 
 static void enemy_update_target_pos(Entity& e, const Entity& player) {
-    if (e.extra_enemy.slot == Slot::None) unreachable("we shouldnt ever hit this code path if slot is invalid");
+    if (e.extra_enemy.has_knife) {
+        // go away from player to knife_throwing_distance and track up and down until in knife_throwing_threshold, then throw
+        auto target_pos = entity_get_pos(player);
+        if (e.x > target_pos.x) {
+            target_pos.x += settings.knife_throwing_distance;
+        }
+        else {
+            target_pos.x -= settings.knife_throwing_distance;
+        }
+        e.extra_enemy.target_pos = target_pos;
+        return;
+    }
 
-    e.extra_enemy.target_pos = calc_world_coordinates_of_slot({player.x, player.y}, player.extra_player.slots, e.extra_enemy.slot);
+    if (e.extra_enemy.slot != Slot::None) {
+        e.extra_enemy.target_pos = calc_world_coordinates_of_slot({player.x, player.y}, player.extra_player.slots, e.extra_enemy.slot);
+        return;
+    }
 }
 
 static bool enemy_can_move(const Entity& e) {
@@ -340,9 +359,25 @@ static bool enemy_can_attack(const Entity& e) {
         && SDL_GetTicks() - e.extra_enemy.last_attack_timestamp > settings.enemy_attack_timeout_ms;
 }
 
-static void enemy_attack(Entity& e) {
+static void enemy_deal_damage(Entity& e, Game& g) {
+    auto& player = game_get_player_mutable(g);
+    auto player_hitbox = entity_get_world_hitbox(player);
+    auto enemy_hurtbox = entity_get_world_hurtbox(e);
+    if (SDL_HasRectIntersectionFloat(&player_hitbox, &enemy_hurtbox)) {
+        player.damage_queue.push_back({e.damage, e.dir, Hit_Type::Normal});
+    }
+}
+
+static Update_Result enemy_attack(Entity& e, Game& g) {
     e.extra_enemy.state = Enemy_State::Attacking;
     Anim_Start_Opts opts = {};
+    if (e.extra_enemy.has_knife) {
+        opts = enemy_get_anim_punch_right(e);
+        animation_start(e.anim, opts);
+        e.extra_enemy.has_knife = false;
+        return Update_Result::Knife_Thrown;
+    }
+
     auto attack_anim = e.extra_enemy.idx_attack % 2;
     switch (attack_anim) {
         case 0: {
@@ -353,25 +388,22 @@ static void enemy_attack(Entity& e) {
             opts = enemy_get_anim_punch_right(e);
         } break;
     }
+
+    enemy_deal_damage(e, g);
+
     animation_start(e.anim, opts);
     e.extra_enemy.idx_attack++;
+    return Update_Result::None;
 }
 
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
     assert(e.type == Entity_Type::Enemy);
 
-    // TODO: currently the hurtbox isnt rotated, sooooo... Do the same behavior
-    // we do for the player with the hurtbox rotation when we do the logic
-    // of hitting the player
-    //
-    // also, enemies should collide with the top wall no matter what, the other walls
-    // its probably fine for them not to (bottom and left one especially, maybe they
-    // be coming out of that area off screen from the bottom or something)
-
     animation_update(e.anim);
 
     if (e.extra_enemy.slot == Slot::None) enemy_claim_slot(e, player, g);
-    else enemy_update_target_pos(e, player);
+
+    enemy_update_target_pos(e, player);
 
     if (enemy_can_move(e)) {
         enemy_handle_movement(e, player, g);
@@ -386,13 +418,15 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         e.damage_queue.clear();
     }
 
+    auto res = Update_Result::None;
+
     switch (e.extra_enemy.state) {
         case Enemy_State::Standing: {
             if (enemy_is_moving(e)) {
                 enemy_run(e);
             }
             else if (enemy_can_attack(e)) {
-                enemy_attack(e);
+                res = enemy_attack(e, g);
             }
         } break;
 
@@ -505,6 +539,6 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         case Enemy_State::Guarding_Running: break;
     }
 
-    return Update_Result::None;
+    return res;
 }
 

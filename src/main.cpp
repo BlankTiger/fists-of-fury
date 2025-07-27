@@ -191,7 +191,7 @@ static bool init() {
         const auto health = 200.0f;
         // enemies setup
         Entity goon1 = enemy_init(g, {
-            .type = Enemy_Type::Goon,
+            .type = Enemy_Type::Punk,
             .health = health,
             .damage = 10.0f,
             .speed = 0.02f,

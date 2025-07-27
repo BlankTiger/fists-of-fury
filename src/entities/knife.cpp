@@ -14,12 +14,6 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
     knife.x = opts.position.x;
     knife.y = opts.position.y;
     knife.dir = opts.dir;
-    if (knife.dir == Direction::Right) {
-        knife.x += 10.0f;
-    }
-    else if (knife.dir == Direction::Left) {
-        knife.x -= 10.0f;
-    }
 
     knife.sprite_frame_w = sprite_frame_w;
     knife.sprite_frame_h = sprite_frame_h;
@@ -30,6 +24,13 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
     knife.hurtbox_offsets       = {-4.8f, -sprite_frame_h/2.8f, sprite_frame_w/4.5f, sprite_frame_h/7.0f};
     switch (knife.extra_knife.state) {
         case Knife_State::Thrown: {
+            if (knife.dir == Direction::Right) {
+                knife.x += 10.0f;
+            }
+            else if (knife.dir == Direction::Left) {
+                knife.x -= 10.0f;
+            }
+
             // collision offsets are off to the left, because its easier to handle cleanup when knife goes off screen
             // and we dont collide the knife with anything when its flying anyway
             knife.collision_box_offsets = {-18.0f, -sprite_frame_h/3.2f, 1.0f, 1.0f};
