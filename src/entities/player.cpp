@@ -28,8 +28,8 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
     player.anim.sprite               = player_sprite;
     player.extra_player.state        = Player_State::Standing;
     player.extra_player.slots        = {
-        .offset_top_left     = {-sprite_frame_w/4, -6.5f},
-        .offset_top_right    = {sprite_frame_w/4,  -6.5f},
+        .offset_top_left     = {-sprite_frame_w/4, -5.0f},
+        .offset_top_right    = {sprite_frame_w/4,  -5.0f},
         .offset_bottom_left  = {-sprite_frame_w/4, 2},
         .offset_bottom_right = {sprite_frame_w/4,  2},
         .top_left_free       = true,
