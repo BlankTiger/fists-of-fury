@@ -44,6 +44,8 @@ struct Settings {
     f32 enemy_flying_back_dmg_collateral_dmg = 20.0f;
     u64 enemy_attack_timeout_ms              = 2000;
 
+    f32 knife_velocity                       = 0.09f;
+    f32 knife_damage                         = 20.0f;
 };
 
 extern Settings settings;

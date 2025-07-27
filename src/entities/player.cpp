@@ -261,6 +261,7 @@ static void handle_movement(Entity& p, const Game& g) {
 
     static constexpr Entity_Type dont_collide_with[] = {Entity_Type::Enemy};
     static const Collide_Opts collide_opts = { .dont_collide_with = std::span{dont_collide_with}, .collide_with_walls = false };
+    static constexpr Entity_Type dont_collide_with[] = {Entity_Type::Enemy, Entity_Type::Knife};
     entity_movement_handle_collisions_and_pos_change(p, &g, collide_opts);
 
     // rotate the hurtbox around the player when turning
@@ -301,10 +302,18 @@ static void handle_attack(Entity& p, Game& g, Hit_Type type = Hit_Type::Normal) 
 const u32 AMOUNT_OF_ATTACKS = 4;
 
 // make this player_attack and then swap animations on combo
-static void player_attack(Entity& p, Game& g) {
+static Update_Result player_attack(Entity& p, Game& g) {
     u32 attack_anim        = (u32)Player_Anim::Punching_Right;
     Anim_Start_Opts opts   = {};
     opts.frame_duration_ms = 60;
+
+    if (p.extra_player.has_knife) {
+        p.extra_player.state = Player_State::Attacking;
+        opts.anim_idx = (u32)Player_Anim::Punching_Right;
+        animation_start(p.anim, opts);
+        p.extra_player.has_knife = false;
+        return Update_Result::Knife_Thrown;
+    }
 
     auto should_be = p.extra_player.combo % AMOUNT_OF_ATTACKS;
     auto type = Hit_Type::Normal;
@@ -331,6 +340,7 @@ static void player_attack(Entity& p, Game& g) {
     animation_start(p.anim, opts);
     p.extra_player.state = Player_State::Attacking;
     handle_attack(p, g, type);
+    return Update_Result::None;
 }
 
 static void player_takeoff(Entity& p) {
@@ -400,6 +410,8 @@ Update_Result player_update(Entity& p, Game& g) {
         }
     }
 
+    auto res = Update_Result::None;
+
     switch (p.extra_player.state) {
         case Player_State::Standing: {
             if (started_moving(g)) {
@@ -407,21 +419,19 @@ Update_Result player_update(Entity& p, Game& g) {
                 handle_movement(p, g);
             }
             else if (just_pressed(g, Action::Attack)) {
-                player_attack(p, g);
+                res = player_attack(p, g);
             }
             else if (just_pressed(g, Action::Jump)) {
                 player_takeoff(p);
             }
-
-            break;
-        }
+        } break;
 
         case Player_State::Running: {
             if (stopped_moving(g)) {
                 player_stand(p);
             }
             else if (just_pressed(g, Action::Attack)) {
-                player_attack(p, g);
+                res = player_attack(p, g);
             }
             else if (just_pressed(g, Action::Jump)) {
                 player_takeoff(p);
@@ -429,9 +439,7 @@ Update_Result player_update(Entity& p, Game& g) {
             else {
                 handle_movement(p, g);
             }
-
-            break;
-        }
+        } break;
 
         case Player_State::Attacking: {
             // deal damage if in hitbox
@@ -439,19 +447,15 @@ Update_Result player_update(Entity& p, Game& g) {
             if (animation_is_finished(p.anim)) {
                 player_stand(p);
             }
-
-            break;
-        }
+        } break;
 
         case Player_State::Got_Hit: {
             unreachable("unimplemented");
-            break;
-        }
+        } break;
 
         case Player_State::Dying: {
             unreachable("unimplemented");
-            break;
-        }
+        } break;
 
         case Player_State::Takeoff: {
             if (animation_is_finished(p.anim)) {
@@ -461,8 +465,7 @@ Update_Result player_update(Entity& p, Game& g) {
             handle_movement(p, g);
             handle_jump_physics(p, g);
 
-            break;
-        }
+        } break;
 
         case Player_State::Jumping: {
             if (just_pressed(g, Action::Attack)) {
@@ -472,8 +475,7 @@ Update_Result player_update(Entity& p, Game& g) {
             handle_movement(p, g);
             handle_jump_physics(p, g);
 
-            break;
-        }
+        } break;
 
         case Player_State::Landing: {
             if (animation_is_finished(p.anim)) {
@@ -482,8 +484,7 @@ Update_Result player_update(Entity& p, Game& g) {
 
             handle_jump_physics(p, g);
 
-            break;
-        }
+        } break;
 
         case Player_State::Kicking_Drop: {
             if (p.z == settings.ground_level) {
@@ -493,14 +494,13 @@ Update_Result player_update(Entity& p, Game& g) {
             handle_movement(p, g);
             handle_jump_physics(p, g);
 
-            break;
-        }
+        } break;
     }
 
     animation_update(p.anim);
     camera_update(p, g);
 
-    return Update_Result::None;
+    return res;
 }
 
 static void slots_draw(SDL_Renderer* r, const Entity& p, const Game& g) {

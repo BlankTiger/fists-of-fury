@@ -12,7 +12,7 @@
 #include "vec2.h"
 #include "debug_menu.h"
 
-enum struct Update_Result { Remove_Me, None };
+enum struct Update_Result { None, Knife_Thrown, Remove_Me };
 
 struct Input_State {
     bool left   = false;
@@ -44,7 +44,7 @@ struct Game {
     };
     Sprite sprite_knife_player = {
         .img                     = {},
-        .max_frames_in_row_count = 10,
+        .max_frames_in_row_count = 10, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
         .frames_in_each_row      = std::span{sprite_knife_player_frames},
     };
 
@@ -52,6 +52,12 @@ struct Game {
         .img                     = {},
         .max_frames_in_row_count = 1, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
         .frames_in_each_row      = std::span{sprite_barrel_frames},
+    };
+
+    Sprite sprite_knife = {
+        .img                     = {},
+        .max_frames_in_row_count = 4, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
+        .frames_in_each_row      = std::span{sprite_knife_frames},
     };
 
     Sprite sprite_knife_enemy = {
@@ -84,9 +90,11 @@ struct Game {
     Input_State input;
     Input_State input_prev; // for detecting press -> release
 
-    std::vector<Entity> entities;
-    std::vector<u32>    sorted_indices; // for y-sorting when drawing
-    std::vector<u32>    removal_queue;  // for removing entities at the end of the frame
+    std::vector<Entity>            entities;
+    std::vector<u32>               sorted_indices;       // for y-sorting when drawing
+    std::vector<u32>               removal_queue;        // for removing entities at the end of the frame
+    std::vector<Knife_Thrown_Info> knives_thrown_queue;  // gets used when collecting knives thrown in the current frame and emptied when creating them
+
     // TODO: in the future make this a unique type, see handles are better pointers
     u32 idx_player;
 

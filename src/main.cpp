@@ -15,6 +15,7 @@
 #include "entities/player.h"
 #include "entities/enemy.h"
 #include "entities/barrel.h"
+#include "entities/knife.h"
 
 static Game g = {};
 
@@ -153,6 +154,14 @@ static bool init() {
     }
 
     {
+        bool ok = sprite_load(g.sprite_knife, g.renderer, "assets/art/characters/knife.png");
+        if (!ok) {
+            SDL_Log("Failed to load knife sprite! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+    }
+
+    {
         bool ok = sprite_load(g.sprite_enemy_goon, g.renderer, "assets/art/characters/enemy_goon.png");
         if (!ok) {
             SDL_Log("Failed to load enemy_goon sprite! SDL err: %s\n", SDL_GetError());
@@ -221,18 +230,19 @@ static Update_Result update_entity(Entity& e) {
     switch (e.type) {
         case Entity_Type::Player: {
             res = player_update(e, g);
-            break;
-        }
+        } break;
 
         case Entity_Type::Enemy: {
             res = enemy_update(e, game_get_player(g), g);
-            break;
-        }
+        } break;
 
         case Entity_Type::Barrel: {
             res = barrel_update(e, g.dt);
-            break;
-        }
+        } break;
+
+        case Entity_Type::Knife: {
+            res = knife_update(e, g);
+        } break;
     }
 
     return res;
@@ -253,8 +263,24 @@ static void y_sort_entities(Game& g) {
 
 static void update(Game& g) {
     for (u64 idx = 0; idx < g.entities.size(); idx++) {
-        auto res = update_entity(g.entities[idx]);
-        if (res == Update_Result::Remove_Me) g.removal_queue.push_back(idx);
+        auto& entity = g.entities[idx];
+        auto res = update_entity(entity);
+
+        switch (res) {
+            case Update_Result::None: break;
+
+            case Update_Result::Knife_Thrown: {
+                g.knives_thrown_queue.push_back({
+                    .position = entity_get_pos(entity),
+                    .dir = entity.dir,
+                    .thrown_by = entity.type,
+                });
+            } break;
+
+            case Update_Result::Remove_Me: {
+                g.removal_queue.push_back(idx);
+            } break;
+        }
     }
 
     while (!g.removal_queue.empty()) {
@@ -262,6 +288,19 @@ static void update(Game& g) {
         g.entities.erase(g.entities.begin() + idx);
         g.removal_queue.pop_back();
     }
+
+    while (!g.knives_thrown_queue.empty()) {
+        const auto knife_info = g.knives_thrown_queue.back();
+        auto knife = knife_init(g, {
+            .position = knife_info.position,
+            .dir = knife_info.dir,
+            .state = Knife_State::Thrown,
+            .thrown_by = knife_info.thrown_by,
+        });
+        g.entities.push_back(knife);
+        g.knives_thrown_queue.pop_back();
+    }
+
     y_sort_entities(g);
 
     g.input_prev  = g.input;
@@ -274,18 +313,19 @@ static void draw_entity(SDL_Renderer* r, Entity e) {
     switch (e.type) {
         case Entity_Type::Player: {
             player_draw(r, e, g);
-            break;
-        }
+        } break;
 
         case Entity_Type::Enemy: {
             enemy_draw(r, e, g);
-            break;
-        }
+        } break;
 
         case Entity_Type::Barrel: {
             barrel_draw(r, e, g);
-            break;
-        }
+        } break;
+
+        case Entity_Type::Knife: {
+            knife_draw(r, e, g);
+        } break;
     }
 }
 

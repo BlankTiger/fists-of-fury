@@ -19,7 +19,8 @@ enum struct Direction {
 enum struct Entity_Type {
     Player,
     Enemy,
-    Barrel
+    Barrel,
+    Knife
 };
 
 enum struct Player_State {
@@ -168,6 +169,32 @@ struct Handle {
     }
 };
 
+enum struct Knife_State {
+    Thrown,
+    Falling,
+};
+
+enum struct Knife_Anim {
+    Thrown  = 0,
+    Falling = 1,
+    COUNT // keep this last
+};
+
+static constexpr u32 sprite_knife_frames[]   = { 4, 1 };
+static_assert(std::size(sprite_knife_frames) == (u32)Knife_Anim::COUNT);
+
+struct Collide_Opts {
+    std::span<const Entity_Type> dont_collide_with;
+    bool                         collide_with_walls;
+    bool                         reset_position_on_wall_impact = true;
+};
+
+struct Knife_Thrown_Info {
+    Vec2<f32>   position;
+    Direction   dir;
+    Entity_Type thrown_by;
+};
+
 struct Entity {
     Handle handle;
     f32 health;
@@ -225,6 +252,12 @@ struct Entity {
         struct {
             Barrel_State state;
         } extra_barrel;
+
+        struct {
+            Knife_State state;
+            Entity_Type thrown_by;
+            bool        started_going_off_screen;
+        } extra_knife;
     };
 };
 
@@ -241,11 +274,6 @@ SDL_FRect entity_get_world_hurtbox(const Entity& e);
 struct Game;
 void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g);
 void entity_draw_knife(SDL_Renderer* r, const Entity& e, const Game* g);
-
-struct Collide_Opts {
-    std::span<const Entity_Type> dont_collide_with;
-    bool                         collide_with_walls;
-};
 
 bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts = {});
 

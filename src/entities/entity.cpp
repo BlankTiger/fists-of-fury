@@ -140,6 +140,15 @@ bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, 
         }
     }
 
+    if (e.type == Entity_Type::Knife) {
+        const auto& box_right = level_info_get_collision_box(g->curr_level_info, Border::Right);
+        const auto& box_left = level_info_get_collision_box(g->curr_level_info, Border::Left);
+        if (SDL_HasRectIntersectionFloat(&box_right, &entity_collision_box)
+            || SDL_HasRectIntersectionFloat(&box_left, &entity_collision_box)) {
+            in_bounds = false;
+        }
+    }
+
     if (opts.collide_with_walls) {
         for (const auto& box : level_info_get_collision_boxes(g->curr_level_info)) {
             if (SDL_HasRectIntersectionFloat(&box, &entity_collision_box)) {
@@ -166,7 +175,7 @@ bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, 
         }
     }
 
-    if (!in_bounds) {
+    if (opts.reset_position_on_wall_impact && !in_bounds) {
         e.x = x_old;
         e.y = y_old;
     }
