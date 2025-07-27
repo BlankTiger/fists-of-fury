@@ -257,7 +257,7 @@ static bool enemy_handle_knockback(Entity& e, const Game& g) {
 }
 
 static void enemy_handle_flying_back_collateral_dmg(Entity& e, Game& g) {
-    SDL_FRect hitbox = entity_get_world_hitbox(e);
+    SDL_FRect collision_box = entity_get_world_collision_box(e);
 
     for (auto& other_e : g.entities) {
         if (e.handle == other_e.handle) continue;
