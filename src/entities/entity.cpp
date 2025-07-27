@@ -160,7 +160,7 @@ bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, 
 
     if (in_bounds) {
         for (const auto& e_other : g->entities) {
-            if (&e == &e_other) continue;
+            if (e.handle == e_other.handle) continue;
             auto skip = false;
             for (auto dont_with_type : opts.dont_collide_with) {
                 if (e_other.type == dont_with_type) skip = true;
