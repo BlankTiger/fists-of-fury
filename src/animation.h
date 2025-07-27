@@ -46,9 +46,9 @@ struct Animation {
 
 struct Anim_Start_Opts {
     u32     anim_idx;
-    bool    looping           = false;
     u64     frame_duration_ms = 100;
     Fadeout fadeout           = {};
+    bool    looping           = false;
 };
 
 void animation_start(Animation& a, Anim_Start_Opts opts);

@@ -25,6 +25,7 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
     enemy.shadow_offsets        = {-7,                   -1,  14,                    2};
     enemy.dir                   = Direction::Left;
     enemy.extra_enemy.state     = Enemy_State::Standing;
+    // enemy.extra_enemy.has_knife = true;
 
     switch (opts.type) {
         case Enemy_Type::Goon: {
@@ -86,7 +87,7 @@ static Anim_Start_Opts enemy_get_anim_standing(const Entity& e) {
     if (e.extra_enemy.type == Enemy_Type::Boss) {
         anim_idx = (u32)Enemy_Boss_Anim::Standing;
     }
-    return { .anim_idx = anim_idx, .looping = true, .frame_duration_ms = 75 };
+    return { .anim_idx = anim_idx, .frame_duration_ms = 75, .looping = true };
 }
 
 static Anim_Start_Opts enemy_get_anim_running(const Entity& e) {
@@ -94,7 +95,7 @@ static Anim_Start_Opts enemy_get_anim_running(const Entity& e) {
     if (e.extra_enemy.type == Enemy_Type::Boss) {
         anim_idx = (u32)Enemy_Boss_Anim::Running;
     }
-    return { .anim_idx = anim_idx, .looping = true, .frame_duration_ms = 75 };
+    return { .anim_idx = anim_idx, .frame_duration_ms = 75, .looping = true };
 }
 
 static Anim_Start_Opts enemy_get_anim_punch_left(const Entity& e) {
@@ -263,7 +264,7 @@ static void enemy_handle_flying_back_collateral_dmg(Entity& e, Game& g) {
         if (e.handle == other_e.handle) continue;
 
         SDL_FRect other_e_hitbox = entity_get_world_hitbox(other_e);
-        if (SDL_HasRectIntersectionFloat(&hitbox, &other_e_hitbox)) {
+        if (SDL_HasRectIntersectionFloat(&collision_box, &other_e_hitbox)) {
             auto dir = Direction::Left;
             if (e.dir == Direction::Left) {
                 dir = Direction::Right;
