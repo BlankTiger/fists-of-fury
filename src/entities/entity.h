@@ -174,6 +174,7 @@ enum struct Knife_State {
     Dropped,
     On_The_Ground,
     Picked_Up,
+    Disappearing,
 };
 
 enum struct Knife_Anim {
@@ -201,6 +202,7 @@ struct Knife_Dropped_Info {
     Vec2<f32>   position;
     Direction   dir;
     Entity_Type dropped_by;
+    bool        instantly_disappear;
 };
 
 struct Entity {
@@ -267,6 +269,7 @@ struct Entity {
             Knife_State state;
             Entity_Type created_by;
             bool        started_going_off_screen;
+            bool        instantly_disappear;
         } extra_knife;
     };
 };

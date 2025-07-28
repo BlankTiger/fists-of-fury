@@ -20,6 +20,7 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
 
     knife.extra_knife.state = opts.state;
     knife.extra_knife.created_by = opts.done_by;
+    knife.extra_knife.instantly_disappear = opts.instantly_disappear;
 
     knife.rotation_center_offsets = {-24.0f, -24.0f};
     knife.hurtbox_offsets         = {-4.8f, -sprite_frame_h/2.8f, sprite_frame_w/4.5f, sprite_frame_h/7.0f};
@@ -47,6 +48,7 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
 
         case Knife_State::Picked_Up: unreachable("not possible");
         case Knife_State::On_The_Ground: unreachable("not possible");
+        case Knife_State::Disappearing: unreachable("not possible");
     }
 
     knife.anim.sprite = &g.sprite_knife;
@@ -70,6 +72,7 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
 
         case Knife_State::Picked_Up: unreachable("not possible");
         case Knife_State::On_The_Ground: unreachable("not possible");
+        case Knife_State::Disappearing: unreachable("not possible");
     }
     animation_start(knife.anim, anim_opts);
 
@@ -144,18 +147,34 @@ Update_Result knife_update(Entity& e, Game& g) {
         case Knife_State::Dropped: {
             auto on_the_ground = handle_movement_while_dropped(e, g);
             if (on_the_ground && animation_is_finished(e.anim)) {
-                e.extra_knife.state = Knife_State::On_The_Ground;
                 auto rotation = e.anim.rotation; // preserve the rotation so that we draw the sprite in the correct orientation
                 rotation.enabled = false;
-                animation_start(e.anim, {
-                    .anim_idx = (u32)Knife_Anim::Dropped,
-                    .rotation = rotation,
-                });
+                if (e.extra_knife.instantly_disappear) {
+                    e.extra_knife.state = Knife_State::Disappearing;
+                    animation_start(e.anim, {
+                        .anim_idx = (u32)Knife_Anim::Dropped,
+                        .fadeout = { .enabled = true },
+                        .rotation = rotation,
+                    });
+                }
+                else {
+                    e.extra_knife.state = Knife_State::On_The_Ground;
+                    animation_start(e.anim, {
+                        .anim_idx = (u32)Knife_Anim::Dropped,
+                        .rotation = rotation,
+                    });
+                }
             }
         } break;
 
         case Knife_State::On_The_Ground: {
 
+        } break;
+
+        case Knife_State::Disappearing: {
+            if (animation_is_finished(e.anim)) {
+                return Update_Result::Remove_Me;
+            }
         } break;
 
         case Knife_State::Picked_Up: {
@@ -181,10 +200,11 @@ void knife_throw(Game& g, const Entity& e) {
     });
 }
 
-void knife_drop(Game& g, const Entity& e) {
+void knife_drop(Game& g, const Entity& e, Knife_Drop_Opts opts) {
     g.knives_dropped_queue.push_back({
         .position = entity_get_pos(e),
         .dir = e.dir,
         .dropped_by = e.type,
+        .instantly_disappear = opts.instantly_disappear,
     });
 }

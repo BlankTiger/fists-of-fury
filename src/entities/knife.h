@@ -9,6 +9,7 @@ struct Knife_Init_Opts {
     Direction   dir;
     Knife_State state;
     Entity_Type done_by;
+    bool        instantly_disappear = false;
 };
 
 static constexpr Entity_Type knife_dont_collide_with[] = {
@@ -26,4 +27,9 @@ Entity knife_init(Game& g, Knife_Init_Opts opts);
 Update_Result knife_update(Entity& e, Game& g);
 void knife_draw(SDL_Renderer* r, const Entity& e, const Game& g);
 void knife_throw(Game& g, const Entity& e);
-void knife_drop(Game& g, const Entity& e);
+
+struct Knife_Drop_Opts {
+    bool instantly_disappear = false;
+};
+
+void knife_drop(Game& g, const Entity& e, Knife_Drop_Opts opts = {});

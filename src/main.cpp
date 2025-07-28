@@ -296,10 +296,11 @@ static void update(Game& g) {
     while (!g.knives_dropped_queue.empty()) {
         const auto knife_info = g.knives_dropped_queue.back();
         auto knife = knife_init(g, {
-            .position = knife_info.position,
-            .dir      = Direction::Left, // could be whatever
-            .state    = Knife_State::Dropped,
-            .done_by  = knife_info.dropped_by,
+            .position            = knife_info.position,
+            .dir                 = Direction::Left, // could be whatever
+            .state               = Knife_State::Dropped,
+            .done_by             = knife_info.dropped_by,
+            .instantly_disappear = knife_info.instantly_disappear,
         });
         g.entities.push_back(knife);
         g.knives_dropped_queue.pop_back();

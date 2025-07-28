@@ -434,7 +434,7 @@ static Anim_Start_Opts player_get_anim_got_hit() {
     return opts;
 }
 
-static void player_receive_damage(Entity& p) {
+static void player_receive_damage(Entity& p, Game& g) {
     if (p.health <= 0.0f) return;
 
     bool got_hit = false;
@@ -494,6 +494,11 @@ static void player_receive_damage(Entity& p) {
                 animation_start(p.anim, opts);
             } break;
         }
+
+        if (p.extra_player.has_knife) {
+            knife_drop(g, p, { .instantly_disappear = true });
+            p.extra_player.has_knife = false;
+        }
     }
 
     p.damage_queue.clear();
@@ -510,7 +515,7 @@ Update_Result player_update(Entity& p, Game& g) {
     }
 
     if (player_can_receive_damage(p)) {
-        player_receive_damage(p);
+        player_receive_damage(p, g);
     }
 
     switch (p.extra_player.state) {
