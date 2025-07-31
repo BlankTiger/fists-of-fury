@@ -412,7 +412,9 @@ int main() {
         a = SDL_GetTicks();
         g.dt_real = a - b;
 
-        if (g.dt_real > 1000 / settings.fps_max) {
+        const u64 max_cap = 1000 / settings.fps_max;
+        if (g.dt_real > max_cap) {
+            g.dt_real = max_cap;
             b = a;
             g.dt = g.dt_real * settings.time_scale;
             g.time_ms += g.dt;
