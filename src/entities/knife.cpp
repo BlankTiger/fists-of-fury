@@ -27,9 +27,10 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
     switch (knife.extra_knife.state) {
         case Knife_State::Thrown: {
             if (knife.dir == Direction::Right) {
+                knife.x_vel = settings.knife_velocity;
                 knife.x += 10.0f;
-            }
-            else if (knife.dir == Direction::Left) {
+            } else if (knife.dir == Direction::Left) {
+                knife.x_vel = -settings.knife_velocity;
                 knife.x -= 10.0f;
             }
 
@@ -42,7 +43,15 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
         } break;
 
         case Knife_State::Dropped: {
-            knife.z_vel = 0.09f;
+            knife.y += 12.0f;
+            knife.z_vel = settings.knife_drop_jump_velocity;
+
+            if (opts.dir == Direction::Right) {
+                knife.x_vel = -settings.knife_drop_sideways_velocity;
+            } else {
+                knife.x_vel = settings.knife_drop_sideways_velocity;
+            }
+
             knife.collision_box_offsets = knife.hurtbox_offsets;
         } break;
 
@@ -65,8 +74,8 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
             anim_opts.rotation = {
                 .enabled = true,
                 .finish_ranges = {{220, 300}},
-                .deg_per_sec = 20.0f,
-                .rotations_min = 0,
+                .deg_per_sec = 2200.0f,
+                .rotations_min = 1,
             };
         } break;
 
@@ -101,16 +110,6 @@ static bool handle_dealing_damage(const Entity& e, Game& g) {
 }
 
 static bool handle_movement_while_thrown(Entity& e, const Game& g) {
-    if (e.dir == Direction::Right) {
-        e.x_vel = settings.knife_velocity;
-    }
-    else if (e.dir == Direction::Left) {
-        e.x_vel = -settings.knife_velocity;
-    }
-    else {
-        unreachable("shouldnt get any other direction");
-    }
-
     auto in_bounds = entity_movement_handle_collisions_and_pos_change(e, &g, knife_collide_opts);
     return in_bounds;
 }
@@ -119,14 +118,17 @@ static bool handle_movement_while_dropped(Entity& e, const Game& g) {
     e.z_vel += settings.gravity * g.dt;
     e.z += e.z_vel * g.dt;
 
-    // remember that this is reversed (up means negative, down means positive)
-    if (e.z >= settings.ground_level + 20.0f) {
+    e.x += e.x_vel * g.dt;
+
+    if (e.z >= settings.ground_level) {
         e.z = settings.ground_level;
         e.z_vel = 0.0f;
+        e.x_vel = 0.0f;
+
         return true;
     }
 
-    return true;
+    return false;
 }
 
 Update_Result knife_update(Entity& e, Game& g) {
