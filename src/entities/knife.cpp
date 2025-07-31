@@ -22,6 +22,7 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
     knife.extra_knife.instantly_disappear = opts.instantly_disappear;
 
     knife.hurtbox_offsets         = {-4.8f, -sprite_frame_h/2.8f, sprite_frame_w/4.5f, sprite_frame_h/7.0f};
+    knife.shadow_offsets          = {-6, 0, 12, 2};
     switch (knife.extra_knife.state) {
         case Knife_State::Thrown: {
             if (knife.dir == Direction::Right) {
@@ -41,6 +42,9 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
         } break;
 
         case Knife_State::Dropped: {
+            knife.shadow_offsets.y = -7;
+            knife.shadow_offsets.x = -3;
+            knife.shadow_offsets.w = 6;
             knife.y += 7.0f; // experimentally found offset that looks best for now
             knife.z_vel = settings.knife_drop_jump_velocity;
 
@@ -73,13 +77,13 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
                 .enabled = true,
                 .finish_ranges = {{220, 300}},
                 .deg_per_sec = 2200.0f,
-                .rotations_min = 1,
+                .rotations_min = 0,
             };
         } break;
 
-        case Knife_State::Picked_Up: unreachable("not possible");
+        case Knife_State::Picked_Up:     unreachable("not possible");
         case Knife_State::On_The_Ground: unreachable("not possible");
-        case Knife_State::Disappearing: unreachable("not possible");
+        case Knife_State::Disappearing:  unreachable("not possible");
     }
     animation_start(knife.anim, anim_opts);
 
