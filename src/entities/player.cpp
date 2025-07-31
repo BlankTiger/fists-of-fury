@@ -287,7 +287,7 @@ static void handle_attack(Entity& p, Game& g, Hit_Type type = Hit_Type::Normal) 
     p.extra_player.last_attack_successful = attack_success;
     if (attack_success) {
         p.extra_player.combo++;
-        p.extra_player.last_attack_timestamp = SDL_GetTicks();
+        p.extra_player.last_attack_timestamp = g.time_ms;
     }
     else {
         p.extra_player.combo = 0;
@@ -509,7 +509,7 @@ Update_Result player_update(Entity& p, Game& g) {
     assert(p.type == Entity_Type::Player);
 
     if (p.extra_player.combo > 0) {
-        if (SDL_GetTicks() - p.extra_player.last_attack_timestamp > settings.player_combo_timeout_ms) {
+        if (g.time_ms - p.extra_player.last_attack_timestamp > settings.player_combo_timeout_ms) {
             p.extra_player.combo = 0;
         }
     }
@@ -611,7 +611,7 @@ Update_Result player_update(Entity& p, Game& g) {
         } break;
     }
 
-    animation_update(p.anim);
+    animation_update(p.anim, g.dt, g.dt_real);
     camera_update(p, g);
 
     return Update_Result::None;

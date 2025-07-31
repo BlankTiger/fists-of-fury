@@ -101,7 +101,9 @@ struct Game {
 
     Level_Info curr_level_info;
     Camera     camera;
-    u64        dt;
+    u64        dt; // scaled by settings.time_scale
+    u64        dt_real;
+    u64        time_ms = 0;
     u32        last_entity_id = 0;
 };
 

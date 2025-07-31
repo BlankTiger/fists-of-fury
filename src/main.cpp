@@ -237,7 +237,7 @@ static Update_Result update_entity(Entity& e) {
         } break;
 
         case Entity_Type::Barrel: {
-            res = barrel_update(e, g.dt);
+            res = barrel_update(e, g);
         } break;
 
         case Entity_Type::Knife: {
@@ -375,6 +375,10 @@ static void handle_input(const SDL_Event& e) {
     if (e.key.key == SDLK_TAB) {
         g.menu.show = !g.menu.show;
     }
+
+    if (e.key.key == SDLK_Q && e.type == SDL_EVENT_KEY_DOWN) {
+        settings.time_scale = (settings.time_scale == 1.0f) ? 0.2f : 1.0f;
+    }
 }
 
 int main() {
@@ -386,32 +390,32 @@ int main() {
     u64  a    = SDL_GetTicks();
     u64  b    = SDL_GetTicks();
 
+
     SDL_Event e;
     while (!quit) {
         while (SDL_PollEvent(&e)) {
             switch (e.type) {
                 case SDL_EVENT_QUIT: {
                     quit = true;
-                    break;
-                }
+                } break;
 
                 case SDL_EVENT_KEY_DOWN: {
                     handle_input(e);
-                    break;
-                }
+                } break;
 
                 case SDL_EVENT_KEY_UP: {
                     handle_input(e);
-                    break;
-                }
+                } break;
             }
         }
 
-        a    = SDL_GetTicks();
-        g.dt = a - b;
+        a = SDL_GetTicks();
+        g.dt_real = a - b;
 
-        if (g.dt > 1000 / settings.fps_max) {
+        if (g.dt_real > 1000 / settings.fps_max) {
             b = a;
+            g.dt = g.dt_real * settings.time_scale;
+            g.time_ms += g.dt;
             update(g);
             draw(g);
         }

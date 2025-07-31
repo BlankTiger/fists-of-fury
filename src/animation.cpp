@@ -11,7 +11,7 @@ void animation_start(Animation& a, Anim_Start_Opts opts) {
     a.frames.frame_count   = a.sprite->frames_in_each_row[opts.anim_idx];
     a.frames.looping       = opts.looping;
     a.frame_duration_ms    = opts.frame_duration_ms;
-    a.last_frame_time      = SDL_GetTicks();
+    a.accumulated_time_ms  = 0;
     a.fadeout              = opts.fadeout;
     a.rotation             = opts.rotation;
 }
@@ -54,22 +54,20 @@ bool animation_is_finished(const Animation& a) {
 
     // For single-frame animations, check if enough time has passed
     if (a.frames.frame_count == 1) {
-        u64 current_time = SDL_GetTicks();
-        u64 elapsed = current_time - a.last_frame_time;
-        return elapsed >= a.frame_duration_ms;
+        return a.accumulated_time_ms >= a.frame_duration_ms;
     }
 
     return a.frames.frame_current >= a.frames.frame_count - 1;
 }
 
-void animation_update(Animation& a) {
+void animation_update(Animation& a, u64 dt, u64 real_dt) {
     assert(a.sprite != nullptr);
 
-    u64 current_time = SDL_GetTicks();
-    const auto dt = current_time - a.last_frame_time;
-    if (dt >= a.frame_duration_ms && a.frames.frame_count != 1) {
+    a.accumulated_time_ms += dt;
+
+    if (a.accumulated_time_ms >= a.frame_duration_ms && a.frames.frame_count != 1) {
         a.frames.frame_current++;
-        a.last_frame_time = current_time;
+        a.accumulated_time_ms -= a.frame_duration_ms;
 
         // Check if sprite animation finished
         if (a.frames.frame_current >= a.frames.frame_count) {
@@ -87,13 +85,13 @@ void animation_update(Animation& a) {
         // current_time - a.last_frame_time = dt (ms)
         // dt (s) = dt / 1000
         // a.fadeout.perc_per_sec*dt
-        const auto perc_to_fade = a.fadeout.perc_per_sec * dt / 1000.0f;
+        const auto perc_to_fade = a.fadeout.perc_per_sec * real_dt / 1000.0f;
         a.fadeout.perc_visible_curr -= perc_to_fade;
         const auto faded = a.fadeout.perc_visible_curr <= a.fadeout.perc_visible_end;
+
         if (a.fadeout.looping && faded) {
             a.fadeout.perc_visible_curr = a.fadeout.perc_visible_start;
-        }
-        else if (faded) {
+        } else if (faded) {
             a.fadeout.perc_visible_curr = 0.0f;
         }
     }

@@ -50,8 +50,7 @@ struct Animation {
     // sprite that will be animated
     const Sprite* sprite;
 
-    // When the last frame was shown
-    u64 last_frame_time;
+    f32 accumulated_time_ms;
 
     // Milliseconds per frame
     u64 frame_duration_ms;
@@ -73,5 +72,5 @@ struct Anim_Start_Opts {
 };
 
 void animation_start(Animation& a, Anim_Start_Opts opts);
-void animation_update(Animation& a);
+void animation_update(Animation& a, u64 dt, u64 real_dt);
 bool animation_is_finished(const Animation& a);

@@ -40,10 +40,10 @@ static bool handle_knockback(Entity& e, u64 dt) {
     return e.z_vel == 0.0f && e.x_vel == 0.0f;
 }
 
-Update_Result barrel_update(Entity& e, u64 dt) {
+Update_Result barrel_update(Entity& e, const Game& g) {
     assert(e.type == Entity_Type::Barrel);
 
-    animation_update(e.anim);
+    animation_update(e.anim, g.dt, g.dt_real);
 
     switch (e.extra_barrel.state) {
         case (Barrel_State::Idle): {
@@ -74,7 +74,7 @@ Update_Result barrel_update(Entity& e, u64 dt) {
         }
 
         case (Barrel_State::Destroyed): {
-            auto finished = handle_knockback(e, dt);
+            auto finished = handle_knockback(e, g.dt);
             if (finished && animation_is_finished(e.anim)) {
                 return Update_Result::Remove_Me;
             }

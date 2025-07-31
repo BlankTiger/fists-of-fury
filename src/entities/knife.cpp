@@ -182,7 +182,7 @@ Update_Result knife_update(Entity& e, Game& g) {
         } break;
     }
 
-    animation_update(e.anim);
+    animation_update(e.anim, g.dt, g.dt_real);
     return Update_Result::None;
 }
 

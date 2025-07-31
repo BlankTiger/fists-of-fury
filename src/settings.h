@@ -29,6 +29,7 @@ struct Settings {
     f32 ground_level                         = 0.0f;
     f32 font_size_default                    = 9.0f;
     f32 fps_max                              = 144.0f;
+    f32 time_scale                           = 1.0f;
 
     f32 gravity                              = 0.00038f;
     f32 jump_velocity                        = -0.15f;
