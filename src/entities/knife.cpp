@@ -21,7 +21,6 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
     knife.extra_knife.created_by = opts.done_by;
     knife.extra_knife.instantly_disappear = opts.instantly_disappear;
 
-    knife.rotation_center_offsets = {-24.0f, -24.0f};
     knife.hurtbox_offsets         = {-4.8f, -sprite_frame_h/2.8f, sprite_frame_w/4.5f, sprite_frame_h/7.0f};
     switch (knife.extra_knife.state) {
         case Knife_State::Thrown: {
