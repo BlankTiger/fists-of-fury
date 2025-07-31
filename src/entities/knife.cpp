@@ -41,21 +41,21 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
         } break;
 
         case Knife_State::Dropped: {
-            knife.y += 12.0f;
+            knife.y += 7.0f; // experimentally found offset that looks best for now
             knife.z_vel = settings.knife_drop_jump_velocity;
 
-            if (opts.dir == Direction::Right) {
+            if (knife.dir == Direction::Right) {
                 knife.x_vel = -settings.knife_drop_sideways_velocity;
-            } else {
+            } else if (knife.dir == Direction::Left) {
                 knife.x_vel = settings.knife_drop_sideways_velocity;
             }
 
             knife.collision_box_offsets = knife.hurtbox_offsets;
         } break;
 
-        case Knife_State::Picked_Up: unreachable("not possible");
+        case Knife_State::Picked_Up:     unreachable("not possible");
         case Knife_State::On_The_Ground: unreachable("not possible");
-        case Knife_State::Disappearing: unreachable("not possible");
+        case Knife_State::Disappearing:  unreachable("not possible");
     }
 
     knife.anim.sprite = &g.sprite_knife;
@@ -115,11 +115,11 @@ static bool handle_movement_while_thrown(Entity& e, const Game& g) {
 static bool handle_movement_while_dropped(Entity& e, const Game& g) {
     e.z_vel += settings.gravity * g.dt;
     e.z += e.z_vel * g.dt;
-
     e.x += e.x_vel * g.dt;
 
-    if (e.z >= settings.ground_level) {
-        e.z = settings.ground_level;
+    auto knife_ground_level = settings.ground_level + e.sprite_frame_h / 4.0f;
+    if (e.z >= knife_ground_level) {
+        e.z = knife_ground_level;
         e.z_vel = 0.0f;
         e.x_vel = 0.0f;
 
