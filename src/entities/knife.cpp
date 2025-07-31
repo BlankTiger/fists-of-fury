@@ -9,7 +9,6 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
     const auto sprite_frame_h = 48;
     Entity knife = {};
     knife.handle = game_generate_entity_handle(g);
-    knife.speed = 0.08f;
     knife.type = Entity_Type::Knife;
     knife.x = opts.position.x;
     knife.y = opts.position.y;
