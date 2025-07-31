@@ -3,7 +3,7 @@
 #include "draw.h"
 #include "settings.h"
 
-static void _draw_box(SDL_Renderer* r, const SDL_FRect& box, const std::array<f32, 4> colors_border, const std::array<f32, 4> colors_fill) {
+void _draw_box(SDL_Renderer* r, const SDL_FRect& box, const std::array<f32, 4> colors_border, const std::array<f32, 4> colors_fill) {
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(r, colors_border[0], colors_border[1], colors_border[2], colors_border[3]);
     bool ok = SDL_RenderRect(r, &box);

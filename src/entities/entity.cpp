@@ -82,8 +82,19 @@ void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g) {
         // this is so that both hurtbox and hitbox go along with the player when he jumps
         world_coords.y += e.z;
         if (settings.show_hurtboxes) draw_hurtbox(r, world_coords, e.hurtbox_offsets, *g);
-
         if (settings.show_hitboxes) draw_hitbox(r, world_coords, e.hitbox_offsets, *g);
+        if (settings.show_sprite_debug) {
+            SDL_FRect sprite_bounds_screen = {
+                screen_coords.x,
+                screen_coords.y,
+                e.sprite_frame_w,
+                e.sprite_frame_h
+            };
+            _draw_box(r, sprite_bounds_screen, {255, 255, 0, 200}, {255, 255, 0, 50});
+            
+            // Draw entity position
+            draw_point(r, {world_coords, *g, {255, 0, 255, 255}});
+        }
     }
 }
 
