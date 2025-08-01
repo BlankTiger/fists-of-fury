@@ -297,7 +297,7 @@ static void update(Game& g) {
         const auto knife_info = g.knives_dropped_queue.back();
         auto knife = knife_init(g, {
             .position            = knife_info.position,
-            .dir                 = Direction::Left, // could be whatever
+            .dir                 = knife_info.dir, // could be whatever [...] this in fact, could not be whatever
             .state               = Knife_State::Dropped,
             .done_by             = knife_info.dropped_by,
             .instantly_disappear = knife_info.instantly_disappear,
