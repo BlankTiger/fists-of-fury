@@ -447,7 +447,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             const auto anim_finished = animation_is_finished(e.anim);
             if (knockback_finished && anim_finished && e.health <= 0.0f) {
                 auto opts = enemy_get_anim_knocked_down(e);
-                opts.fadeout = { .enabled = true, .perc_per_sec = 0.05 };
+                opts.fadeout = { .enabled = true, .perc_per_sec = 0.8f };
                 e.extra_enemy.state = Enemy_State::Dying;
                 animation_start(e.anim, opts);
             }
@@ -491,7 +491,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
                     {
                         .anim_idx          = anim_idx,
                         .frame_duration_ms = 200,
-                        .fadeout           = { .enabled = true, .perc_per_sec = 0.05 },
+                        .fadeout           = { .enabled = true, .perc_per_sec = 0.8f },
                     }
                 );
             }

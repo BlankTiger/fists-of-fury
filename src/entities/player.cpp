@@ -397,7 +397,7 @@ static void player_die(Entity& p) {
             .anim_idx = (u32)Player_Anim::Knocked_Down,
             .fadeout = {
                 .enabled = true,
-                .perc_per_sec = 0.05f,
+                .perc_per_sec = 0.5f,
             }
         }
     );
