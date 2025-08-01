@@ -7,23 +7,24 @@
 Entity knife_init(Game& g, Knife_Init_Opts opts) {
     const auto sprite_frame_w = 48;
     const auto sprite_frame_h = 48;
-    Entity knife = {};
-    knife.handle = game_generate_entity_handle(g);
-    knife.type = Entity_Type::Knife;
-    knife.x = opts.position.x;
-    knife.y = opts.position.y;
-    knife.dir = opts.dir;
+    Entity knife                 = {};
+    knife.handle                 = game_generate_entity_handle(g);
+    knife.type                   = Entity_Type::Collectible;
+    knife.extra_collectible.type = Collectible_Type::Knife;
+    knife.x                      = opts.position.x;
+    knife.y                      = opts.position.y;
+    knife.dir                    = opts.dir;
 
     knife.sprite_frame_w = sprite_frame_w;
     knife.sprite_frame_h = sprite_frame_h;
 
-    knife.extra_knife.state = opts.state;
-    knife.extra_knife.created_by = opts.done_by;
-    knife.extra_knife.instantly_disappear = opts.instantly_disappear;
+    knife.extra_collectible.knife.state = opts.state;
+    knife.extra_collectible.knife.created_by = opts.done_by;
+    knife.extra_collectible.knife.instantly_disappear = opts.instantly_disappear;
 
     knife.hurtbox_offsets         = {-4.8f, -sprite_frame_h/2.8f, sprite_frame_w/4.5f, sprite_frame_h/7.0f};
     knife.shadow_offsets          = {-6, 0, 12, 2};
-    switch (knife.extra_knife.state) {
+    switch (knife.extra_collectible.knife.state) {
         case Knife_State::Thrown: {
             if (knife.dir == Direction::Right) {
                 knife.x_vel = settings.knife_velocity;
@@ -65,7 +66,7 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
     knife.anim.sprite = &g.sprite_knife;
 
     Anim_Start_Opts anim_opts = {};
-    switch (knife.extra_knife.state) {
+    switch (knife.extra_collectible.knife.state) {
         case Knife_State::Thrown: {
             anim_opts.anim_idx = (u32)Knife_Anim::Thrown;
             anim_opts.looping = true;
@@ -95,9 +96,9 @@ static bool handle_dealing_damage(const Entity& e, Game& g) {
     bool hit_something = false;
 
     for (auto& other_e : g.entities) {
-        if (other_e.type == Entity_Type::Knife
+        if (other_e.type == Entity_Type::Collectible
             || other_e.type == Entity_Type::Barrel
-            || other_e.type == e.extra_knife.created_by
+            || other_e.type == e.extra_collectible.knife.created_by
         ) continue;
 
         auto hitbox = entity_get_world_hitbox(other_e);
@@ -134,9 +135,10 @@ static bool handle_movement_while_dropped(Entity& e, const Game& g) {
 }
 
 Update_Result knife_update(Entity& e, Game& g) {
-    assert(e.type == Entity_Type::Knife);
+    assert(e.type                   == Entity_Type::Collectible);
+    assert(e.extra_collectible.type == Collectible_Type::Knife);
 
-    switch (e.extra_knife.state) {
+    switch (e.extra_collectible.knife.state) {
         case Knife_State::Thrown: {
             auto in_bounds = handle_movement_while_thrown(e, g);
             if (!in_bounds) {
@@ -153,8 +155,8 @@ Update_Result knife_update(Entity& e, Game& g) {
             if (on_the_ground && animation_is_finished(e.anim)) {
                 auto rotation = e.anim.rotation; // preserve the rotation so that we draw the sprite in the correct orientation
                 rotation.enabled = false;
-                if (e.extra_knife.instantly_disappear) {
-                    e.extra_knife.state = Knife_State::Disappearing;
+                if (e.extra_collectible.knife.instantly_disappear) {
+                    e.extra_collectible.knife.state = Knife_State::Disappearing;
                     animation_start(e.anim, {
                         .anim_idx = (u32)Knife_Anim::Dropped,
                         .fadeout = { .enabled = true },
@@ -162,7 +164,7 @@ Update_Result knife_update(Entity& e, Game& g) {
                     });
                 }
                 else {
-                    e.extra_knife.state = Knife_State::On_The_Ground;
+                    e.extra_collectible.knife.state = Knife_State::On_The_Ground;
                     animation_start(e.anim, {
                         .anim_idx = (u32)Knife_Anim::Dropped,
                         .rotation = rotation,
@@ -191,7 +193,8 @@ Update_Result knife_update(Entity& e, Game& g) {
 }
 
 void knife_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
-    assert(e.type == Entity_Type::Knife);
+    assert(e.type                   == Entity_Type::Collectible);
+    assert(e.extra_collectible.type == Collectible_Type::Knife);
 
     entity_draw(r, e, &g);
 }

@@ -220,8 +220,12 @@ static Update_Result update_entity(Entity& e) {
             res = barrel_update(e, g);
         } break;
 
-        case Entity_Type::Knife: {
-            res = knife_update(e, g);
+        case Entity_Type::Collectible: {
+            switch (e.extra_collectible.type) {
+                case Collectible_Type::Knife: {
+                    res = knife_update(e, g);
+                } break;
+            }
         } break;
     }
 
@@ -308,8 +312,12 @@ static void draw_entity(SDL_Renderer* r, Entity e) {
             barrel_draw(r, e, g);
         } break;
 
-        case Entity_Type::Knife: {
-            knife_draw(r, e, g);
+        case Entity_Type::Collectible: {
+            switch (e.extra_collectible.type) {
+                case Collectible_Type::Knife: {
+                    knife_draw(r, e, g);
+                } break;
+            }
         } break;
     }
 }

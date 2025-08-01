@@ -154,7 +154,7 @@ bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, 
         }
     }
 
-    if (e.type == Entity_Type::Knife) {
+    if (e.type == Entity_Type::Collectible) {
         const auto& box_right = level_info_get_collision_box(g->curr_level_info, Border::Right);
         const auto& box_left = level_info_get_collision_box(g->curr_level_info, Border::Left);
         if (SDL_HasRectIntersectionFloat(&box_right, &entity_collision_box)

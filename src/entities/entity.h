@@ -20,7 +20,15 @@ enum struct Entity_Type {
     Player,
     Enemy,
     Barrel,
-    Knife
+    Collectible,
+};
+
+enum struct Collectible_Type {
+    Knife,
+};
+
+struct Collectible {
+    Collectible_Type type;
 };
 
 enum struct Player_State {
@@ -266,11 +274,16 @@ struct Entity {
         } extra_barrel;
 
         struct {
-            Knife_State state;
-            Entity_Type created_by;
-            bool        started_going_off_screen;
-            bool        instantly_disappear;
-        } extra_knife;
+            Collectible_Type type;
+            union {
+                struct {
+                    Knife_State state;
+                    Entity_Type created_by;
+                    bool        started_going_off_screen;
+                    bool        instantly_disappear;
+                } knife;
+            };
+        } extra_collectible;
     };
 };
 

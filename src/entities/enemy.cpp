@@ -412,8 +412,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
     if (enemy_can_receive_damage(e)) {
         enemy_receive_damage(e);
-    }
-    else {
+    } else {
         // this makes it so that when the enemy is in Got_Hit state
         // he doesnt receive more damage
         e.damage_queue.clear();
@@ -423,8 +422,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         case Enemy_State::Standing: {
             if (enemy_is_moving(e)) {
                 enemy_run(e);
-            }
-            else if (enemy_can_attack(e, g)) {
+            } else if (enemy_can_attack(e, g)) {
                 enemy_attack(e, g);
             }
         } break;
