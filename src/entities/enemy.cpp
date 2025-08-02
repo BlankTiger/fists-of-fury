@@ -132,7 +132,7 @@ static void enemy_make_stationary(Entity& e) {
     e.y_vel = 0.0f;
 }
 
-static void enemy_stand(Entity& e, const Game& g) {
+static void enemy_stand(Entity& e) {
     e.extra_enemy.state = Enemy_State::Standing;
     auto opts = enemy_get_anim_standing(e);
     animation_start(e.anim, opts);
@@ -163,7 +163,7 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
     if (enemy_is_close_to_target_pos(e)) {
         enemy_rotate_towards_player(e, enemy_pos, player_pos);
         enemy_make_stationary(e);
-        if (e.extra_enemy.state != Enemy_State::Standing) enemy_stand(e, g);
+        if (e.extra_enemy.state != Enemy_State::Standing) enemy_stand(e);
         enemy_get_ready_to_attack(e, g);
     } else {
         auto dir = e.extra_enemy.target_pos - enemy_pos;
@@ -180,14 +180,15 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
     bool could_go = entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts);
     if (!could_go) {
         enemy_rotate_towards_player(e, enemy_pos, player_pos);
-        enemy_stand(e, g);
+        enemy_stand(e);
     }
 
     entity_handle_rotating_hurtbox(e);
 }
 
-static void enemy_receive_damage(Entity& e) {
-    if (e.health <= 0.0f) return;
+// returns wheter got hit
+static bool enemy_receive_damage(Entity& e) {
+    if (e.health <= 0.0f) return false;
     auto got_hit = false;
     Dmg most_significant_dmg = {};
     for (auto dmg : e.damage_queue) {
@@ -246,6 +247,7 @@ static void enemy_receive_damage(Entity& e) {
     }
 
     e.damage_queue.clear();
+    return got_hit;
 }
 
 static bool enemy_handle_knockback(Entity& e, const Game& g) {
@@ -264,13 +266,13 @@ static bool enemy_handle_knockback(Entity& e, const Game& g) {
 }
 
 static void enemy_handle_flying_back_collateral_dmg(Entity& e, Game& g) {
-    SDL_FRect collision_box = entity_get_world_collision_box(e);
+    SDL_FRect hitbox_box = entity_get_world_hitbox(e);
 
     for (auto& other_e : g.entities) {
         if (e.handle == other_e.handle) continue;
 
         SDL_FRect other_e_hitbox = entity_get_world_hitbox(other_e);
-        if (SDL_HasRectIntersectionFloat(&collision_box, &other_e_hitbox)) {
+        if (SDL_HasRectIntersectionFloat(&hitbox_box, &other_e_hitbox)) {
             auto dir = Direction::Left;
             if (e.dir == Direction::Left) {
                 dir = Direction::Right;
@@ -422,7 +424,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
     if (e.extra_enemy.slot == Slot::None) enemy_claim_slot(e, player, g);
 
-    enemy_update_target_pos(e, player);
+    enemy_update_target_pos(e, player, g);
 
     if (enemy_can_move(e)) {
         enemy_handle_movement(e, player, g);
@@ -449,14 +451,14 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
         case Enemy_State::Running: {
             if (!enemy_is_moving(e)) {
-                enemy_stand(e, g);
+                enemy_stand(e);
             }
         } break;
 
 
         case Enemy_State::Attacking: {
             if (animation_is_finished(e.anim)) {
-                enemy_stand(e, g);
+                enemy_stand(e);
             }
         } break;
 
@@ -468,14 +470,12 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
                 opts.fadeout = { .enabled = true, .perc_per_sec = 0.8f };
                 e.extra_enemy.state = Enemy_State::Dying;
                 animation_start(e.anim, opts);
-            }
-            else if (knockback_finished && anim_finished) {
-                enemy_stand(e, g);
+            } else if (knockback_finished && anim_finished) {
+                enemy_stand(e);
             }
 
             if (e.extra_enemy.has_knife) {
-                knife_drop(g, e);
-                e.extra_enemy.has_knife = false;
+                enemy_drop_knife(e, g);
             }
         } break;
 
@@ -545,7 +545,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
         case Enemy_State::Standing_Up: {
             if (animation_is_finished(e.anim)) {
-                enemy_stand(e, g);
+                enemy_stand(e);
             }
         } break;
 
