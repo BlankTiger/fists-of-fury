@@ -314,16 +314,14 @@ static void enemy_return_claimed_slot(Entity& e, Game& g) {
 
 static void enemy_update_target_pos(Entity& e, const Entity& player, const Game& g) {
     if (e.extra_enemy.has_knife) {
-        // go away from player to knife_throwing_distance and track up and down until in knife_throwing_threshold, then throw
-        auto target_pos = entity_get_pos(player);
-        if (e.x > target_pos.x) {
-            auto distance_to_edge_of_screen_left  = entity_get_world_distance_to_screen_border(e, g, Border::Right);
-            auto offset_to_be_fully_visible = -12;
-            target_pos.x = distance_to_edge_of_screen_left + offset_to_be_fully_visible;
+        Vec2<f32> target_pos = {};
+        auto offset_to_be_fully_visible = 12;
+        if (e.x > player.x) {
+            auto border_x = game_get_border_x(g, Border::Right);
+            target_pos.x = border_x - offset_to_be_fully_visible;
         } else {
-            auto distance_to_edge_of_screen_right = entity_get_world_distance_to_screen_border(e, g, Border::Left);
-            auto offset_to_be_fully_visible = 12;
-            target_pos.x = distance_to_edge_of_screen_right + offset_to_be_fully_visible;
+            auto border_x = game_get_border_x(g, Border::Left);
+            target_pos.x = border_x + offset_to_be_fully_visible;
         }
         e.extra_enemy.target_pos = target_pos;
         return;

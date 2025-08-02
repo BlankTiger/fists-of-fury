@@ -345,17 +345,3 @@ Entity* entity_pickup_collectible(const Entity& e, Game& g) {
     }
     return nullptr;
 }
-
-f32 entity_get_world_distance_to_screen_border(const Entity& e, const Game& g, Border border) {
-    f32 result;
-
-    if (border == Border::Left) {
-        result = g.camera.x;
-    } else if (border == Border::Right) {
-        result = g.camera.x + g.camera.w;
-    } else {
-        unreachable("didnt expect this to happen");
-    }
-
-    return result;
-}

@@ -1,4 +1,5 @@
 #include "game.h"
+#include "utils.h"
 
 Vec2<f32> game_get_screen_coords(const Game& g, Vec2<f32> world_coords) {
     return {
@@ -27,4 +28,18 @@ Entity* game_get_mutable_entity_by_handle(Game& g, const Handle& h) {
     }
 
     return NULL;
+}
+
+f32 game_get_border_x(const Game& g, Border border) {
+    f32 result;
+
+    if (border == Border::Left) {
+        result = g.camera.x;
+    } else if (border == Border::Right) {
+        result = g.camera.x + g.camera.w;
+    } else {
+        unreachable("didnt expect this to happen");
+    }
+
+    return result;
 }

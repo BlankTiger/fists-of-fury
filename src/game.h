@@ -113,3 +113,4 @@ Entity    game_get_player(const Game& g);
 Entity&   game_get_player_mutable(Game& g);
 Handle    game_generate_entity_handle(Game& g);
 Entity*   game_get_mutable_entity_by_handle(Game& g, const Handle& h);
+f32       game_get_border_x(const Game& g, Border border);

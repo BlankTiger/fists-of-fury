@@ -8,7 +8,6 @@
 #include "../vec2.h"
 #include "../animation.h"
 #include "../sprite.h"
-#include "../level_info.h"
 
 enum struct Direction {
     Up,
@@ -317,5 +316,3 @@ Vec2<f32> claim_slot_position(Game& game, Slot slot);
 void return_claimed_slot(Game& game, Slot slot);
 
 Entity* entity_pickup_collectible(const Entity& e, Game& g);
-
-f32 entity_get_world_distance_to_screen_border(const Entity& e, const Game& g, Border border);
