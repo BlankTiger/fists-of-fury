@@ -53,15 +53,15 @@ Update_Result barrel_update(Entity& e, const Game& g) {
                 e.damage_queue.pop_back();
                 if (e.health <= 0) {
                     e.extra_barrel.state = Barrel_State::Destroyed;
+
                     if (dmg.going_to == Direction::Left) {
                         e.x_vel = -settings.barrel_knockback_velocity;
-                    }
-                    else if (dmg.going_to == Direction::Right) {
+                    } else if (dmg.going_to == Direction::Right) {
                         e.x_vel = settings.barrel_knockback_velocity;
-                    }
-                    else {
+                    } else {
                         unreachable("shouldnt ever get a different direction");
                     }
+
                     e.z_vel = settings.barrel_jump_velocity;
                     animation_start(e.anim, {
                         .anim_idx = (u32)Barrel_Anim::Destroyed,

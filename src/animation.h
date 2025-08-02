@@ -24,7 +24,7 @@ struct Sprite_Frames {
 struct Fadeout {
     bool enabled            = false;
     bool looping            = false;
-    f32  perc_per_sec       = 0.2f;
+    f32  perc_per_sec       = 1.0f;
     f32  perc_visible_start = 1.0f;
     f32  perc_visible_end   = 0.0f;
     f32  perc_visible_curr  = 1.0f;
