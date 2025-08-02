@@ -12,27 +12,27 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
     const auto sprite_frame_h = 48;
     const auto sprite_frame_w = 48;
     Entity player{};
-    player.handle                    = game_generate_entity_handle(g);
-    player.health                    = 200.0f;
-    player.damage                    = 20;
-    player.speed                     = 0.03f;
-    player.type                      = Entity_Type::Player;
-    player.x                         = 20;
-    player.y                         = 50;
-    player.dir                       = Direction::Right;
-    player.sprite_frame_w            = sprite_frame_w;
-    player.sprite_frame_h            = sprite_frame_h;
-    player.collision_box_offsets     = {-sprite_frame_w/7,    -3,  2*sprite_frame_w/7,    4};
-    player.hurtbox_offsets           = {sprite_frame_w/7,     -16, 10,                    6};
-    player.hitbox_offsets            = {-sprite_frame_w/6.5f, -23, 2*sprite_frame_w/6.5f, 23};
-    player.shadow_offsets            = {-7, -1, 14, 2};
-    player.anim.sprite               = player_sprite;
-    player.extra_player.state        = Player_State::Standing;
-    player.extra_player.slots        = {
+    player.handle                = game_generate_entity_handle(g);
+    player.health                = 200.0f;
+    player.damage                = 20;
+    player.speed                 = 0.03f;
+    player.type                  = Entity_Type::Player;
+    player.x                     = 20;
+    player.y                     = 50;
+    player.dir                   = Direction::Right;
+    player.sprite_frame_w        = sprite_frame_w;
+    player.sprite_frame_h        = sprite_frame_h;
+    player.collision_box_offsets = {-sprite_frame_w/7,    -3,  2*sprite_frame_w/7,    4};
+    player.hurtbox_offsets       = {sprite_frame_w/7,     -16, 10,                    6};
+    player.hitbox_offsets        = {-sprite_frame_w/6.5f, -23, 2*sprite_frame_w/6.5f, 15};
+    player.shadow_offsets        = {-7,                   -1,  14,                    2};
+    player.anim.sprite           = player_sprite;
+    player.extra_player.state    = Player_State::Standing;
+    player.extra_player.slots    = {
         .offset_top_left     = {-sprite_frame_w/3.0f, -4.0f},
         .offset_top_right    = {sprite_frame_w/3.0f,  -4.0f},
-        .offset_bottom_left  = {-sprite_frame_w/4, 2},
-        .offset_bottom_right = {sprite_frame_w/4,  2},
+        .offset_bottom_left  = {-sprite_frame_w/4,    2},
+        .offset_bottom_right = {sprite_frame_w/4,     2},
         .top_left_free       = true,
         .top_right_free      = true,
         .bottom_left_free    = true,
@@ -323,6 +323,7 @@ static void player_attack(Entity& p, Game& g) {
 
         case 3: {
             attack_anim = (u32)Player_Anim::Kicking_Right;
+            opts.frame_duration_ms = 45;
             type = Hit_Type::Power;
         } break;
     }

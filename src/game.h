@@ -109,7 +109,7 @@ struct Game {
 };
 
 Vec2<f32> game_get_screen_coords(const Game& g, Vec2<f32> worlds_coords);
-Entity game_get_player(const Game& g);
-Entity& game_get_player_mutable(Game& g);
-Handle game_generate_entity_handle(Game& g);
-Entity* game_get_mutable_entity_by_handle(Game& g, const Handle& h);
+Entity    game_get_player(const Game& g);
+Entity&   game_get_player_mutable(Game& g);
+Handle    game_generate_entity_handle(Game& g);
+Entity*   game_get_mutable_entity_by_handle(Game& g, const Handle& h);
