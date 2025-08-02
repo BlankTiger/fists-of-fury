@@ -163,7 +163,8 @@ enum struct Enemy_State {
     Dying,
     Landing,
     Guarding,
-    Guarding_Running
+    Guarding_Running,
+    In_Position_For_Attack,
 };
 
 struct Handle {
@@ -266,8 +267,10 @@ struct Entity {
             Vec2<f32>   target_pos;
             Slot        slot;
             u64         last_attack_timestamp;
+            u64         ready_to_attack_timestamp;
             u64         idx_attack;
             bool        has_knife;
+            bool        can_spawn_knives;
         } extra_enemy;
 
         struct {

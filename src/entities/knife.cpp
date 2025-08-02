@@ -162,8 +162,7 @@ Update_Result knife_update(Entity& e, Game& g) {
                         .fadeout = { .enabled = true },
                         .rotation = rotation,
                     });
-                }
-                else {
+                } else {
                     e.extra_collectible.knife.state = Knife_State::On_The_Ground;
                     animation_start(e.anim, {
                         .anim_idx = (u32)Knife_Anim::Dropped,

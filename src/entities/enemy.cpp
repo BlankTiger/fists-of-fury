@@ -32,26 +32,22 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
         case Enemy_Type::Goon: {
             enemy.anim.sprite = &g.sprite_enemy_goon;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Anim::Standing, .looping = true });
-            break;
-        }
+        } break;
 
         case Enemy_Type::Thug: {
             enemy.anim.sprite = &g.sprite_enemy_thug;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Anim::Standing, .looping = true });
-            break;
-        }
+        } break;
 
         case Enemy_Type::Punk: {
             enemy.anim.sprite = &g.sprite_enemy_punk;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Anim::Standing, .looping = true });
-            break;
-        }
+        } break;
 
         case Enemy_Type::Boss: {
             enemy.anim.sprite = &g.sprite_enemy_boss;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Boss_Anim::Standing, .looping = true });
-            break;
-        }
+        } break;
     }
 
     return enemy;
@@ -118,8 +114,7 @@ static Anim_Start_Opts enemy_get_anim_punch_right(const Entity& e) {
 static Direction dir_for_dir_vec(Vec2<f32> dir_vec) {
     if (dir_vec.x > 0) {
         return Direction::Right;
-    }
-    else {
+    } else {
         return Direction::Left;
     }
 }
@@ -136,7 +131,6 @@ static void enemy_make_stationary(Entity& e) {
 
 static void enemy_stand(Entity& e, const Game& g) {
     e.extra_enemy.state = Enemy_State::Standing;
-    e.extra_enemy.last_attack_timestamp = g.time_ms;
     auto opts = enemy_get_anim_standing(e);
     animation_start(e.anim, opts);
 }
@@ -152,6 +146,11 @@ static bool enemy_is_close_to_target_pos(const Entity& e) {
     return enemy_pos.within_len_from(e.extra_enemy.target_pos, 0.3f);
 }
 
+static void enemy_get_ready_to_attack(Entity& e, const Game& g) {
+    e.extra_enemy.ready_to_attack_timestamp = g.time_ms;
+    e.extra_enemy.state = Enemy_State::In_Position_For_Attack;
+}
+
 static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g) {
     if (e.health <= 0) return;
     if (e.extra_enemy.slot == Slot::None) return;
@@ -162,8 +161,8 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
         enemy_rotate_towards_player(e, enemy_pos, player_pos);
         enemy_make_stationary(e);
         if (e.extra_enemy.state != Enemy_State::Standing) enemy_stand(e, g);
-    }
-    else {
+        enemy_get_ready_to_attack(e, g);
+    } else {
         auto dir = e.extra_enemy.target_pos - enemy_pos;
         e.dir = dir_for_dir_vec(dir);
         if (e.extra_enemy.has_knife) {
@@ -194,11 +193,9 @@ static void enemy_receive_damage(Entity& e) {
         e.y_vel = 0.0f;
         if (dmg.going_to == Direction::Left) {
             e.x_vel = -settings.enemy_knockback_velocity;
-        }
-        else if (dmg.going_to == Direction::Right) {
+        } else if (dmg.going_to == Direction::Right) {
             e.x_vel = settings.enemy_knockback_velocity;
-        }
-        else {
+        } else {
             unreachable("shouldnt ever get a different direction");
         }
 
@@ -220,8 +217,7 @@ static void enemy_receive_damage(Entity& e) {
 
                 if (most_significant_dmg.going_to == Direction::Left) {
                     e.x_vel = -settings.enemy_knockdown_velocity;
-                }
-                else if (most_significant_dmg.going_to == Direction::Right) {
+                } else if (most_significant_dmg.going_to == Direction::Right) {
                     e.x_vel = settings.enemy_knockdown_velocity;
                 }
 
@@ -233,8 +229,7 @@ static void enemy_receive_damage(Entity& e) {
             case Hit_Type::Power: {
                 if (most_significant_dmg.going_to == Direction::Left) {
                     e.x_vel = -settings.enemy_flying_back_velocity;
-                }
-                else if (most_significant_dmg.going_to == Direction::Right) {
+                } else if (most_significant_dmg.going_to == Direction::Right) {
                     e.x_vel = settings.enemy_flying_back_velocity;
                 }
 
@@ -337,6 +332,7 @@ static bool enemy_can_move(const Entity& e) {
         && s != Enemy_State::On_The_Ground
         && s != Enemy_State::Flying_Back
         && s != Enemy_State::Standing_Up
+        && s != Enemy_State::In_Position_For_Attack
         && s != Enemy_State::Attacking;
 }
 
@@ -345,6 +341,7 @@ static bool enemy_can_receive_damage(const Entity& e) {
     return s == Enemy_State::Standing
         || s == Enemy_State::Running
         || s == Enemy_State::Landing
+        || s == Enemy_State::In_Position_For_Attack
         || s == Enemy_State::Attacking;
 }
 
@@ -395,6 +392,7 @@ static void enemy_attack(Entity& e, Game& g) {
 
     animation_start(e.anim, opts);
     e.extra_enemy.idx_attack++;
+    e.extra_enemy.last_attack_timestamp = g.time_ms;
 }
 
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
@@ -533,6 +531,12 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             if (animation_is_finished(e.anim)) {
                 if (e.extra_enemy.slot != Slot::None) enemy_return_claimed_slot(e, g);
                 return Update_Result::Remove_Me;
+            }
+        } break;
+
+        case Enemy_State::In_Position_For_Attack: {
+            if (g.time_ms - e.extra_enemy.ready_to_attack_timestamp > settings.enemy_attack_timeout_ms) {
+                enemy_attack(e, g);
             }
         } break;
 
