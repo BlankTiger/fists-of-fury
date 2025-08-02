@@ -18,7 +18,6 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
     knife.sprite_frame_w = sprite_frame_w;
     knife.sprite_frame_h = sprite_frame_h;
 
-    knife.extra_collectible.pickupable = true;
     knife.extra_collectible.knife.state = opts.state;
     knife.extra_collectible.knife.created_by = opts.done_by;
     knife.extra_collectible.knife.instantly_disappear = opts.instantly_disappear;
@@ -56,10 +55,7 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
                 knife.x_vel = settings.knife_drop_sideways_velocity;
             }
 
-            if (opts.done_by == Entity_Type::Player) {
-                knife.extra_collectible.pickupable = false;
-            }
-
+            knife.extra_collectible.pickupable = opts.done_by != Entity_Type::Player;
             knife.collision_box_offsets = knife.hurtbox_offsets;
         } break;
 
