@@ -10,26 +10,29 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
     const auto sprite_frame_h = 48;
     const auto sprite_frame_w = 48;
     Entity enemy{};
-    enemy.handle                = game_generate_entity_handle(g);
-    enemy.x                     = opts.x;
-    enemy.y                     = opts.y;
-    enemy.health                = opts.health;
-    enemy.damage                = opts.damage;
-    enemy.speed                 = opts.speed;
-    enemy.type                  = Entity_Type::Enemy;
-    enemy.extra_enemy.type      = opts.type;
-    enemy.sprite_frame_w        = sprite_frame_w;
-    enemy.sprite_frame_h        = sprite_frame_h;
-    enemy.collision_box_offsets = {-sprite_frame_w/7,    -3,  2*sprite_frame_w/7,    4};
-    enemy.hurtbox_offsets       = {-sprite_frame_w/7 - 10,    -14, 10,                    6};
-    enemy.hitbox_offsets        = {-sprite_frame_w/6.5f, -20, 2*sprite_frame_w/6.5f, 10};
-    enemy.shadow_offsets        = {-7,                   -1,  14,                    2};
-    enemy.dir                   = Direction::Left;
-    enemy.extra_enemy.state     = Enemy_State::Standing;
-    enemy.extra_enemy.has_knife = true;
+    enemy.handle                       = game_generate_entity_handle(g);
+    enemy.x                            = opts.x;
+    enemy.y                            = opts.y;
+    enemy.health                       = opts.health;
+    enemy.damage                       = opts.damage;
+    enemy.speed                        = opts.speed;
+    enemy.type                         = Entity_Type::Enemy;
+    enemy.extra_enemy.type             = opts.type;
+    enemy.sprite_frame_w               = sprite_frame_w;
+    enemy.sprite_frame_h               = sprite_frame_h;
+    enemy.collision_box_offsets        = {-sprite_frame_w/7,    -3,  2*sprite_frame_w/7,    4};
+    enemy.hurtbox_offsets              = {-sprite_frame_w/7     -    10,                    -14, 10, 6};
+    enemy.hitbox_offsets               = {-sprite_frame_w/6.5f, -20, 2*sprite_frame_w/6.5f, 10};
+    enemy.shadow_offsets               = {-7,                   -1,  14,                    2};
+    enemy.dir                          = Direction::Left;
+    enemy.extra_enemy.state            = Enemy_State::Standing;
+    enemy.extra_enemy.has_knife        = false;
+    enemy.extra_enemy.can_spawn_knives = false;
 
     switch (opts.type) {
         case Enemy_Type::Goon: {
+            enemy.extra_enemy.has_knife = true;
+            enemy.extra_enemy.can_spawn_knives = true;
             enemy.anim.sprite = &g.sprite_enemy_goon;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Anim::Standing, .looping = true });
         } break;
@@ -206,6 +209,8 @@ static void enemy_receive_damage(Entity& e) {
 
     if (got_hit) {
         e.extra_enemy.state = Enemy_State::Got_Hit;
+        e.extra_enemy.can_spawn_knives = false;
+
         switch (most_significant_dmg.type) {
             case Hit_Type::Normal: {
                 auto opts = enemy_get_anim_got_hit(e);
@@ -352,9 +357,12 @@ static bool enemy_is_moving(const Entity& e) {
         || e.y_vel < 0.0f;
 }
 
+static bool enemy_attack_timed_out(const Entity& e, const Game& g) {
+    return g.time_ms - e.extra_enemy.last_attack_timestamp > settings.enemy_attack_timeout_ms;
+}
+
 static bool enemy_can_attack(const Entity& e, const Game& g) {
-    return enemy_is_close_to_target_pos(e)
-        && g.time_ms - e.extra_enemy.last_attack_timestamp > settings.enemy_attack_timeout_ms;
+    return enemy_is_close_to_target_pos(e) && enemy_attack_timed_out(e, g);
 }
 
 static void enemy_deal_damage(Entity& e, Game& g) {
@@ -395,6 +403,15 @@ static void enemy_attack(Entity& e, Game& g) {
     e.extra_enemy.last_attack_timestamp = g.time_ms;
 }
 
+static void enemy_respawn_knife(Entity& e, const Game& g) {
+    if (e.extra_enemy.has_knife)         return;
+    if (!e.extra_enemy.can_spawn_knives) return;
+
+    if (enemy_attack_timed_out(e, g)) {
+        e.extra_enemy.has_knife = true;
+    }
+}
+
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
     assert(e.type == Entity_Type::Enemy);
 
@@ -415,6 +432,8 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         // he doesnt receive more damage
         e.damage_queue.clear();
     }
+
+    enemy_respawn_knife(e, g);
 
     switch (e.extra_enemy.state) {
         case Enemy_State::Standing: {
