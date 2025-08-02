@@ -434,12 +434,14 @@ static Anim_Start_Opts player_get_anim_got_hit() {
     return opts;
 }
 
-static void player_pickup(Entity& p, Game& g) {
+static void player_pick_up(Entity& p, Game& g) {
     if (p.extra_player.has_knife) return;
 
     bool picked_something_up = false;
     auto collectible = entity_pickup_collectible(p, g);
     if (collectible) {
+        assert(collectible->type == Entity_Type::Collectible);
+
         switch (collectible->extra_collectible.type) {
             case Collectible_Type::Knife: {
                 collectible->extra_collectible.picked_up = true;
@@ -546,7 +548,7 @@ Update_Result player_update(Entity& p, Game& g) {
             } else if (just_pressed(g, Action::Attack)) {
                 player_attack(p, g);
             } else if (just_pressed(g, Action::Interact)) {
-                player_pickup(p, g);
+                player_pick_up(p, g);
             } else if (just_pressed(g, Action::Jump)) {
                 player_takeoff(p);
             }
