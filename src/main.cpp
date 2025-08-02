@@ -294,6 +294,7 @@ static void update(Game& g) {
 
     g.input_prev  = g.input;
     g.input.attack = false;
+    g.input.interact = false;
 
     debug_menu_update(g.menu);
 }
@@ -347,6 +348,7 @@ Key_Binding bindings[] = {
     {SDLK_E,     &g.input.up},
     {SDLK_D,     &g.input.down},
     {SDLK_J,     &g.input.attack},
+    {SDLK_K,     &g.input.interact},
     {SDLK_SPACE, &g.input.jump},
 };
 

@@ -40,7 +40,8 @@ enum struct Player_State {
     Dying,
     Takeoff,
     Jumping,
-    Landing
+    Landing,
+    Picking_Up_Collectible,
 };
 
 static_assert((u32)Player_State::Standing == 0);
@@ -275,6 +276,7 @@ struct Entity {
 
         struct {
             Collectible_Type type;
+            bool             picked_up = false;
             union {
                 struct {
                     Knife_State state;
@@ -308,3 +310,5 @@ Slot find_empty_slot(const Player_Attack_Slots& slots);
 Vec2<f32> calc_world_coordinates_of_slot(Vec2<f32> player_world_pos, const Player_Attack_Slots& slots, Slot slot);
 Vec2<f32> claim_slot_position(Game& game, Slot slot);
 void return_claimed_slot(Game& game, Slot slot);
+
+Entity* entity_pickup_collectible(const Entity& e, Game& g);

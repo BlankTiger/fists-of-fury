@@ -331,3 +331,16 @@ void entity_handle_rotating_hurtbox(Entity& e) {
 
     e.dir_prev = e.dir;
 }
+
+Entity* entity_pickup_collectible(const Entity& e, Game& g) {
+    for (auto& collectible : g.entities) {
+        if (collectible.type != Entity_Type::Collectible) continue;
+
+        const auto& collision_box_e = entity_get_world_collision_box(e);
+        const auto& collision_box_collectible = entity_get_world_collision_box(collectible);
+        if (SDL_HasRectIntersectionFloat(&collision_box_collectible, &collision_box_e)) {
+            return &collectible;
+        }
+    }
+    return nullptr;
+}

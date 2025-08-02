@@ -15,12 +15,13 @@
 enum struct Update_Result { None, Remove_Me };
 
 struct Input_State {
-    bool left   = false;
-    bool right  = false;
-    bool up     = false;
-    bool down   = false;
-    bool attack = false;
-    bool jump   = false;
+    bool left     = false;
+    bool right    = false;
+    bool up       = false;
+    bool down     = false;
+    bool attack   = false;
+    bool interact = false;
+    bool jump     = false;
 };
 
 using Camera = SDL_FRect;

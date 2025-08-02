@@ -174,7 +174,9 @@ Update_Result knife_update(Entity& e, Game& g) {
         } break;
 
         case Knife_State::On_The_Ground: {
-
+            if (e.extra_collectible.picked_up) {
+                return Update_Result::Remove_Me;
+            }
         } break;
 
         case Knife_State::Disappearing: {

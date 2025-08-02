@@ -97,6 +97,7 @@ enum struct Action {
     Up,
     Down,
     Attack,
+    Interact,
     Jump
 };
 
@@ -104,33 +105,31 @@ static bool is_pressed(const Game& g, Action a) {
     switch (a) {
         case Action::Attack: {
             return g.input.attack;
-            break;
-        }
+        } break;
+
+        case Action::Interact: {
+            return g.input.interact;
+        } break;
 
         case Action::Left: {
             return g.input.left;
-            break;
-        }
+        } break;
 
         case Action::Right: {
             return g.input.right;
-            break;
-        }
+        } break;
 
         case Action::Up: {
             return g.input.up;
-            break;
-        }
+        } break;
 
         case Action::Down: {
             return g.input.down;
-            break;
-        }
+        } break;
 
         case Action::Jump: {
             return g.input.jump;
-            break;
-        }
+        } break;
     }
 
     return false;
@@ -140,33 +139,31 @@ static bool just_pressed(const Game& g, Action a) {
     switch (a) {
         case Action::Attack: {
             return input_pressed(g.input.attack, g.input_prev.attack);
-            break;
-        }
+        } break;
+
+        case Action::Interact: {
+            return input_pressed(g.input.interact, g.input_prev.interact);
+        } break;
 
         case Action::Left: {
             return input_pressed(g.input.left, g.input_prev.left);
-            break;
-        }
+        } break;
 
         case Action::Right: {
             return input_pressed(g.input.right, g.input_prev.right);
-            break;
-        }
+        } break;
 
         case Action::Up: {
             return input_pressed(g.input.up, g.input_prev.up);
-            break;
-        }
+        } break;
 
         case Action::Down: {
             return input_pressed(g.input.down, g.input_prev.down);
-            break;
-        }
+        } break;
 
         case Action::Jump: {
             return input_pressed(g.input.jump, g.input_prev.jump);
-            break;
-        }
+        } break;
     }
 
     return false;
@@ -176,33 +173,31 @@ static bool not_pressed(const Game& g, Action a) {
     switch (a) {
         case Action::Left: {
             return !g.input.left;
-            break;
-        }
+        } break;
 
         case Action::Right: {
             return !g.input.right;
-            break;
-        }
+        } break;
 
         case Action::Up: {
             return !g.input.up;
-            break;
-        }
+        } break;
 
         case Action::Down: {
             return !g.input.down;
-            break;
-        }
+        } break;
 
         case Action::Attack: {
             return !g.input.attack;
-            break;
-        }
+        } break;
+
+        case Action::Interact: {
+            return !g.input.interact;
+        } break;
 
         case Action::Jump: {
             return !g.input.jump;
-            break;
-        }
+        } break;
     }
 
     return true;
@@ -389,6 +384,11 @@ static void player_run(Entity& p) {
     animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Running, .looping = true});
 }
 
+static void player_pick_up_collectible(Entity& p) {
+    p.extra_player.state = Player_State::Picking_Up_Collectible;
+    animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Landing });
+}
+
 static void player_die(Entity& p) {
     p.extra_player.state = Player_State::Dying;
     animation_start(
@@ -432,6 +432,26 @@ static Anim_Start_Opts player_get_anim_got_hit() {
     opts.anim_idx = (u32)Player_Anim::Got_Hit;
     opts.frame_duration_ms = 50;
     return opts;
+}
+
+static void player_pickup(Entity& p, Game& g) {
+    if (p.extra_player.has_knife) return;
+
+    bool picked_something_up = false;
+    auto collectible = entity_pickup_collectible(p, g);
+    if (collectible) {
+        switch (collectible->extra_collectible.type) {
+            case Collectible_Type::Knife: {
+                collectible->extra_collectible.picked_up = true;
+                p.extra_player.has_knife = true;
+                picked_something_up = true;
+            } break;
+        }
+    }
+
+    if (picked_something_up) {
+        player_pick_up_collectible(p);
+    }
 }
 
 static void player_receive_damage(Entity& p, Game& g) {
@@ -523,11 +543,11 @@ Update_Result player_update(Entity& p, Game& g) {
             if (started_moving(g)) {
                 player_run(p);
                 handle_movement(p, g);
-            }
-            else if (just_pressed(g, Action::Attack)) {
+            } else if (just_pressed(g, Action::Attack)) {
                 player_attack(p, g);
-            }
-            else if (just_pressed(g, Action::Jump)) {
+            } else if (just_pressed(g, Action::Interact)) {
+                player_pickup(p, g);
+            } else if (just_pressed(g, Action::Jump)) {
                 player_takeoff(p);
             }
         } break;
@@ -535,14 +555,11 @@ Update_Result player_update(Entity& p, Game& g) {
         case Player_State::Running: {
             if (stopped_moving(g)) {
                 player_stand(p);
-            }
-            else if (just_pressed(g, Action::Attack)) {
+            } else if (just_pressed(g, Action::Attack)) {
                 player_attack(p, g);
-            }
-            else if (just_pressed(g, Action::Jump)) {
+            } else if (just_pressed(g, Action::Jump)) {
                 player_takeoff(p);
-            }
-            else {
+            } else {
                 handle_movement(p, g);
             }
         } break;
@@ -609,6 +626,12 @@ Update_Result player_update(Entity& p, Game& g) {
             handle_jump_physics(p, g);
 
         } break;
+
+        case Player_State::Picking_Up_Collectible: {
+            if (animation_is_finished(p.anim)) {
+                player_stand(p);
+            }
+        }
     }
 
     animation_update(p.anim, g.dt, g.dt_real);
