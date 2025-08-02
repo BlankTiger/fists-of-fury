@@ -279,7 +279,8 @@ struct Entity {
 
         struct {
             Collectible_Type type;
-            bool             picked_up = false;
+            bool             picked_up  = false;
+            bool             pickupable = true;
             union {
                 struct {
                     Knife_State state;
