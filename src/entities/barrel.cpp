@@ -65,7 +65,7 @@ Update_Result barrel_update(Entity& e, const Game& g) {
                     e.z_vel = settings.barrel_jump_velocity;
                     animation_start(e.anim, {
                         .anim_idx = (u32)Barrel_Anim::Destroyed,
-                        .fadeout = { .enabled = true, .perc_per_sec = 1.5f }
+                        .fadeout = { .enabled = true, .perc_per_sec = 1.9f }
                     });
                 }
             }
