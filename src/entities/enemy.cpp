@@ -114,6 +114,14 @@ static Anim_Start_Opts enemy_get_anim_punch_right(const Entity& e) {
     return { .anim_idx = anim_idx, .frame_duration_ms = 100 };
 }
 
+static Anim_Start_Opts enemy_get_anim_picking_up(const Entity& e) {
+    auto anim_idx = (u32)Enemy_Anim::Landing;
+    if (e.extra_enemy.type == Enemy_Type::Boss) {
+        anim_idx = (u32)Enemy_Boss_Anim::Landing;
+    }
+    return { .anim_idx = anim_idx };
+}
+
 static Direction dir_for_dir_vec(Vec2<f32> dir_vec) {
     if (dir_vec.x > 0) {
         return Direction::Right;
@@ -446,6 +454,9 @@ static void enemy_pick_up_collectible(Entity& e, Game& g) {
             e.extra_enemy.has_knife = true;
         } break;
     }
+
+    animation_start(e.anim, enemy_get_anim_picking_up(e));
+    e.extra_enemy.state = Enemy_State::Picking_Up_Collectible;
 }
 
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
@@ -579,6 +590,12 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
                         .frame_duration_ms = 500,
                     }
                 );
+            }
+        } break;
+
+        case Enemy_State::Picking_Up_Collectible: {
+            if (animation_is_finished(e.anim)) {
+                enemy_stand(e);
             }
         } break;
 

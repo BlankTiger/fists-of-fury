@@ -165,6 +165,7 @@ enum struct Enemy_State {
     Guarding,
     Guarding_Running,
     In_Position_For_Attack,
+    Picking_Up_Collectible,
 };
 
 struct Handle {
