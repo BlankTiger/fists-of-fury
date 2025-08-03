@@ -17,7 +17,7 @@ Vec2<f32> entity_get_pos(const Entity& e) {
 SDL_FRect entity_get_world_collision_box(const Entity& e) {
     return {
         e.x + e.collision_box_offsets.x,
-        e.y + e.z + e.collision_box_offsets.y,
+        e.y + e.collision_box_offsets.y,
         e.collision_box_offsets.w,
         e.collision_box_offsets.h
     };
