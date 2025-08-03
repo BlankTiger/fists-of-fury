@@ -315,6 +315,7 @@ static void enemy_return_claimed_slot(Entity& e, Game& g) {
 static void enemy_update_target_pos(Entity& e, const Entity& player, const Game& g) {
     if (e.extra_enemy.has_knife) {
         Vec2<f32> target_pos = {};
+        target_pos.y = player.y;
         auto offset_to_be_fully_visible = 12;
         if (e.x > player.x) {
             auto border_x = game_get_border_x(g, Border::Right);
