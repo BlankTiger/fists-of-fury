@@ -77,8 +77,8 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
             anim_opts.anim_idx = (u32)Knife_Anim::Dropped;
             anim_opts.rotation = {
                 .enabled = true,
-                .finish_ranges = {{220, 300}},
-                .deg_per_sec = 2200.0f,
+                .finish_ranges = {{269, 271}},
+                .deg_per_sec = 2300.0f,
                 .rotations_min = 0,
             };
         } break;

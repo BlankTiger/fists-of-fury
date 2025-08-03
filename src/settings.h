@@ -50,11 +50,10 @@ struct Settings {
     f32 enemy_flying_back_dmg_collateral_dmg = 20.0f;
     u64 enemy_attack_timeout_ms              = 1000;
 
-    f32 knife_drop_jump_velocity             = -0.14f;
+    f32 knife_drop_jump_velocity             = -0.15f;
     f32 knife_drop_sideways_velocity         = 0.02f;
     f32 knife_velocity                       = 0.13f;
     f32 knife_damage                         = 20.0f;
-    f32 knife_throwing_distance              = SCREEN_WIDTH / 2.0f - 5.0f;
     f32 knife_throwing_threshold             = 4.0f;
 };
 
