@@ -216,6 +216,14 @@ struct Knife_Dropped_Info {
     bool        instantly_disappear;
 };
 
+enum struct Gun_State {
+    Dropped,
+    On_The_Ground,
+    Picked_Up,
+};
+
+enum struct Gun_Anim {};
+
 struct Entity {
     Handle handle;
     f32 health;
@@ -260,6 +268,7 @@ struct Entity {
             bool                last_attack_successful;
             u64                 last_attack_timestamp; // for resetting combo after some time
             bool                has_knife;
+            bool                has_gun;
         } extra_player;
 
         struct {
@@ -272,6 +281,7 @@ struct Entity {
             u64         idx_attack;
             bool        has_knife;
             bool        can_spawn_knives;
+            bool        has_gun;
         } extra_enemy;
 
         struct {
@@ -289,6 +299,10 @@ struct Entity {
                     bool        started_going_off_screen;
                     bool        instantly_disappear;
                 } knife;
+
+                struct {
+                    Gun_State state;
+                } gun;
             };
         } extra_collectible;
     };
