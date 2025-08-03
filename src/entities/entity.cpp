@@ -17,7 +17,7 @@ Vec2<f32> entity_get_pos(const Entity& e) {
 SDL_FRect entity_get_world_collision_box(const Entity& e) {
     return {
         e.x + e.collision_box_offsets.x,
-        e.y + e.collision_box_offsets.y,
+        e.y + e.z + e.collision_box_offsets.y,
         e.collision_box_offsets.w,
         e.collision_box_offsets.h
     };
@@ -26,7 +26,7 @@ SDL_FRect entity_get_world_collision_box(const Entity& e) {
 SDL_FRect entity_get_world_hurtbox(const Entity& e) {
     return {
         e.x + e.hurtbox_offsets.x,
-        e.y + e.hurtbox_offsets.y,
+        e.y + e.z + e.hurtbox_offsets.y,
         e.hurtbox_offsets.w,
         e.hurtbox_offsets.h
     };
@@ -35,7 +35,7 @@ SDL_FRect entity_get_world_hurtbox(const Entity& e) {
 SDL_FRect entity_get_world_hitbox(const Entity& e) {
     return {
         e.x + e.hitbox_offsets.x,
-        e.y + e.hitbox_offsets.y,
+        e.y + e.z + e.hitbox_offsets.y,
         e.hitbox_offsets.w,
         e.hitbox_offsets.h
     };
@@ -77,10 +77,10 @@ void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g) {
 
     // drawing debug *box
     {
-        if (settings.show_collision_boxes) draw_collision_box(r, world_coords, e.collision_box_offsets, *g);
-
         // this is so that both hurtbox and hitbox go along with the player when he jumps
         world_coords.y += e.z;
+
+        if (settings.show_collision_boxes) draw_collision_box(r, world_coords, e.collision_box_offsets, *g);
         if (settings.show_hurtboxes) draw_hurtbox(r, world_coords, e.hurtbox_offsets, *g);
         if (settings.show_hitboxes) draw_hitbox(r, world_coords, e.hitbox_offsets, *g);
         if (settings.show_sprite_debug) {
