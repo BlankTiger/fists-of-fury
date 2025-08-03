@@ -55,7 +55,6 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
                 knife.x_vel = settings.knife_drop_sideways_velocity;
             }
 
-            knife.extra_collectible.pickupable = opts.done_by != Entity_Type::Player;
             knife.collision_box_offsets = knife.hurtbox_offsets;
             knife.collision_box_offsets.y = knife.shadow_offsets.y; 
         } break;
@@ -155,6 +154,7 @@ Update_Result knife_update(Entity& e, Game& g) {
         case Knife_State::Dropped: {
             auto on_the_ground = handle_movement_while_dropped(e, g);
             if (on_the_ground && animation_is_finished(e.anim)) {
+                e.extra_collectible.pickupable = e.extra_collectible.knife.created_by != Entity_Type::Player;
                 auto rotation = e.anim.rotation; // preserve the rotation so that we draw the sprite in the correct orientation
                 rotation.enabled = false;
                 if (e.extra_collectible.knife.instantly_disappear) {
