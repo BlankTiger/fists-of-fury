@@ -57,6 +57,7 @@ Entity knife_init(Game& g, Knife_Init_Opts opts) {
 
             knife.extra_collectible.pickupable = opts.done_by != Entity_Type::Player;
             knife.collision_box_offsets = knife.hurtbox_offsets;
+            knife.collision_box_offsets.y = knife.shadow_offsets.y; 
         } break;
 
         case Knife_State::Picked_Up:     unreachable("not possible");
