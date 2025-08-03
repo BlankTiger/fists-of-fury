@@ -423,12 +423,44 @@ static void enemy_respawn_knife(Entity& e, const Game& g) {
     }
 }
 
+static bool enemy_is_holding_something(const Entity& e) {
+    return e.extra_enemy.has_knife;
+}
+
+static bool enemy_can_pick_up_collectible(const Entity& e, Game& g) {
+    if (enemy_is_holding_something(e)) return false;
+
+    auto* collectible = entity_pickup_collectible(e, g);
+    if (!collectible) return false;
+
+    return true;
+}
+
+static void enemy_pick_up_collectible(Entity& e, Game& g) {
+    auto* collectible = entity_pickup_collectible(e, g);
+    assert(collectible); // should have already been checked with enemy_can_pick_up_collectible
+
+    switch (collectible->extra_collectible.type) {
+        case Collectible_Type::Knife: {
+            collectible->extra_collectible.picked_up = true;
+            e.extra_enemy.has_knife = true;
+        } break;
+    }
+}
+
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
     assert(e.type == Entity_Type::Enemy);
 
     animation_update(e.anim, g.dt, g.dt_real);
 
-    if (e.extra_enemy.slot == Slot::None) enemy_claim_slot(e, player, g);
+    if (enemy_can_pick_up_collectible(e, g)) {
+        if (e.extra_enemy.slot != Slot::None) {
+            enemy_return_claimed_slot(e, g);
+        }
+        enemy_pick_up_collectible(e, g);
+    } else if (e.extra_enemy.slot == Slot::None) {
+        enemy_claim_slot(e, player, g);
+    }
 
     enemy_update_target_pos(e, player, g);
 
