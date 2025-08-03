@@ -617,7 +617,6 @@ Update_Result player_update(Entity& p, Game& g) {
             }
 
             handle_jump_physics(p, g);
-
         } break;
 
         case Player_State::Kicking_Drop: {

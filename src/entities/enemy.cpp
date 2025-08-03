@@ -453,18 +453,18 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
     animation_update(e.anim, g.dt, g.dt_real);
 
-    if (enemy_can_pick_up_collectible(e, g)) {
-        if (e.extra_enemy.slot != Slot::None) {
-            enemy_return_claimed_slot(e, g);
-        }
-        enemy_pick_up_collectible(e, g);
-    } else if (e.extra_enemy.slot == Slot::None) {
-        enemy_claim_slot(e, player, g);
-    }
-
     enemy_update_target_pos(e, player, g);
 
     if (enemy_can_move(e)) {
+        if (enemy_can_pick_up_collectible(e, g)) {
+            if (e.extra_enemy.slot != Slot::None) {
+                enemy_return_claimed_slot(e, g);
+            }
+            enemy_pick_up_collectible(e, g);
+        } else if (e.extra_enemy.slot == Slot::None) {
+            enemy_claim_slot(e, player, g);
+        }
+
         enemy_handle_movement(e, player, g);
     }
 
