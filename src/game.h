@@ -48,6 +48,11 @@ struct Game {
         .max_frames_in_row_count = 10, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
         .frames_in_each_row      = std::span{sprite_knife_player_frames},
     };
+    Sprite sprite_gun_player = {
+        .img                     = {},
+        .max_frames_in_row_count = 10, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
+        .frames_in_each_row      = std::span{sprite_gun_player_frames},
+    };
 
     Sprite sprite_barrel = {
         .img                     = {},
@@ -65,6 +70,11 @@ struct Game {
         .img                     = {},
         .max_frames_in_row_count = 10, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
         .frames_in_each_row      = std::span{sprite_knife_enemy_frames},
+    };
+    Sprite sprite_gun_enemy = {
+        .img                     = {},
+        .max_frames_in_row_count = 10, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
+        .frames_in_each_row      = std::span{sprite_gun_enemy_frames},
     };
     Sprite sprite_enemy_goon = {
         .img                     = {},

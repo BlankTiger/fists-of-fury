@@ -91,7 +91,7 @@ void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g) {
                 e.sprite_frame_h
             };
             _draw_box(r, sprite_bounds_screen, {255, 255, 0, 200}, {255, 255, 0, 50});
-            
+
             // Draw entity position
             draw_point(r, {world_coords, *g, {255, 0, 255, 255}});
         }
@@ -109,6 +109,34 @@ void entity_draw_knife(SDL_Renderer* r, const Entity& e, Game* g) {
 
     const Sprite* s = &g->sprite_knife_player;
     if (e.type == Entity_Type::Enemy) s = &g->sprite_knife_enemy;
+    bool ok = sprite_draw_at_dst(
+        *s,
+        r,
+        {
+            .x_dst                         = screen_coords.x,
+            .y_dst                         = screen_coords.y,
+            .row                           = e.anim.frames.idx,
+            .col                           = e.anim.frames.frame_current,
+            .flip                          = flip,
+            .opacity                       = e.anim.fadeout.perc_visible_curr,
+            .center_of_rotation_offsets    = &game_get_mutable_entity_by_handle(*g, e.handle)->rotation_center_offsets,
+            .return_on_failed_range_checks = true,
+        }
+    );
+    if (!ok) SDL_Log("Failed to draw enemy sprite! SDL err: %s\n", SDL_GetError());
+}
+
+void entity_draw_gun(SDL_Renderer* r, const Entity& e, Game* g) {
+    assert(g != nullptr);
+
+    const Vec2<f32> drawing_coords = entity_offset_to_bottom_center(e);
+    Vec2<f32> screen_coords = game_get_screen_coords(*g, drawing_coords);
+    screen_coords.y += e.z; // for jumping
+
+    const SDL_FlipMode flip = (e.dir == Direction::Left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+
+    const Sprite* s = &g->sprite_gun_player;
+    if (e.type == Entity_Type::Enemy) s = &g->sprite_gun_enemy;
     bool ok = sprite_draw_at_dst(
         *s,
         r,

@@ -38,7 +38,7 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
         .bottom_left_free    = true,
         .bottom_right_free   = true,
     };
-    player.extra_player.has_knife = true;
+    player.extra_player.has_gun = true;
     animation_start(player.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true});
     return player;
 }
@@ -664,5 +664,6 @@ void player_draw(SDL_Renderer* r, const Entity& p, Game& g) {
 
     entity_draw(r, p, &g);
     if (settings.show_attack_slots) slots_draw(r, p, g);
-    if (p.extra_player.has_knife) entity_draw_knife(r, p, &g);
+    if (p.extra_player.has_knife)   entity_draw_knife(r, p, &g);
+    if (p.extra_player.has_gun)     entity_draw_gun(r, p, &g);
 }

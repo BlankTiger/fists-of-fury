@@ -10,6 +10,9 @@ struct Enemy_Init_Opts {
     f32 speed;
     f32 x;
     f32 y;
+    bool has_knife;
+    bool can_spawn_knives;
+    bool has_gun;
 };
 
 static constexpr Entity_Type dont_collide_with[] = {Entity_Type::Enemy, Entity_Type::Player, Entity_Type::Collectible};

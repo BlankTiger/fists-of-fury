@@ -26,8 +26,6 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
     enemy.shadow_offsets               = {-7,                   -1,  14,                    2};
     enemy.dir                          = Direction::Left;
     enemy.extra_enemy.state            = Enemy_State::Standing;
-    enemy.extra_enemy.has_knife        = false;
-    enemy.extra_enemy.can_spawn_knives = false;
 
     switch (opts.type) {
         case Enemy_Type::Goon: {
@@ -53,6 +51,10 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
         } break;
     }
 
+    enemy.extra_enemy.has_knife        = opts.has_knife;
+    enemy.extra_enemy.can_spawn_knives = opts.can_spawn_knives;
+    enemy.extra_enemy.has_gun          = opts.has_gun;
+
     return enemy;
 }
 
@@ -60,6 +62,7 @@ void enemy_draw(SDL_Renderer* r, const Entity& e, Game& g) {
     assert(e.type == Entity_Type::Enemy);
     entity_draw(r, e, &g);
     if (e.extra_enemy.has_knife) entity_draw_knife(r, e, &g);
+    if (e.extra_enemy.has_gun)   entity_draw_gun(r, e, &g);
 }
 
 static Anim_Start_Opts enemy_get_anim_knocked_down(const Entity& e) {

@@ -154,6 +154,22 @@ static bool init() {
     }
 
     {
+        bool ok = sprite_load(g.sprite_gun_player, g.renderer, "assets/art/characters/player_gun.png");
+        if (!ok) {
+            SDL_Log("Failed to load player_gun sprite! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+    }
+
+    {
+        bool ok = sprite_load(g.sprite_gun_enemy, g.renderer, "assets/art/characters/enemy_gun.png");
+        if (!ok) {
+            SDL_Log("Failed to load enemy_gun sprite! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+    }
+
+    {
         bool ok = sprite_load(g.sprite_knife, g.renderer, "assets/art/characters/knife.png");
         if (!ok) {
             SDL_Log("Failed to load knife sprite! SDL err: %s\n", SDL_GetError());
@@ -207,6 +223,9 @@ static bool init() {
             .speed = 0.02f,
             .x = SCREEN_WIDTH - 0.2f * SCREEN_WIDTH,
             .y = 55,
+            .has_knife = false,
+            .can_spawn_knives = false,
+            .has_gun = true,
         });
         g.entities.push_back(goon);
     }
