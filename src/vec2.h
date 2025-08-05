@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include "number_types.h"
 
 template<typename T>
 struct Vec2 {
@@ -41,4 +42,4 @@ struct Vec2 {
     }
 };
 
-template struct Vec2<f32>;
+extern template struct Vec2<f32>;

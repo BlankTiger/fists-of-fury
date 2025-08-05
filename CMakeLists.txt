@@ -19,6 +19,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/draw.cpp
     src/game.cpp
+    src/vec2.cpp
     src/sprite.cpp
     src/settings.cpp
     src/debug_menu.cpp
