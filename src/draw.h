@@ -44,3 +44,7 @@ struct Draw_Point_Opts {
 };
 
 void draw_point(SDL_Renderer* r, Draw_Point_Opts opts);
+
+void draw_gradient_rect_geometry(SDL_Renderer* renderer, float x, float y, float w, float h,
+                                 SDL_Color top_left, SDL_Color top_right, 
+                                 SDL_Color bottom_left, SDL_Color bottom_right);
