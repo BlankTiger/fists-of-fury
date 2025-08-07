@@ -435,10 +435,13 @@ static Anim_Start_Opts player_get_anim_got_hit() {
     return opts;
 }
 
-static void player_pick_up(Entity& p, Game& g) {
-    if (p.extra_player.has_knife) return;
+static bool player_is_holding_something(const Entity& p) {
+    return p.extra_player.has_knife || p.extra_player.has_gun;
+}
 
-    bool picked_something_up = false;
+static void player_pick_up(Entity& p, Game& g) {
+    if (player_is_holding_something(p)) return;
+
     auto collectible = entity_pickup_collectible(p, g);
     if (collectible) {
         assert(collectible->type == Entity_Type::Collectible);
@@ -447,12 +450,16 @@ static void player_pick_up(Entity& p, Game& g) {
             case Collectible_Type::Knife: {
                 collectible->extra_collectible.picked_up = true;
                 p.extra_player.has_knife = true;
-                picked_something_up = true;
             } break;
+
+            case Collectible_Type::Gun: {
+                collectible->extra_collectible.picked_up = true;
+                p.extra_player.has_gun = true;
+            }
         }
     }
 
-    if (picked_something_up) {
+    if (player_is_holding_something(p)) {
         player_pick_up_collectible(p);
     }
 }

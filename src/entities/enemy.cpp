@@ -435,7 +435,7 @@ static void enemy_respawn_knife(Entity& e, const Game& g) {
 }
 
 static bool enemy_is_holding_something(const Entity& e) {
-    return e.extra_enemy.has_knife;
+    return e.extra_enemy.has_knife || e.extra_enemy.has_gun;
 }
 
 static bool enemy_can_pick_up_collectible(const Entity& e, Game& g) {
@@ -455,6 +455,11 @@ static void enemy_pick_up_collectible(Entity& e, Game& g) {
         case Collectible_Type::Knife: {
             collectible->extra_collectible.picked_up = true;
             e.extra_enemy.has_knife = true;
+        } break;
+
+        case Collectible_Type::Gun: {
+            collectible->extra_collectible.picked_up = true;
+            e.extra_enemy.has_gun = true;
         } break;
     }
 

@@ -6,9 +6,9 @@
 
 struct Gun_Init_Opts { };
 
-Entity gun_init(Game& g, Gun_Init_Opts opts);
+Entity        gun_init(Game& g, Gun_Init_Opts opts);
 Update_Result gun_update(Entity& e, Game& g);
-void gun_draw(SDL_Renderer* r, const Entity& e, const Game& g);
+void          gun_draw(SDL_Renderer* r, const Entity& e, const Game& g);
 
 static constexpr Entity_Type gun_dont_collide_with[] = {
     Entity_Type::Barrel,

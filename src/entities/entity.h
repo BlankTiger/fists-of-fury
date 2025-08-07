@@ -20,11 +20,13 @@ enum struct Entity_Type {
     Player,
     Enemy,
     Barrel,
+    Bullet,
     Collectible,
 };
 
 enum struct Collectible_Type {
     Knife,
+    Gun,
 };
 
 struct Collectible {

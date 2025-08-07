@@ -4,7 +4,7 @@
 #include "gun.h"
 #include "../utils.h"
 
-Entity gun_init(Game& g, Knife_Init_Opts opts) {
+Entity gun_init(Game& g, Gun_Init_Opts opts) {
     const auto sprite_frame_w = 48;
     const auto sprite_frame_h = 48;
     Entity knife                 = {};
@@ -24,10 +24,10 @@ Update_Result gun_update(Entity& e, Game& g) {
         case Gun_State::Dropped: {
         } break;
 
-        case Knife_State::On_The_Ground: {
+        case Gun_State::On_The_Ground: {
         } break;
 
-        case Knife_State::Picked_Up: {
+        case Gun_State::Picked_Up: {
             return Update_Result::Remove_Me;
         } break;
     }

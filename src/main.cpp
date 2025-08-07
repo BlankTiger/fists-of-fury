@@ -16,6 +16,8 @@
 #include "entities/enemy.h"
 #include "entities/barrel.h"
 #include "entities/knife.h"
+#include "entities/gun.h"
+#include "entities/bullet.h"
 
 static Game g = {};
 
@@ -254,7 +256,15 @@ static Update_Result update_entity(Entity& e) {
                 case Collectible_Type::Knife: {
                     res = knife_update(e, g);
                 } break;
+
+                case Collectible_Type::Gun: {
+                    res = gun_update(e, g);
+                } break;
             }
+        } break;
+
+        case Entity_Type::Bullet: {
+            res = bullet_update(e, g);
         } break;
     }
 
@@ -347,7 +357,15 @@ static void draw_entity(SDL_Renderer* r, Entity e) {
                 case Collectible_Type::Knife: {
                     knife_draw(r, e, g);
                 } break;
+
+                case Collectible_Type::Gun: {
+                    gun_draw(r, e, g);
+                } break;
             }
+        } break;
+
+        case Entity_Type::Bullet: {
+            bullet_draw(r, e, g);
         } break;
     }
 }
