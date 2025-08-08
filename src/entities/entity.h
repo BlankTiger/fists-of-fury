@@ -295,6 +295,14 @@ struct Entity {
         } extra_barrel;
 
         struct {
+            Vec2<f32>    pos_start;
+            Vec2<f32>    length_and_thickness;
+            u64          creation_timestamp;
+            u64          time_of_flight_ms;
+            f32          thickness;
+        } extra_bullet;
+
+        struct {
             Collectible_Type type;
             bool             picked_up  = false;
             bool             pickupable = true;

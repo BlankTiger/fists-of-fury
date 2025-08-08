@@ -232,6 +232,14 @@ static bool init() {
         g.entities.push_back(goon);
     }
 
+    {
+        Entity bullet = bullet_init(g, {
+            .pos_start = {0.0f, 0.0f},
+            .length    = 20.0f,
+        });
+        g.entities.push_back(bullet);
+    }
+
     return true;
 }
 
@@ -380,10 +388,6 @@ static void draw(const Game& g) {
     }
 
     debug_menu_draw(g.menu, g.renderer);
-
-    SDL_Color yellowish = {50, 50, 0, 255};
-    SDL_Color yellow = {200, 200, 0, 255};
-    draw_gradient_rect_geometry(g.renderer, 0, 0, 50, 10, yellowish, yellow, yellowish, yellow);
 
     SDL_RenderPresent(g.renderer);
 }
