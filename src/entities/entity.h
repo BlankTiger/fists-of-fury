@@ -271,6 +271,7 @@ struct Entity {
             Player_State        state;
             Player_Attack_Slots slots;
             u32                 combo;
+            u32                 bullets;
             bool                last_attack_successful;
             u64                 last_attack_timestamp; // for resetting combo after some time
             bool                has_knife;
@@ -296,10 +297,12 @@ struct Entity {
 
         struct {
             Vec2<f32>    pos_start;
-            Vec2<f32>    length_and_thickness;
+            Vec2<f32>    pos_curr;
+            Vec2<f32>    pos_end;
             u64          creation_timestamp;
             u64          time_of_flight_ms;
             f32          thickness;
+            f32          length;
         } extra_bullet;
 
         struct {

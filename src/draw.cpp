@@ -102,14 +102,14 @@ void draw_point(SDL_Renderer* r, Draw_Point_Opts opts) {
     _draw_box(r, dst_box_screen_coords, opts.color, opts.color);
 }
 
-void draw_gradient_rect_geometry(SDL_Renderer* renderer, float x, float y, float w, float h,
+void draw_gradient_rect_geometry(SDL_Renderer* renderer, float x1, float y1, float x2, float y2,
                                  SDL_Color top_left, SDL_Color top_right, 
                                  SDL_Color bottom_left, SDL_Color bottom_right) {
     SDL_Vertex vertices[4] = {
-        {{x,   y},   {top_left.r/255.0f,     top_left.g/255.0f,     top_left.b/255.0f,     top_left.a/255.0f},     {0, 0}},
-        {{x+w, y},   {top_right.r/255.0f,    top_right.g/255.0f,    top_right.b/255.0f,    top_right.a/255.0f},    {1, 0}},
-        {{x,   y+h}, {bottom_left.r/255.0f,  bottom_left.g/255.0f,  bottom_left.b/255.0f,  bottom_left.a/255.0f},  {0, 1}},
-        {{x+w, y+h}, {bottom_right.r/255.0f, bottom_right.g/255.0f, bottom_right.b/255.0f, bottom_right.a/255.0f}, {1, 1}}
+        {{x1, y1}, {top_left.r/255.0f,     top_left.g/255.0f,     top_left.b/255.0f,     top_left.a/255.0f},     {0, 0}},
+        {{x2, y1}, {top_right.r/255.0f,    top_right.g/255.0f,    top_right.b/255.0f,    top_right.a/255.0f},    {1, 0}},
+        {{x1, y2}, {bottom_left.r/255.0f,  bottom_left.g/255.0f,  bottom_left.b/255.0f,  bottom_left.a/255.0f},  {0, 1}},
+        {{x2, y2}, {bottom_right.r/255.0f, bottom_right.g/255.0f, bottom_right.b/255.0f, bottom_right.a/255.0f}, {1, 1}}
     };
     
     int indices[6] = {0, 1, 2, 1, 2, 3};

@@ -3,6 +3,7 @@
 
 #include "player.h"
 #include "knife.h"
+#include "bullet.h"
 #include "../game.h"
 #include "../settings.h"
 #include "../draw.h"
@@ -39,6 +40,7 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
         .bottom_right_free   = true,
     };
     player.extra_player.has_gun = true;
+    player.extra_player.bullets = 10;
     animation_start(player.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true});
 
     g.entities.push_back(player);
@@ -307,6 +309,18 @@ static void player_attack(Entity& p, Game& g) {
         knife_throw(g, p);
         p.extra_player.has_knife = false;
         return;
+    } else if (p.extra_player.has_gun) {
+        p.extra_player.state = Player_State::Attacking;
+        opts.anim_idx = (u32)Player_Anim::Punching_Right;
+        animation_start(p.anim, opts);
+        auto entity_pos = entity_get_pos(p);
+        auto pos_start  = game_get_screen_coords(g, entity_pos);
+        bullet_init(g, {
+            .pos_start = pos_start,
+            .length    = 50.0f,
+        });
+        p.extra_player.bullets--;
+        if (p.extra_player.bullets <= 0) p.extra_player.has_gun = false;
     }
 
     auto should_be = p.extra_player.combo % AMOUNT_OF_ATTACKS;

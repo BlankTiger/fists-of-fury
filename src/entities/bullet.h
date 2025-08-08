@@ -6,7 +6,7 @@
 struct Bullet_Init_Opts {
     Vec2<f32> pos_start;
     f32 length;
-    f32 thickness = 2.0f;
+    f32 thickness = 0.9f;
 };
 
 Entity bullet_init(Game& g, Bullet_Init_Opts opts);
