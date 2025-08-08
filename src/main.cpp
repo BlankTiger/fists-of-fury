@@ -108,9 +108,7 @@ static bool init() {
 
     // player setup
     {
-        Entity player = player_init(&g.sprite_player, g);
-        g.entities.push_back(player);
-        g.idx_player = g.entities.size() - 1;
+        player_init(&g.sprite_player, g);
     }
 
     {
@@ -122,21 +120,19 @@ static bool init() {
     }
 
     {
-        Entity barrel = barrel_init(g, {
+        barrel_init(g, {
             .x = SCREEN_WIDTH / 2,
             .y = 38,
             .health = 20,
             .sprite = &g.sprite_barrel,
         });
-        g.entities.push_back(barrel);
 
-        Entity barrel2 = barrel_init(g, {
+        barrel_init(g, {
             .x = SCREEN_WIDTH,
             .y = 38,
             .health = 20,
             .sprite = &g.sprite_barrel,
         });
-        g.entities.push_back(barrel2);
     }
 
     {
@@ -208,17 +204,16 @@ static bool init() {
     {
         const auto health = 200.0f;
 
-        Entity punk = enemy_init(g, {
-            .type = Enemy_Type::Punk,
-            .health = health,
-            .damage = 10.0f,
-            .speed = 0.02f,
-            .x = SCREEN_WIDTH - 0.2f * SCREEN_WIDTH,
-            .y = 55,
-        });
-        g.entities.push_back(punk);
-
-        Entity goon = enemy_init(g, {
+        // enemy_init(g, {
+        //     .type = Enemy_Type::Punk,
+        //     .health = health,
+        //     .damage = 10.0f,
+        //     .speed = 0.02f,
+        //     .x = SCREEN_WIDTH - 0.2f * SCREEN_WIDTH,
+        //     .y = 55,
+        // });
+        //
+        enemy_init(g, {
             .type = Enemy_Type::Goon,
             .health = health,
             .damage = 10.0f,
@@ -229,15 +224,6 @@ static bool init() {
             .can_spawn_knives = false,
             .has_gun = true,
         });
-        g.entities.push_back(goon);
-    }
-
-    {
-        Entity bullet = bullet_init(g, {
-            .pos_start = {0.0f, 0.0f},
-            .length    = 20.0f,
-        });
-        g.entities.push_back(bullet);
     }
 
     return true;

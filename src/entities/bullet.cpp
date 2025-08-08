@@ -12,6 +12,8 @@ Entity bullet_init(Game& g, Bullet_Init_Opts opts) {
     bullet.extra_bullet.length_and_thickness = {opts.length, opts.thickness};
     bullet.extra_bullet.creation_timestamp = g.time_ms;
     bullet.extra_bullet.time_of_flight_ms = 200;
+
+    g.entities.push_back(bullet);
     return bullet;
 }
 

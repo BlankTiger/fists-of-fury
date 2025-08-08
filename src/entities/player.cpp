@@ -40,6 +40,9 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
     };
     player.extra_player.has_gun = true;
     animation_start(player.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true});
+
+    g.entities.push_back(player);
+    g.idx_player = g.entities.size() - 1;
     return player;
 }
 

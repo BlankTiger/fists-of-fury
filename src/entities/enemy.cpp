@@ -55,6 +55,7 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
     enemy.extra_enemy.can_spawn_knives = opts.can_spawn_knives;
     enemy.extra_enemy.has_gun          = opts.has_gun;
 
+    g.entities.push_back(enemy);
     return enemy;
 }
 

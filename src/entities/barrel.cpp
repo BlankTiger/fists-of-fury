@@ -24,6 +24,8 @@ Entity barrel_init(Game& g, Barrel_Init_Opts opts) {
     barrel.extra_barrel.state    = Barrel_State::Idle;
     barrel.anim.sprite           = opts.sprite;
     animation_start(barrel.anim, { .anim_idx = (u32)Barrel_Anim::Idle });
+
+    g.entities.push_back(barrel);
     return barrel;
 }
 
