@@ -261,6 +261,8 @@ struct Entity {
     SDL_FRect shadow_offsets;
     // same thing goes for rotation_center_offsets
     SDL_FPoint rotation_center_offsets;
+    // same thing goes for bullet_start_offsets
+    SDL_FPoint bullet_start_offsets;
 
     Animation     anim;
 

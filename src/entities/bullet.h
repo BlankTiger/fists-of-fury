@@ -5,6 +5,7 @@
 
 struct Bullet_Init_Opts {
     Vec2<f32> pos_start;
+    f32 z;
     f32 length;
     f32 thickness = 0.9f;
 };

@@ -23,17 +23,18 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
     player.dir                   = Direction::Right;
     player.sprite_frame_w        = sprite_frame_w;
     player.sprite_frame_h        = sprite_frame_h;
-    player.collision_box_offsets = {-sprite_frame_w/7,    -3,  2*sprite_frame_w/7,    4};
-    player.hurtbox_offsets       = {sprite_frame_w/7,     -16, 10,                    6};
-    player.hitbox_offsets        = {-sprite_frame_w/6.5f, -23, 2*sprite_frame_w/6.5f, 15};
-    player.shadow_offsets        = {-7,                   -1,  14,                    2};
+    player.collision_box_offsets = {-sprite_frame_w/7.0f, -3.0f,  2.0f*sprite_frame_w/7.0f, 4.0f};
+    player.hurtbox_offsets       = {sprite_frame_w/7.0f,  -16.0f, 10.0f,                    6.0f};
+    player.hitbox_offsets        = {-sprite_frame_w/6.5f, -23.0f, 2.0f*sprite_frame_w/6.5f, 15.0f};
+    player.shadow_offsets        = {-7.0f,                -1.0f,  14.0f,                    2.0f};
+    player.bullet_start_offsets  = {22.0f,                -15.0f};
     player.anim.sprite           = player_sprite;
     player.extra_player.state    = Player_State::Standing;
     player.extra_player.slots    = {
-        .offset_top_left     = {-sprite_frame_w/3.0f, -4.0f},
-        .offset_top_right    = {sprite_frame_w/3.0f,  -4.0f},
-        .offset_bottom_left  = {-sprite_frame_w/4,    2},
-        .offset_bottom_right = {sprite_frame_w/4,     2},
+        .offset_top_left     = { -sprite_frame_w/3.0f, -4.0f },
+        .offset_top_right    = {  sprite_frame_w/3.0f, -4.0f },
+        .offset_bottom_left  = { -sprite_frame_w/4.0f,  2.0f },
+        .offset_bottom_right = {  sprite_frame_w/4.0f,  2.0f },
         .top_left_free       = true,
         .top_right_free      = true,
         .bottom_left_free    = true,
@@ -311,16 +312,19 @@ static void player_attack(Entity& p, Game& g) {
         return;
     } else if (p.extra_player.has_gun) {
         p.extra_player.state = Player_State::Attacking;
-        opts.anim_idx = (u32)Player_Anim::Punching_Right;
+        opts.anim_idx = (u32)Player_Anim::Punching_Left;
         animation_start(p.anim, opts);
-        auto entity_pos = entity_get_pos(p);
-        auto pos_start  = game_get_screen_coords(g, entity_pos);
+        auto pos_start = entity_get_pos(p);
+        auto bullet_offset = p.bullet_start_offsets;
+        pos_start.x += bullet_offset.x;
         bullet_init(g, {
             .pos_start = pos_start,
+            .z         = bullet_offset.y,
             .length    = 50.0f,
         });
         p.extra_player.bullets--;
         if (p.extra_player.bullets <= 0) p.extra_player.has_gun = false;
+        return;
     }
 
     auto should_be = p.extra_player.combo % AMOUNT_OF_ATTACKS;

@@ -95,6 +95,13 @@ void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g) {
             // Draw entity position
             draw_point(r, {world_coords, *g, {255, 0, 255, 255}});
         }
+
+        if (settings.show_bullet_start) {
+            auto point = world_coords;
+            point.x += e.bullet_start_offsets.x;
+            point.y += e.bullet_start_offsets.y;
+            draw_point(r, {point, *g, {255, 0, 255, 255}});
+        }
     }
 }
 

@@ -10,6 +10,9 @@ Entity bullet_init(Game& g, Bullet_Init_Opts opts) {
     bullet.handle = game_generate_entity_handle(g);
     bullet.extra_bullet.pos_start = opts.pos_start;
     bullet.extra_bullet.pos_curr  = opts.pos_start;
+    bullet.x                      = opts.pos_start.x;
+    bullet.y                      = opts.pos_start.y;
+    bullet.z                      = opts.z;
     bullet.extra_bullet.pos_end   = opts.pos_start + Vec2{opts.length, opts.thickness};
     bullet.extra_bullet.length    = opts.length;
     bullet.extra_bullet.creation_timestamp = g.time_ms;
@@ -43,5 +46,5 @@ void bullet_draw(SDL_Renderer* r, const Entity& e, Game& g) {
     SDL_Color yellow = {200, 200, 0, 255};
     auto& pos_curr = e.extra_bullet.pos_curr;
     auto& pos_end  = e.extra_bullet.pos_end;
-    draw_gradient_rect_geometry(g.renderer, pos_curr.x, pos_curr.y, pos_end.x, pos_end.y, yellowish, yellow, yellowish, yellow);
+    draw_gradient_rect_geometry(g.renderer, pos_curr.x, pos_curr.y + e.z, pos_end.x, pos_end.y + e.z, yellowish, yellow, yellowish, yellow);
 }
