@@ -440,9 +440,8 @@ static void enemy_drop_knife(Entity& e, Game& g) {
 }
 
 static void enemy_drop_gun(Entity& e, Game& g) {
-    if (e.extra_enemy.has_knife) {
-        knife_drop(g, e);
-        e.extra_enemy.has_knife = false;
+    if (e.extra_enemy.has_gun) {
+        e.extra_enemy.has_gun = false;
     }
 }
 
