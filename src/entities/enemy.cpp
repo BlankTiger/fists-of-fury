@@ -10,22 +10,24 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
     const auto sprite_frame_h = 48;
     const auto sprite_frame_w = 48;
     Entity enemy{};
-    enemy.handle                       = game_generate_entity_handle(g);
-    enemy.x                            = opts.x;
-    enemy.y                            = opts.y;
-    enemy.health                       = opts.health;
-    enemy.damage                       = opts.damage;
-    enemy.speed                        = opts.speed;
-    enemy.type                         = Entity_Type::Enemy;
-    enemy.extra_enemy.type             = opts.type;
-    enemy.sprite_frame_w               = sprite_frame_w;
-    enemy.sprite_frame_h               = sprite_frame_h;
-    enemy.collision_box_offsets        = {-sprite_frame_w/7,    -3,  2*sprite_frame_w/7,    4};
-    enemy.hurtbox_offsets              = {-sprite_frame_w/7     -    10,                    -14, 10, 6};
-    enemy.hitbox_offsets               = {-sprite_frame_w/6.5f, -20, 2*sprite_frame_w/6.5f, 10};
-    enemy.shadow_offsets               = {-7,                   -1,  14,                    2};
-    enemy.dir                          = Direction::Left;
-    enemy.extra_enemy.state            = Enemy_State::Standing;
+    enemy.handle                = game_generate_entity_handle(g);
+    enemy.x                     = opts.x;
+    enemy.y                     = opts.y;
+    enemy.health                = opts.health;
+    enemy.damage                = opts.damage;
+    enemy.speed                 = opts.speed;
+    enemy.type                  = Entity_Type::Enemy;
+    enemy.extra_enemy.type      = opts.type;
+    enemy.sprite_frame_w        = sprite_frame_w;
+    enemy.sprite_frame_h        = sprite_frame_h;
+    enemy.collision_box_offsets = {-sprite_frame_w/7,    -3,  2*sprite_frame_w/7,    4};
+    enemy.hurtbox_offsets       = {-sprite_frame_w/7     -    10,                    -14, 10, 6};
+    enemy.hitbox_offsets        = {-sprite_frame_w/6.5f, -20, 2*sprite_frame_w/6.5f, 10};
+    enemy.shadow_offsets        = {-7,                   -1,  14,                    2};
+    enemy.bullet_start_offsets  = {-22.0f,               -15.0f};
+    enemy.dir                   = Direction::Left;
+    enemy.dir_prev              = Direction::Left;
+    enemy.extra_enemy.state     = Enemy_State::Standing;
 
     switch (opts.type) {
         case Enemy_Type::Goon: {

@@ -21,6 +21,7 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
     player.x                     = 20;
     player.y                     = 50;
     player.dir                   = Direction::Right;
+    player.dir_prev              = Direction::Right;
     player.sprite_frame_w        = sprite_frame_w;
     player.sprite_frame_h        = sprite_frame_h;
     player.collision_box_offsets = {-sprite_frame_w/7.0f, -3.0f,  2.0f*sprite_frame_w/7.0f, 4.0f};
