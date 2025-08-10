@@ -84,7 +84,7 @@ enum struct Player_Anim : u32 {
 
 static constexpr u32 sprite_player_frames[]       = { 4, 8, 4, 3, 6, 6, 1, 3, 3, 1, 1, 1, 1 };
 static constexpr u32 sprite_knife_player_frames[] = { 4, 8, 0, 3, 0, 0, 1, 0, 0, 0, 1, 1, 1 };
-static constexpr u32 sprite_gun_player_frames[]   = { 4, 8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static constexpr u32 sprite_gun_player_frames[]   = { 4, 8, 4, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1 };
 static_assert(std::size(sprite_player_frames)       == (u32)Player_Anim::COUNT);
 static_assert(std::size(sprite_knife_player_frames) == (u32)Player_Anim::COUNT);
 static_assert(std::size(sprite_gun_player_frames)   == (u32)Player_Anim::COUNT);
