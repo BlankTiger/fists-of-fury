@@ -45,7 +45,7 @@ Entity bullet_init(Game& g, Bullet_Init_Opts opts) {
 
     Entity* target = bullet_find_target_in_path(opts.shot_by, pos_start, bullet.z, opts.dir, g);
     if (target) {
-        bullet.extra_bullet.length = target->x - bullet.x;
+        bullet.extra_bullet.length = std::abs(target->x - bullet.x);
         target->damage_queue.push_back({settings.gun_damage, bullet.dir, Hit_Type::Knockdown});
     } else {
         bullet.extra_bullet.length = opts.length;
@@ -93,5 +93,14 @@ void bullet_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
     static const SDL_Color white  = {230, 230, 230, 255};
     static const SDL_Color yellow = {230, 230, 0,   255};
 
-    draw_gradient_rect_geometry(r, screen_curr.x, screen_curr.y + e.z, screen_end.x, screen_end.y + e.z, white, yellow, white, yellow);
+    f32 x1 = screen_curr.x < screen_end.x ? screen_curr.x : screen_end.x;
+    f32 x2 = screen_curr.x < screen_end.x ? screen_end.x  : screen_curr.x;
+    f32 y1 = screen_curr.y + e.z;
+    f32 y2 = screen_end.y  + e.z;
+
+    if (e.dir == Direction::Left) {
+        draw_gradient_rect_geometry(r, x1,  y1, x2, y2, yellow, white,  yellow, white);
+    } else {
+        draw_gradient_rect_geometry(r, x1,  y1, x2, y2, white,  yellow, white,  yellow);
+    }
 }
