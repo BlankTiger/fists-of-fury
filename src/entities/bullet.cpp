@@ -5,7 +5,7 @@
 
 #include <cassert>
 
-static Entity* bullet_find_target_in_path(Vec2<f32> pos_start, f32 z, Direction dir, Game& g) {
+static Entity* bullet_find_target_in_path(Entity_Type shot_by, Vec2<f32> pos_start, f32 z, Direction dir, Game& g) {
     SDL_FRect hurtbox = {pos_start.x, pos_start.y + z, SCREEN_WIDTH, 1.0f};
     if (dir == Direction::Right) {
     } else if (dir == Direction::Left) {
@@ -15,7 +15,9 @@ static Entity* bullet_find_target_in_path(Vec2<f32> pos_start, f32 z, Direction 
     }
 
     for (auto& entity : g.entities) {
-        if (entity.type == Entity_Type::Player) continue;
+        if (entity.type == shot_by)                  continue;
+        if (entity.type == Entity_Type::Collectible) continue;
+        if (entity.type == Entity_Type::Barrel)      continue;
 
         auto hitbox = entity_get_world_hitbox(entity);
         if (SDL_HasRectIntersectionFloat(&hurtbox, &hitbox)) {
