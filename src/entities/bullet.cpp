@@ -46,6 +46,7 @@ Entity bullet_init(Game& g, Bullet_Init_Opts opts) {
     Entity* target = bullet_find_target_in_path(opts.shot_by, pos_start, bullet.z, opts.dir, g);
     if (target) {
         bullet.extra_bullet.length = target->x - bullet.x;
+        target->damage_queue.push_back({settings.gun_damage, bullet.dir, Hit_Type::Knockdown});
     } else {
         bullet.extra_bullet.length = opts.length;
     }

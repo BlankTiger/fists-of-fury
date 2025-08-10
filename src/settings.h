@@ -56,6 +56,8 @@ struct Settings {
     f32 knife_velocity                       = 0.13f;
     f32 knife_damage                         = 20.0f;
     f32 knife_throwing_threshold             = 4.0f;
+
+    f32 gun_damage                           = 40.0f;
 };
 
 extern Settings settings;
