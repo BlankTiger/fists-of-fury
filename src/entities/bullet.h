@@ -4,11 +4,12 @@
 #include "../game.h"
 
 struct Bullet_Init_Opts {
-    Vec2<f32> pos_start;
-    f32       z;
-    f32       length    = SCREEN_WIDTH;
-    f32       thickness = 0.6f;
-    Direction dir;
+    Vec2<f32>   pos_creator;
+    Vec2<f32>   offsets;
+    Direction   dir;
+    Entity_Type shot_by;
+    f32         length    = SCREEN_WIDTH;
+    f32         thickness = 0.6f;
 };
 
 Entity bullet_init(Game& g, Bullet_Init_Opts opts);

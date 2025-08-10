@@ -30,16 +30,20 @@ static Entity* bullet_find_target_in_path(Entity_Type shot_by, Vec2<f32> pos_sta
 
 Entity bullet_init(Game& g, Bullet_Init_Opts opts) {
     Entity bullet = {};
+
+    auto pos_start = opts.pos_creator;
+    pos_start.x   += opts.offsets.x;
+
     bullet.type                   = Entity_Type::Bullet;
     bullet.handle                 = game_generate_entity_handle(g);
-    bullet.extra_bullet.pos_start = opts.pos_start;
-    bullet.extra_bullet.pos_curr  = opts.pos_start;
-    bullet.x                      = opts.pos_start.x;
-    bullet.y                      = opts.pos_start.y;
-    bullet.z                      = opts.z;
+    bullet.extra_bullet.pos_start = pos_start;
+    bullet.extra_bullet.pos_curr  = pos_start;
+    bullet.x                      = pos_start.x;
+    bullet.y                      = pos_start.y;
+    bullet.z                      = opts.offsets.y;
     bullet.dir                    = opts.dir;
 
-    Entity* target = bullet_find_target_in_path(opts.pos_start, opts.z, opts.dir, g);
+    Entity* target = bullet_find_target_in_path(opts.shot_by, pos_start, bullet.z, opts.dir, g);
     if (target) {
         bullet.extra_bullet.length = target->x - bullet.x;
     } else {
@@ -47,9 +51,9 @@ Entity bullet_init(Game& g, Bullet_Init_Opts opts) {
     }
 
     if (opts.dir == Direction::Left) {
-        bullet.extra_bullet.pos_end = opts.pos_start + Vec2{-bullet.extra_bullet.length, opts.thickness};
+        bullet.extra_bullet.pos_end = pos_start + Vec2{-bullet.extra_bullet.length, opts.thickness};
     } else if (opts.dir == Direction::Right) {
-        bullet.extra_bullet.pos_end = opts.pos_start + Vec2{bullet.extra_bullet.length, opts.thickness};
+        bullet.extra_bullet.pos_end = pos_start + Vec2{bullet.extra_bullet.length, opts.thickness};
     } else {
         unreachable("shouldnt ever happen");
     }

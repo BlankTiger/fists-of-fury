@@ -315,13 +315,11 @@ static void player_attack(Entity& p, Game& g) {
         p.extra_player.state = Player_State::Attacking;
         opts.anim_idx = (u32)Player_Anim::Punching_Left;
         animation_start(p.anim, opts);
-        auto pos_start = entity_get_pos(p);
-        auto bullet_offset = p.bullet_start_offsets;
-        pos_start.x += bullet_offset.x;
         bullet_init(g, {
-            .pos_start = pos_start,
-            .z         = bullet_offset.y,
-            .dir       = p.dir,
+            .pos_creator = entity_get_pos(p),
+            .offsets     = p.bullet_start_offsets,
+            .dir         = p.dir,
+            .shot_by     = Entity_Type::Player,
         });
         p.extra_player.bullets--;
         if (p.extra_player.bullets <= 0) p.extra_player.has_gun = false;
