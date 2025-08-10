@@ -197,7 +197,7 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
         enemy_stand(e);
     }
 
-    entity_handle_rotating_hurtbox(e);
+    entity_handle_rotating_offsets(e);
 }
 
 // returns wheter got hit

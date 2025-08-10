@@ -356,11 +356,12 @@ void return_claimed_slot(Game& game, Slot slot) {
     }
 }
 
-void entity_handle_rotating_hurtbox(Entity& e) {
+void entity_handle_rotating_offsets(Entity& e) {
     if (e.dir != e.dir_prev) {
         if ((e.dir_prev == Direction::Right && e.dir == Direction::Left) ||
             (e.dir_prev == Direction::Left  && e.dir == Direction::Right)) {
             e.hurtbox_offsets.x = -e.hurtbox_offsets.x - e.hurtbox_offsets.w;
+            e.bullet_start_offsets.x = -e.bullet_start_offsets.x;
         }
     }
 

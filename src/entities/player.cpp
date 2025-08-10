@@ -269,7 +269,7 @@ static void handle_movement(Entity& p, const Game& g) {
     };
     entity_movement_handle_collisions_and_pos_change(p, &g, collide_opts);
 
-    entity_handle_rotating_hurtbox(p);
+    entity_handle_rotating_offsets(p);
 }
 
 static void handle_attack(Entity& p, Game& g, Hit_Type type = Hit_Type::Normal) {

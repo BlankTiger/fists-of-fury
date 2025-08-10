@@ -343,7 +343,7 @@ void entity_draw_knife(SDL_Renderer* r, const Entity& e, Game* g);
 void entity_draw_gun(SDL_Renderer* r, const Entity& e, Game* g);
 
 bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts = {});
-void entity_handle_rotating_hurtbox(Entity& e);
+void entity_handle_rotating_offsets(Entity& e);
 
 Slot find_empty_slot(const Player_Attack_Slots& slots);
 Vec2<f32> calc_world_coordinates_of_slot(Vec2<f32> player_world_pos, const Player_Attack_Slots& slots, Slot slot);
