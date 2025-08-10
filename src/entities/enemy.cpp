@@ -426,6 +426,13 @@ static void enemy_drop_knife(Entity& e, Game& g) {
     }
 }
 
+static void enemy_drop_gun(Entity& e, Game& g) {
+    if (e.extra_enemy.has_knife) {
+        knife_drop(g, e);
+        e.extra_enemy.has_knife = false;
+    }
+}
+
 static void enemy_respawn_knife(Entity& e, const Game& g) {
     if (e.extra_enemy.has_knife)         return;
     if (!e.extra_enemy.can_spawn_knives) return;
@@ -490,7 +497,10 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
     if (enemy_can_receive_damage(e)) {
         auto got_hit = enemy_receive_damage(e);
-        if (got_hit) enemy_drop_knife(e, g);
+        if (got_hit) {
+            enemy_drop_knife(e, g);
+            enemy_drop_gun(e, g);
+        }
     } else {
         // this makes it so that when the enemy is in Got_Hit state
         // he doesnt receive more damage
@@ -531,10 +541,6 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
                 animation_start(e.anim, opts);
             } else if (knockback_finished && anim_finished) {
                 enemy_stand(e);
-            }
-
-            if (e.extra_enemy.has_knife) {
-                enemy_drop_knife(e, g);
             }
         } break;
 

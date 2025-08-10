@@ -320,7 +320,7 @@ static void player_attack(Entity& p, Game& g) {
         bullet_init(g, {
             .pos_start = pos_start,
             .z         = bullet_offset.y,
-            .length    = 50.0f,
+            .dir       = p.dir,
         });
         p.extra_player.bullets--;
         if (p.extra_player.bullets <= 0) p.extra_player.has_gun = false;

@@ -359,7 +359,7 @@ static void draw_entity(SDL_Renderer* r, Entity e) {
         } break;
 
         case Entity_Type::Bullet: {
-            bullet_draw(r, e, g);
+            bullet_draw(r, e);
         } break;
     }
 }

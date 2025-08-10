@@ -1,22 +1,60 @@
 #include "bullet.h"
 #include "../game.h"
 #include "../draw.h"
+#include "../utils.h"
 
 #include <cassert>
 
+static Entity* bullet_find_target_in_path(Vec2<f32> pos_start, f32 z, Direction dir, Game& g) {
+    SDL_FRect hurtbox = {pos_start.x, pos_start.y + z, SCREEN_WIDTH, 1.0f};
+    if (dir == Direction::Right) {
+    } else if (dir == Direction::Left) {
+        hurtbox.x = pos_start.x - SCREEN_WIDTH;
+    } else {
+        unreachable("not possible");
+    }
+
+    for (auto& entity : g.entities) {
+        if (entity.type == Entity_Type::Player) continue;
+
+        auto hitbox = entity_get_world_hitbox(entity);
+        if (SDL_HasRectIntersectionFloat(&hurtbox, &hitbox)) {
+            return &entity;
+        }
+    }
+
+    return nullptr;
+}
+
 Entity bullet_init(Game& g, Bullet_Init_Opts opts) {
     Entity bullet = {};
-    bullet.type = Entity_Type::Bullet;
-    bullet.handle = game_generate_entity_handle(g);
+    bullet.type                   = Entity_Type::Bullet;
+    bullet.handle                 = game_generate_entity_handle(g);
     bullet.extra_bullet.pos_start = opts.pos_start;
     bullet.extra_bullet.pos_curr  = opts.pos_start;
     bullet.x                      = opts.pos_start.x;
     bullet.y                      = opts.pos_start.y;
     bullet.z                      = opts.z;
-    bullet.extra_bullet.pos_end   = opts.pos_start + Vec2{opts.length, opts.thickness};
-    bullet.extra_bullet.length    = opts.length;
+    bullet.dir                    = opts.dir;
+
+    Entity* target = bullet_find_target_in_path(opts.pos_start, opts.z, opts.dir, g);
+    if (target) {
+        bullet.extra_bullet.length = target->x - bullet.x;
+    } else {
+        bullet.extra_bullet.length = opts.length;
+    }
+
+    if (opts.dir == Direction::Left) {
+        bullet.extra_bullet.pos_end = opts.pos_start + Vec2{-bullet.extra_bullet.length, opts.thickness};
+    } else if (opts.dir == Direction::Right) {
+        bullet.extra_bullet.pos_end = opts.pos_start + Vec2{bullet.extra_bullet.length, opts.thickness};
+    } else {
+        unreachable("shouldnt ever happen");
+    }
+
     bullet.extra_bullet.creation_timestamp = g.time_ms;
-    bullet.extra_bullet.time_of_flight_ms = 200;
+    auto ms_per_px                         = 2;
+    bullet.extra_bullet.time_of_flight_ms  = ms_per_px * bullet.extra_bullet.length;
 
     g.entities.push_back(bullet);
     return bullet;
@@ -39,12 +77,12 @@ Update_Result bullet_update(Entity& e, Game& g) {
     return Update_Result::None;
 }
 
-void bullet_draw(SDL_Renderer* r, const Entity& e, Game& g) {
+void bullet_draw(SDL_Renderer* r, const Entity& e) {
     assert(e.type == Entity_Type::Bullet);
 
-    SDL_Color yellowish = {50, 50, 0, 255};
-    SDL_Color yellow = {200, 200, 0, 255};
+    SDL_Color yellowish = {230, 230, 230, 255};
+    SDL_Color yellow = {230, 230, 0, 255};
     auto& pos_curr = e.extra_bullet.pos_curr;
     auto& pos_end  = e.extra_bullet.pos_end;
-    draw_gradient_rect_geometry(g.renderer, pos_curr.x, pos_curr.y + e.z, pos_end.x, pos_end.y + e.z, yellowish, yellow, yellowish, yellow);
+    draw_gradient_rect_geometry(r, pos_curr.x, pos_curr.y + e.z, pos_end.x, pos_end.y + e.z, yellowish, yellow, yellowish, yellow);
 }
