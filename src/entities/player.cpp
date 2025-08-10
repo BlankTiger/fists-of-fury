@@ -224,6 +224,28 @@ static bool stopped_moving(const Game& g) {
         && not_pressed(g, Action::Right);
 }
 
+static Anim_Start_Opts player_get_anim_got_hit() {
+    Anim_Start_Opts opts = {};
+    opts.anim_idx = (u32)Player_Anim::Got_Hit;
+    opts.frame_duration_ms = 50;
+    return opts;
+}
+
+static Anim_Start_Opts player_get_anim_knocked_down() {
+    Anim_Start_Opts opts = {};
+    opts.anim_idx = (u32)Player_Anim::Knocked_Down;
+    opts.frame_duration_ms = 125;
+    return opts;
+}
+
+static Anim_Start_Opts player_get_anim_on_the_ground() {
+    Anim_Start_Opts opts = {};
+    opts.anim_idx = (u32)Player_Anim::On_The_Ground;
+    opts.frame_duration_ms = 300;
+    return opts;
+}
+
+
 static void handle_movement(Entity& p, const Game& g) {
     const auto in = g.input;
 
@@ -371,6 +393,23 @@ static void player_jump(Entity& p) {
     animation_start(p.anim, { .anim_idx = (u32)Player_Anim::Jumping, .looping = true});
 }
 
+static void player_stand_up(Entity& p) {
+    p.extra_player.state = Player_State::Standing_Up;
+    animation_start(
+        p.anim,
+        {
+            .anim_idx = (u32)Player_Anim::Landing,
+            .frame_duration_ms = 200,
+        }
+    );
+}
+
+static void player_lay_on_the_ground(Entity& p) {
+    p.extra_player.state = Player_State::On_The_Ground;
+    auto opts = player_get_anim_on_the_ground();
+    animation_start(p.anim, opts);
+}
+
 static void player_land(Entity& p) {
     p.extra_player.state = Player_State::Landing;
     animation_start(
@@ -414,7 +453,7 @@ static void player_die(Entity& p) {
     p.extra_player.state = Player_State::Dying;
     animation_start(
         p.anim,
-        { 
+        {
             .anim_idx = (u32)Player_Anim::Knocked_Down,
             .fadeout = {
                 .enabled = true,
@@ -446,13 +485,6 @@ static bool player_can_receive_damage(const Entity& p) {
         && s != Player_State::Got_Hit
         && s != Player_State::Dying
         && s != Player_State::Landing;
-}
-
-static Anim_Start_Opts player_get_anim_got_hit() {
-    Anim_Start_Opts opts = {};
-    opts.anim_idx = (u32)Player_Anim::Got_Hit;
-    opts.frame_duration_ms = 50;
-    return opts;
 }
 
 static bool player_is_holding_something(const Entity& p) {
@@ -526,8 +558,8 @@ static void player_receive_damage(Entity& p, Game& g) {
                     p.x_vel = settings.player_knockdown_velocity;
                 }
 
-                p.extra_player.state = Player_State::Got_Hit;
-                auto opts = player_get_anim_got_hit();
+                p.extra_player.state = Player_State::Knocked_Down;
+                auto opts = player_get_anim_knocked_down();
                 animation_start(p.anim, opts);
             } break;
 
@@ -539,8 +571,8 @@ static void player_receive_damage(Entity& p, Game& g) {
                     p.x_vel = settings.player_flying_back_velocity;
                 }
 
-                p.extra_player.state = Player_State::Got_Hit;
-                auto opts = player_get_anim_got_hit();
+                p.extra_player.state = Player_State::Knocked_Down;
+                auto opts = player_get_anim_knocked_down();
                 animation_start(p.anim, opts);
             } break;
         }
@@ -609,6 +641,28 @@ Update_Result player_update(Entity& p, Game& g) {
 
             if (p.health <= 0.0f) {
                 player_die(p);
+            }
+        } break;
+
+        case Player_State::Knocked_Down: {
+            if (animation_is_finished(p.anim)) {
+                player_lay_on_the_ground(p);
+            }
+
+            if (p.health <= 0.0f) {
+                player_die(p);
+            }
+        } break;
+
+        case Player_State::On_The_Ground: {
+            if (animation_is_finished(p.anim)) {
+                player_stand_up(p);
+            }
+        } break;
+
+        case Player_State::Standing_Up: {
+            if (animation_is_finished(p.anim)) {
+                player_stand(p);
             }
         } break;
 

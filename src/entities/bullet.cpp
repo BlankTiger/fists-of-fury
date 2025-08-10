@@ -99,8 +99,8 @@ void bullet_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
     f32 y2 = screen_end.y  + e.z;
 
     if (e.dir == Direction::Left) {
-        draw_gradient_rect_geometry(r, x1,  y1, x2, y2, yellow, white,  yellow, white);
+        draw_gradient_rect_geometry(r, x1, y1, x2, y2, yellow, white,  yellow, white);
     } else {
-        draw_gradient_rect_geometry(r, x1,  y1, x2, y2, white,  yellow, white,  yellow);
+        draw_gradient_rect_geometry(r, x1, y1, x2, y2, white,  yellow, white,  yellow);
     }
 }
