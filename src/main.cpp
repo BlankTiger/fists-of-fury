@@ -212,7 +212,7 @@ static bool init() {
         //     .x = SCREEN_WIDTH - 0.2f * SCREEN_WIDTH,
         //     .y = 55,
         // });
-        //
+
         enemy_init(g, {
             .type = Enemy_Type::Goon,
             .health = health,
@@ -359,7 +359,7 @@ static void draw_entity(SDL_Renderer* r, Entity e) {
         } break;
 
         case Entity_Type::Bullet: {
-            bullet_draw(r, e);
+            bullet_draw(r, e, g);
         } break;
     }
 }

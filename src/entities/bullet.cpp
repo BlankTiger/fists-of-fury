@@ -77,12 +77,14 @@ Update_Result bullet_update(Entity& e, Game& g) {
     return Update_Result::None;
 }
 
-void bullet_draw(SDL_Renderer* r, const Entity& e) {
+void bullet_draw(SDL_Renderer* r, const Entity& e, const Game& g) {
     assert(e.type == Entity_Type::Bullet);
 
-    SDL_Color yellowish = {230, 230, 230, 255};
-    SDL_Color yellow = {230, 230, 0, 255};
-    auto& pos_curr = e.extra_bullet.pos_curr;
-    auto& pos_end  = e.extra_bullet.pos_end;
-    draw_gradient_rect_geometry(r, pos_curr.x, pos_curr.y + e.z, pos_end.x, pos_end.y + e.z, yellowish, yellow, yellowish, yellow);
+    Vec2<f32> screen_curr = game_get_screen_coords(g, e.extra_bullet.pos_curr);
+    Vec2<f32> screen_end  = game_get_screen_coords(g, e.extra_bullet.pos_end);
+
+    static const SDL_Color white  = {230, 230, 230, 255};
+    static const SDL_Color yellow = {230, 230, 0,   255};
+
+    draw_gradient_rect_geometry(r, screen_curr.x, screen_curr.y + e.z, screen_end.x, screen_end.y + e.z, white, yellow, white, yellow);
 }
