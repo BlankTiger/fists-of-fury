@@ -2,6 +2,7 @@
 
 #include "enemy.h"
 #include "knife.h"
+#include "bullet.h"
 #include "../draw.h"
 #include "../utils.h"
 #include "entity.h"
@@ -182,7 +183,7 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
     } else {
         auto dir = e.extra_enemy.target_pos - enemy_pos;
         e.dir = dir_for_dir_vec(dir);
-        if (e.extra_enemy.has_knife) {
+        if (e.extra_enemy.has_knife || e.extra_enemy.has_gun) {
             enemy_rotate_towards_player(e, enemy_pos, player_pos);
         }
 
@@ -327,7 +328,7 @@ static void enemy_return_claimed_slot(Entity& e, Game& g) {
 }
 
 static void enemy_update_target_pos(Entity& e, const Entity& player, const Game& g) {
-    if (e.extra_enemy.has_knife) {
+    if (e.extra_enemy.has_knife || e.extra_enemy.has_gun) {
         Vec2<f32> target_pos = {};
         target_pos.y = player.y;
         auto offset_to_be_fully_visible = 12;
@@ -400,6 +401,16 @@ static void enemy_attack(Entity& e, Game& g) {
         animation_start(e.anim, opts);
         e.extra_enemy.has_knife = false;
         knife_throw(g, e);
+        return;
+    } else if (e.extra_enemy.has_gun) {
+        opts = enemy_get_anim_punch_left(e);
+        animation_start(e.anim, opts);
+        bullet_init(g, {
+            .pos_creator = entity_get_pos(e),
+            .offsets     = e.bullet_start_offsets,
+            .dir         = e.dir,
+            .shot_by     = Entity_Type::Enemy,
+        });
         return;
     }
 
