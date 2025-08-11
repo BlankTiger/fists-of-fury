@@ -441,6 +441,7 @@ static void enemy_drop_knife(Entity& e, Game& g) {
 
 static void enemy_drop_gun(Entity& e, Game& g) {
     if (e.extra_enemy.has_gun) {
+        collectible_drop(Collectible_Type::Gun, g, e);
         e.extra_enemy.has_gun = false;
     }
 }

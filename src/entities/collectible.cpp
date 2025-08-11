@@ -79,19 +79,45 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
         case Collectible_State::Thrown: {
             anim_opts.anim_idx = (u32)Collectible_Anim::Normal;
             anim_opts.looping = true;
+
+            switch (opts.type) {
+                case Collectible_Type::Knife: {
+
+                } break;
+
+                case Collectible_Type::Gun: {
+                    anim_opts.rotation = {
+                        .enabled = true,
+                        .deg_per_sec = 1200.0f,
+                    };
+                } break;
+            }
         } break;
 
         case Collectible_State::Dropped: {
             anim_opts.anim_idx = (u32)Collectible_Anim::Normal;
+
             std::vector<Rotation_Range> range;
-            if      (opts.dir == Direction::Left)  range = {{269, 271}};
-            else if (opts.dir == Direction::Right) range = {{89, 91}};
-            else    unreachable("not possible");
+            f32 deg_per_sec;
+
+            switch (opts.type) {
+                case Collectible_Type::Knife: {
+                    if      (opts.dir == Direction::Left)  range = {{269, 271}};
+                    else if (opts.dir == Direction::Right) range = {{89, 91}};
+                    else    unreachable("not possible");
+                    deg_per_sec = 2300.0f;
+                } break;
+
+                case Collectible_Type::Gun: {
+                    range = {{85, 95}};
+                    deg_per_sec = 1200.0f;
+                } break;
+            }
 
             anim_opts.rotation = {
                 .enabled = true,
                 .finish_ranges = range,
-                .deg_per_sec = 2300.0f,
+                .deg_per_sec = deg_per_sec,
                 .rotations_min = 0,
             };
         } break;

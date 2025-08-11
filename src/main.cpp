@@ -108,7 +108,6 @@ static bool init() {
     // player setup
     {
         player_init(&g.sprite_player, g);
-        collectible_drop(Collectible_Type::Knife, g, game_get_player(g), { .instantly_disappear = true });
     }
 
     {

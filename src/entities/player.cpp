@@ -41,9 +41,9 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
         .bottom_left_free    = true,
         .bottom_right_free   = true,
     };
-    player.extra_player.has_knife = true;
-    player.extra_player.has_gun = false;
-    player.extra_player.bullets = 10;
+    player.extra_player.has_knife = false;
+    player.extra_player.has_gun = true;
+    player.extra_player.bullets = 3;
     animation_start(player.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true});
 
     g.entities.push_back(player);
@@ -338,6 +338,13 @@ static void player_attack(Entity& p, Game& g) {
         p.extra_player.state = Player_State::Attacking;
         opts.anim_idx = (u32)Player_Anim::Punching_Left;
         animation_start(p.anim, opts);
+
+        if (p.extra_player.bullets == 0) {
+            p.extra_player.has_gun = false;
+            collectible_throw(Collectible_Type::Gun, g, p);
+            return;
+        }
+
         bullet_init(g, {
             .pos_creator = entity_get_pos(p),
             .offsets     = p.bullet_start_offsets,
@@ -345,7 +352,6 @@ static void player_attack(Entity& p, Game& g) {
             .shot_by     = Entity_Type::Player,
         });
         p.extra_player.bullets--;
-        if (p.extra_player.bullets <= 0) p.extra_player.has_gun = false;
         return;
     }
 
@@ -508,6 +514,7 @@ static void player_pick_up(Entity& p, Game& g) {
             case Collectible_Type::Gun: {
                 collectible->extra_collectible.picked_up = true;
                 p.extra_player.has_gun = true;
+                p.extra_player.bullets = 3;
             }
         }
     }
