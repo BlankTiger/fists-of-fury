@@ -42,7 +42,7 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
         .bottom_right_free   = true,
     };
     player.extra_player.has_knife = false;
-    player.extra_player.has_gun = false;
+    player.extra_player.has_gun = true;
     player.extra_player.bullets = settings.default_bullet_count_on_pick_up;
     animation_start(player.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true});
 
@@ -588,6 +588,11 @@ static void player_receive_damage(Entity& p, Game& g) {
         if (p.extra_player.has_knife) {
             collectible_drop(Collectible_Type::Knife, g, p, { .instantly_disappear = true });
             p.extra_player.has_knife = false;
+        }
+
+        if (p.extra_player.has_gun) {
+            collectible_drop(Collectible_Type::Gun, g, p, { .instantly_disappear = true });
+            p.extra_player.has_gun = false;
         }
     }
 
