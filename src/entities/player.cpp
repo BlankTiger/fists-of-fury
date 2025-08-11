@@ -2,7 +2,7 @@
 #include <cassert>
 
 #include "player.h"
-#include "knife.h"
+#include "collectible.h"
 #include "bullet.h"
 #include "../game.h"
 #include "../settings.h"
@@ -41,7 +41,8 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
         .bottom_left_free    = true,
         .bottom_right_free   = true,
     };
-    player.extra_player.has_gun = true;
+    player.extra_player.has_knife = true;
+    player.extra_player.has_gun = false;
     player.extra_player.bullets = 10;
     animation_start(player.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true});
 
@@ -330,7 +331,7 @@ static void player_attack(Entity& p, Game& g) {
         p.extra_player.state = Player_State::Attacking;
         opts.anim_idx = (u32)Player_Anim::Punching_Right;
         animation_start(p.anim, opts);
-        knife_throw(g, p);
+        collectible_throw(Collectible_Type::Knife, g, p);
         p.extra_player.has_knife = false;
         return;
     } else if (p.extra_player.has_gun) {
@@ -578,7 +579,7 @@ static void player_receive_damage(Entity& p, Game& g) {
         }
 
         if (p.extra_player.has_knife) {
-            knife_drop(g, p, { .instantly_disappear = true });
+            collectible_drop(Collectible_Type::Knife, g, p, { .instantly_disappear = true });
             p.extra_player.has_knife = false;
         }
     }

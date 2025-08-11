@@ -15,8 +15,7 @@
 #include "entities/player.h"
 #include "entities/enemy.h"
 #include "entities/barrel.h"
-#include "entities/knife.h"
-#include "entities/gun.h"
+#include "entities/collectible.h"
 #include "entities/bullet.h"
 
 static Game g = {};
@@ -109,6 +108,7 @@ static bool init() {
     // player setup
     {
         player_init(&g.sprite_player, g);
+        collectible_drop(Collectible_Type::Knife, g, game_get_player(g), { .instantly_disappear = true });
     }
 
     {
@@ -246,15 +246,7 @@ static Update_Result update_entity(Entity& e) {
         } break;
 
         case Entity_Type::Collectible: {
-            switch (e.extra_collectible.type) {
-                case Collectible_Type::Knife: {
-                    res = knife_update(e, g);
-                } break;
-
-                case Collectible_Type::Gun: {
-                    res = gun_update(e, g);
-                } break;
-            }
+            res = collectible_update(e, g);
         } break;
 
         case Entity_Type::Bullet: {
@@ -278,6 +270,39 @@ static void y_sort_entities(Game& g) {
     std::sort(g.sorted_indices.begin(), g.sorted_indices.end(), sort_fn);
 }
 
+static void handle_prop_queues(Game& g) {
+    while (!g.props_thrown_queue.empty()) {
+        const auto prop_info = g.props_thrown_queue.back();
+
+        auto collectible = collectible_init(g, {
+            .type     = prop_info.type,
+            .state    = Collectible_State::Thrown,
+            .position = prop_info.position,
+            .dir      = prop_info.dir,
+            .done_by  = prop_info.thrown_by,
+        });
+        g.entities.push_back(collectible);
+
+        g.props_thrown_queue.pop_back();
+    }
+
+    while (!g.props_dropped_queue.empty()) {
+        const auto prop_info = g.props_dropped_queue.back();
+
+        auto collectible = collectible_init(g, {
+            .type                = prop_info.type,
+            .state               = Collectible_State::Dropped,
+            .position            = prop_info.position,
+            .dir                 = prop_info.dir, // could be whatever [...] this in fact, could not be whatever
+            .done_by             = prop_info.dropped_by,
+            .instantly_disappear = prop_info.instantly_disappear,
+        });
+        g.entities.push_back(collectible);
+
+        g.props_dropped_queue.pop_back();
+    }
+}
+
 static void update(Game& g) {
     for (u64 idx = 0; idx < g.entities.size(); idx++) {
         auto& entity = g.entities[idx];
@@ -298,31 +323,7 @@ static void update(Game& g) {
         g.removal_queue.pop_back();
     }
 
-    while (!g.knives_thrown_queue.empty()) {
-        const auto knife_info = g.knives_thrown_queue.back();
-        auto knife = knife_init(g, {
-            .position = knife_info.position,
-            .dir      = knife_info.dir,
-            .state    = Knife_State::Thrown,
-            .done_by  = knife_info.thrown_by,
-        });
-        g.entities.push_back(knife);
-        g.knives_thrown_queue.pop_back();
-    }
-
-    while (!g.knives_dropped_queue.empty()) {
-        const auto knife_info = g.knives_dropped_queue.back();
-        auto knife = knife_init(g, {
-            .position            = knife_info.position,
-            .dir                 = knife_info.dir, // could be whatever [...] this in fact, could not be whatever
-            .state               = Knife_State::Dropped,
-            .done_by             = knife_info.dropped_by,
-            .instantly_disappear = knife_info.instantly_disappear,
-        });
-        g.entities.push_back(knife);
-        g.knives_dropped_queue.pop_back();
-    }
-
+    handle_prop_queues(g);
     y_sort_entities(g);
 
     g.input_prev  = g.input;
@@ -347,15 +348,7 @@ static void draw_entity(SDL_Renderer* r, Entity e) {
         } break;
 
         case Entity_Type::Collectible: {
-            switch (e.extra_collectible.type) {
-                case Collectible_Type::Knife: {
-                    knife_draw(r, e, g);
-                } break;
-
-                case Collectible_Type::Gun: {
-                    gun_draw(r, e, g);
-                } break;
-            }
+            collectible_draw(r, e, g);
         } break;
 
         case Entity_Type::Bullet: {

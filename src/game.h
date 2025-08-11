@@ -62,8 +62,14 @@ struct Game {
 
     Sprite sprite_knife = {
         .img                     = {},
-        .max_frames_in_row_count = 4, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
+        .max_frames_in_row_count = 1, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
         .frames_in_each_row      = std::span{sprite_knife_frames},
+    };
+
+    Sprite sprite_gun = {
+        .img                     = {},
+        .max_frames_in_row_count = 1, // THIS HAS TO CORRESPOND TO THE WIDTH OF THE SPRITE -> SPRITE_WIDTH / FRAME_WIDTH
+        .frames_in_each_row      = std::span{sprite_gun_frames},
     };
 
     Sprite sprite_knife_enemy = {
@@ -101,11 +107,11 @@ struct Game {
     Input_State input;
     Input_State input_prev; // for detecting press -> release
 
-    std::vector<Entity>             entities;
-    std::vector<u32>                sorted_indices;       // for y-sorting when drawing
-    std::vector<u32>                removal_queue;        // for removing entities at the end of the frame
-    std::vector<Knife_Thrown_Info>  knives_thrown_queue;  // gets used when collecting knives thrown in the current frame and emptied when creating them
-    std::vector<Knife_Dropped_Info> knives_dropped_queue; // gets used when collecting knives dropped in the current frame and emptied when creating them
+    std::vector<Entity>            entities;
+    std::vector<u32>               sorted_indices;      // for y-sorting when drawing
+    std::vector<u32>               removal_queue;       // for removing entities at the end of the frame
+    std::vector<Prop_Thrown_Info>  props_thrown_queue;  // gets used when collecting props thrown in the current frame and emptied when creating them
+    std::vector<Prop_Dropped_Info> props_dropped_queue; // gets used when collecting props dropped in the current frame and emptied when creating them
 
     // TODO: in the future make this a unique type, see handles are better pointers
     u32 idx_player;

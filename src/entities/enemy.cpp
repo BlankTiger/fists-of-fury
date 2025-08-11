@@ -1,7 +1,7 @@
 #include <cassert>
 
 #include "enemy.h"
-#include "knife.h"
+#include "collectible.h"
 #include "bullet.h"
 #include "../draw.h"
 #include "../utils.h"
@@ -400,7 +400,7 @@ static void enemy_attack(Entity& e, Game& g) {
         opts = enemy_get_anim_punch_right(e);
         animation_start(e.anim, opts);
         e.extra_enemy.has_knife = false;
-        knife_throw(g, e);
+        collectible_throw(Collectible_Type::Knife, g, e);
         return;
     } else if (e.extra_enemy.has_gun) {
         opts = enemy_get_anim_punch_left(e);
@@ -434,7 +434,7 @@ static void enemy_attack(Entity& e, Game& g) {
 
 static void enemy_drop_knife(Entity& e, Game& g) {
     if (e.extra_enemy.has_knife) {
-        knife_drop(g, e);
+        collectible_drop(Collectible_Type::Knife, g, e);
         e.extra_enemy.has_knife = false;
     }
 }

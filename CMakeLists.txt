@@ -25,13 +25,12 @@ add_executable(${PROJECT_NAME}
     src/debug_menu.cpp
     src/animation.cpp
     src/level_info.cpp
-    src/entities/gun.cpp
     src/entities/enemy.cpp
-    src/entities/knife.cpp
     src/entities/entity.cpp
     src/entities/barrel.cpp
     src/entities/bullet.cpp
     src/entities/player.cpp
+    src/entities/collectible.cpp
 )
 
 target_link_libraries(

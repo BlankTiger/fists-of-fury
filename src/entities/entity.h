@@ -29,10 +29,6 @@ enum struct Collectible_Type {
     Gun,
 };
 
-struct Collectible {
-    Collectible_Type type;
-};
-
 enum struct Player_State {
     Standing,
     Running,
@@ -189,7 +185,7 @@ struct Handle {
     }
 };
 
-enum struct Knife_State {
+enum struct Collectible_State {
     Thrown,
     Dropped,
     On_The_Ground,
@@ -197,14 +193,15 @@ enum struct Knife_State {
     Disappearing,
 };
 
-enum struct Knife_Anim {
-    Thrown  = 0,
-    Dropped = 1,
+enum struct Collectible_Anim {
+    Normal = 0,
     COUNT // keep this last
 };
 
-static constexpr u32 sprite_knife_frames[]   = { 4, 1 };
-static_assert(std::size(sprite_knife_frames) == (u32)Knife_Anim::COUNT);
+static constexpr u32 sprite_knife_frames[]   =  { 1 };
+static_assert(std::size(sprite_knife_frames) == (u32)Collectible_Anim::COUNT);
+static constexpr u32 sprite_gun_frames[]     =  { 1 };
+static_assert(std::size(sprite_gun_frames)   == (u32)Collectible_Anim::COUNT);
 
 struct Collide_Opts {
     std::span<const Entity_Type> dont_collide_with;
@@ -212,26 +209,20 @@ struct Collide_Opts {
     bool                         reset_position_on_wall_impact = true;
 };
 
-struct Knife_Thrown_Info {
-    Vec2<f32>   position;
-    Direction   dir;
-    Entity_Type thrown_by;
+struct Prop_Thrown_Info {
+    Collectible_Type type;
+    Vec2<f32>        position;
+    Direction        dir;
+    Entity_Type      thrown_by;
 };
 
-struct Knife_Dropped_Info {
-    Vec2<f32>   position;
-    Direction   dir;
-    Entity_Type dropped_by;
-    bool        instantly_disappear;
+struct Prop_Dropped_Info {
+    Collectible_Type type;
+    Vec2<f32>        position;
+    Direction        dir;
+    Entity_Type      dropped_by;
+    bool             instantly_disappear;
 };
-
-enum struct Gun_State {
-    Dropped,
-    On_The_Ground,
-    Picked_Up,
-};
-
-enum struct Gun_Anim {};
 
 struct Entity {
     Handle handle;
@@ -311,21 +302,13 @@ struct Entity {
         } extra_bullet;
 
         struct {
-            Collectible_Type type;
-            bool             picked_up  = false;
-            bool             pickupable = true;
-            union {
-                struct {
-                    Knife_State state;
-                    Entity_Type created_by;
-                    bool        started_going_off_screen;
-                    bool        instantly_disappear;
-                } knife;
-
-                struct {
-                    Gun_State state;
-                } gun;
-            };
+            Collectible_Type  type;
+            Collectible_State state;
+            bool              picked_up  = false;
+            bool              pickupable = true;
+            Entity_Type       created_by;
+            bool              started_going_off_screen;
+            bool              instantly_disappear;
         } extra_collectible;
     };
 };
