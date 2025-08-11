@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include "barrel.h"
+#include "collectible.h"
 #include "../draw.h"
 #include "../settings.h"
 #include "../utils.h"
@@ -10,19 +11,22 @@ Entity barrel_init(Game& g, Barrel_Init_Opts opts) {
     const f32 barrel_w = 32;
     const f32 barrel_h = 32;
     Entity barrel{};
-    barrel.handle                = game_generate_entity_handle(g);
-    barrel.type                  = Entity_Type::Barrel;
-    barrel.x                     = opts.x;
-    barrel.y                     = opts.y;
-    barrel.speed                 = 0.05f;
-    barrel.health                = opts.health;
-    barrel.sprite_frame_w        = barrel_w;
-    barrel.sprite_frame_h        = barrel_h;
-    barrel.hitbox_offsets        = {-barrel_w/4.5f, -20, barrel_w*2/4.5f, 13};
-    barrel.collision_box_offsets = {-barrel_w/4.5f, -6, barrel_w*2/4.5f, 4};
-    barrel.shadow_offsets        = {-barrel_w/5, -2, barrel_w*2/5, 3};
-    barrel.extra_barrel.state    = Barrel_State::Idle;
-    barrel.anim.sprite           = opts.sprite;
+    barrel.handle                        = game_generate_entity_handle(g);
+    barrel.type                          = Entity_Type::Barrel;
+    barrel.x                             = opts.x;
+    barrel.y                             = opts.y;
+    barrel.dir                           = Direction::Left;
+    barrel.speed                         = 0.05f;
+    barrel.health                        = opts.health;
+    barrel.sprite_frame_w                = barrel_w;
+    barrel.sprite_frame_h                = barrel_h;
+    barrel.hitbox_offsets                = {-barrel_w/4.5f, -20, barrel_w*2/4.5f, 13};
+    barrel.collision_box_offsets         = {-barrel_w/4.5f, -6,  barrel_w*2/4.5f, 4};
+    barrel.shadow_offsets                = {-barrel_w/5,    -2,  barrel_w*2/5,    3};
+    barrel.extra_barrel.state            = Barrel_State::Idle;
+
+    barrel.extra_barrel.held_collectible = opts.held_collectible;
+    barrel.anim.sprite                   = opts.sprite;
     animation_start(barrel.anim, { .anim_idx = (u32)Barrel_Anim::Idle });
 
     g.entities.push_back(barrel);
@@ -42,7 +46,7 @@ static bool handle_knockback(Entity& e, u64 dt) {
     return e.z_vel == 0.0f && e.x_vel == 0.0f;
 }
 
-Update_Result barrel_update(Entity& e, const Game& g) {
+Update_Result barrel_update(Entity& e, Game& g) {
     assert(e.type == Entity_Type::Barrel);
 
     animation_update(e.anim, g.dt, g.dt_real);
@@ -55,6 +59,10 @@ Update_Result barrel_update(Entity& e, const Game& g) {
                 e.damage_queue.pop_back();
                 if (e.health <= 0) {
                     e.extra_barrel.state = Barrel_State::Destroyed;
+
+                    if (e.extra_barrel.held_collectible.has_value()) {
+                        collectible_drop(e.extra_barrel.held_collectible.value(), g, e);
+                    }
 
                     if (dmg.going_to == Direction::Left) {
                         e.x_vel = -settings.barrel_knockback_velocity;

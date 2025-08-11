@@ -124,6 +124,7 @@ static bool init() {
             .y = 38,
             .health = 20,
             .sprite = &g.sprite_barrel,
+            .held_collectible = Collectible_Type::Knife,
         });
 
         barrel_init(g, {

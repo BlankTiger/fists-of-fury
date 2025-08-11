@@ -3,6 +3,7 @@
 #include <vector>
 #include <span>
 #include <array>
+#include <optional>
 #include <SDL3/SDL.h>
 #include "../number_types.h"
 #include "../vec2.h"
@@ -288,7 +289,8 @@ struct Entity {
         } extra_enemy;
 
         struct {
-            Barrel_State state;
+            Barrel_State                    state;
+            std::optional<Collectible_Type> held_collectible;
         } extra_barrel;
 
         struct {
