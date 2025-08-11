@@ -18,7 +18,7 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
     player.damage                = 20;
     player.speed                 = 0.03f;
     player.type                  = Entity_Type::Player;
-    player.x                     = 20;
+    player.x                     = 30;
     player.y                     = 50;
     player.dir                   = Direction::Right;
     player.dir_prev              = Direction::Right;
@@ -42,8 +42,8 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
         .bottom_right_free   = true,
     };
     player.extra_player.has_knife = false;
-    player.extra_player.has_gun = true;
-    player.extra_player.bullets = 3;
+    player.extra_player.has_gun = false;
+    player.extra_player.bullets = settings.default_bullet_count_on_pick_up;
     animation_start(player.anim, { .anim_idx = (u32)Player_Anim::Standing, .looping = true});
 
     g.entities.push_back(player);
@@ -514,7 +514,7 @@ static void player_pick_up(Entity& p, Game& g) {
             case Collectible_Type::Gun: {
                 collectible->extra_collectible.picked_up = true;
                 p.extra_player.has_gun = true;
-                p.extra_player.bullets = 3;
+                p.extra_player.bullets = settings.default_bullet_count_on_pick_up;
             }
         }
     }

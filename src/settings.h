@@ -40,6 +40,7 @@ struct Settings {
     f32 player_knockdown_velocity            = 0.1f;
     f32 player_knockback_velocity            = 0.04f;
     f32 player_flying_back_velocity          = 0.1f;
+    u64 default_bullet_count_on_pick_up      = 3;
 
     f32 barrel_jump_velocity                 = -0.10f;
     f32 barrel_knockback_velocity            = 0.05f;
