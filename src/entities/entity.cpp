@@ -369,11 +369,12 @@ void entity_handle_rotating_offsets(Entity& e) {
 }
 
 Entity* entity_pickup_collectible(const Entity& e, Game& g) {
+    const auto& collision_box_e = entity_get_world_collision_box(e);
+
     for (auto& collectible : g.entities) {
         if (collectible.type != Entity_Type::Collectible) continue;
         if (!collectible.extra_collectible.pickupable) continue;
 
-        const auto& collision_box_e = entity_get_world_collision_box(e);
         const auto& collision_box_collectible = entity_get_world_collision_box(collectible);
         if (SDL_HasRectIntersectionFloat(&collision_box_collectible, &collision_box_e)) {
             return &collectible;
