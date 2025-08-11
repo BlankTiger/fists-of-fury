@@ -239,24 +239,23 @@ Vec2<f32> calc_world_coordinates_of_slot(Vec2<f32> player_world_pos, const Playe
     switch (slot) {
         case Slot::None: {
             unreachable("coordinates can only be calculated for a valid slot");
-            break;
-        }
+        } break;
 
         case Slot::Top_Left: {
             return player_world_pos + slots.offset_top_left;
-        }
+        } break;
 
         case Slot::Top_Right: {
             return player_world_pos + slots.offset_top_right;
-        }
+        } break;
 
         case Slot::Bottom_Left: {
             return player_world_pos + slots.offset_bottom_left;
-        }
+        } break;
 
         case Slot::Bottom_Right: {
             return player_world_pos + slots.offset_bottom_right;
-        }
+        } break;
     }
 
     unreachable("just to make the compiler happy");
@@ -331,28 +330,23 @@ void return_claimed_slot(Game& game, Slot slot) {
     switch (slot) {
         case Slot::None: {
             unreachable("only a valid position can be returned");
-            break;
-        }
+        } break;
 
         case Slot::Top_Left: {
             player.extra_player.slots.top_left_free = true;
-            break;
-        }
+        } break;
 
         case Slot::Top_Right: {
             player.extra_player.slots.top_right_free = true;
-            break;
-        }
+        } break;
 
         case Slot::Bottom_Left: {
             player.extra_player.slots.bottom_left_free = true;
-            break;
-        }
+        } break;
 
         case Slot::Bottom_Right: {
             player.extra_player.slots.bottom_right_free = true;
-            break;
-        }
+        } break;
     }
 }
 

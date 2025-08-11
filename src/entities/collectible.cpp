@@ -44,18 +44,27 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
         } break;
 
         case Collectible_State::Dropped: {
+            collectible.collision_box_offsets = collectible.hurtbox_offsets;
+            collectible.collision_box_offsets.y = -5.0f; 
+            collectible.collision_box_offsets.h = 6.0f;
+
             switch (opts.type) {
                 case (Collectible_Type::Knife): {
                     collectible.shadow_offsets.y = -7;
                     collectible.shadow_offsets.x = -3;
                     collectible.shadow_offsets.w = 6;
+                    collectible.collision_box_offsets.x = -3.0f;
+                    collectible.collision_box_offsets.w = 6.0f;
                     collectible.y += 7.0f; // experimentally found offset that looks best for now
                 } break;
 
                 case (Collectible_Type::Gun): {
-                    collectible.shadow_offsets.y = 3;
-                    collectible.shadow_offsets.x = -3;
-                    collectible.shadow_offsets.w = 7;
+                    collectible.shadow_offsets.y = 0;
+                    collectible.shadow_offsets.x = -7;
+                    collectible.shadow_offsets.w = 14;
+                    collectible.collision_box_offsets.x = -8.0f;
+                    collectible.collision_box_offsets.w = 16.0f;
+                    collectible.y += 3.0f; // experimentally found offset that looks best for now
                 } break;
             }
             collectible.z_vel = settings.collectible_drop_jump_velocity;
@@ -65,11 +74,6 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
             } else if (collectible.dir == Direction::Left) {
                 collectible.x_vel = settings.collectible_drop_sideways_velocity;
             }
-
-            collectible.collision_box_offsets = collectible.hurtbox_offsets;
-            collectible.collision_box_offsets.y = -5.0f; 
-            collectible.collision_box_offsets.w = 12.0f;
-            collectible.collision_box_offsets.h = 6.0f;
         } break;
 
         case Collectible_State::Picked_Up:     unreachable("not possible");
@@ -122,7 +126,7 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
                 } break;
 
                 case Collectible_Type::Gun: {
-                    range = {{85, 95}};
+                    range = {{0, 10}};
                     deg_per_sec = 1200.0f;
                 } break;
             }
