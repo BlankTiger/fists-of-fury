@@ -24,6 +24,7 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
 
     collectible.hurtbox_offsets         = {-4.8f, -sprite_frame_h/2.8f, sprite_frame_w/4.5f, sprite_frame_h/7.0f};
     collectible.shadow_offsets          = {-6, 0, 12, 2};
+
     switch (collectible.extra_collectible.state) {
         case Collectible_State::Thrown: {
             if (collectible.dir == Direction::Right) {
@@ -43,10 +44,20 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
         } break;
 
         case Collectible_State::Dropped: {
-            collectible.shadow_offsets.y = -7;
-            collectible.shadow_offsets.x = -3;
-            collectible.shadow_offsets.w = 6;
-            collectible.y += 7.0f; // experimentally found offset that looks best for now
+            switch (opts.type) {
+                case (Collectible_Type::Knife): {
+                    collectible.shadow_offsets.y = -7;
+                    collectible.shadow_offsets.x = -3;
+                    collectible.shadow_offsets.w = 6;
+                    collectible.y += 7.0f; // experimentally found offset that looks best for now
+                } break;
+
+                case (Collectible_Type::Gun): {
+                    collectible.shadow_offsets.y = 3;
+                    collectible.shadow_offsets.x = -3;
+                    collectible.shadow_offsets.w = 7;
+                } break;
+            }
             collectible.z_vel = settings.collectible_drop_jump_velocity;
 
             if (collectible.dir == Direction::Right) {
@@ -56,7 +67,9 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
             }
 
             collectible.collision_box_offsets = collectible.hurtbox_offsets;
-            collectible.collision_box_offsets.y = collectible.shadow_offsets.y; 
+            collectible.collision_box_offsets.y = -5.0f; 
+            collectible.collision_box_offsets.w = 12.0f;
+            collectible.collision_box_offsets.h = 6.0f;
         } break;
 
         case Collectible_State::Picked_Up:     unreachable("not possible");
