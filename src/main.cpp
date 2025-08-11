@@ -167,9 +167,17 @@ static bool init() {
     }
 
     {
-        bool ok = sprite_load(g.sprite_knife, g.renderer, "assets/art/characters/knife.png");
+        bool ok = sprite_load(g.sprite_knife, g.renderer, "assets/art/props/knife.png");
         if (!ok) {
             SDL_Log("Failed to load knife sprite! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+    }
+
+    {
+        bool ok = sprite_load(g.sprite_gun, g.renderer, "assets/art/props/gun.png");
+        if (!ok) {
+            SDL_Log("Failed to load gun sprite! SDL err: %s\n", SDL_GetError());
             return false;
         }
     }
