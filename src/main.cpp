@@ -132,6 +132,7 @@ static bool init() {
             .y = 38,
             .health = 20,
             .sprite = &g.sprite_barrel,
+            .held_collectible = Collectible_Type::Food,
         });
     }
 
@@ -177,6 +178,14 @@ static bool init() {
 
     {
         bool ok = sprite_load(g.sprite_gun, g.renderer, "assets/art/props/gun.png");
+        if (!ok) {
+            SDL_Log("Failed to load gun sprite! SDL err: %s\n", SDL_GetError());
+            return false;
+        }
+    }
+
+    {
+        bool ok = sprite_load(g.sprite_food, g.renderer, "assets/art/props/chicken.png");
         if (!ok) {
             SDL_Log("Failed to load gun sprite! SDL err: %s\n", SDL_GetError());
             return false;

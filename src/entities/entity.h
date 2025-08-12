@@ -28,6 +28,7 @@ enum struct Entity_Type {
 enum struct Collectible_Type {
     Knife,
     Gun,
+    Food,
 };
 
 enum struct Player_State {
@@ -203,6 +204,8 @@ static constexpr u32 sprite_knife_frames[]   =  { 1 };
 static_assert(std::size(sprite_knife_frames) == (u32)Collectible_Anim::COUNT);
 static constexpr u32 sprite_gun_frames[]     =  { 1 };
 static_assert(std::size(sprite_gun_frames)   == (u32)Collectible_Anim::COUNT);
+static constexpr u32 sprite_food_frames[]    =  { 1 };
+static_assert(std::size(sprite_food_frames)  == (u32)Collectible_Anim::COUNT);
 
 struct Collide_Opts {
     std::span<const Entity_Type> dont_collide_with;

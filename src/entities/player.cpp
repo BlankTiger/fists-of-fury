@@ -14,7 +14,7 @@ Entity player_init(const Sprite* player_sprite, Game& g) {
     const auto sprite_frame_w = 48;
     Entity player{};
     player.handle                = game_generate_entity_handle(g);
-    player.health                = 200.0f;
+    player.health                = settings.player_max_health;
     player.damage                = 20;
     player.speed                 = 0.03f;
     player.type                  = Entity_Type::Player;
@@ -505,17 +505,20 @@ static void player_pick_up(Entity& p, Game& g) {
     if (collectible) {
         assert(collectible->type == Entity_Type::Collectible);
 
+        collectible->extra_collectible.picked_up = true;
         switch (collectible->extra_collectible.type) {
             case Collectible_Type::Knife: {
-                collectible->extra_collectible.picked_up = true;
                 p.extra_player.has_knife = true;
             } break;
 
             case Collectible_Type::Gun: {
-                collectible->extra_collectible.picked_up = true;
                 p.extra_player.has_gun = true;
                 p.extra_player.bullets = settings.default_bullet_count_on_pick_up;
-            }
+            } break;
+
+            case Collectible_Type::Food: {
+                p.health += settings.player_max_health;
+            } break;
         }
     }
 

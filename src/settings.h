@@ -36,6 +36,7 @@ struct Settings {
     f32 gravity                              = 0.00038f;
     f32 jump_velocity                        = -0.15f;
 
+    f32 player_max_health                    = 200.0f;
     u64 player_combo_timeout_ms              = 1000;
     f32 player_knockdown_velocity            = 0.1f;
     f32 player_knockback_velocity            = 0.04f;

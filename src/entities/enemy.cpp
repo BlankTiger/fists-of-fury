@@ -472,15 +472,20 @@ static void enemy_pick_up_collectible(Entity& e, Game& g) {
     auto* collectible = entity_pickup_collectible(e, g);
     assert(collectible); // should have already been checked with enemy_can_pick_up_collectible
 
+    if (collectible->extra_collectible.type == Collectible_Type::Food) return;
+
+    collectible->extra_collectible.picked_up = true;
     switch (collectible->extra_collectible.type) {
         case Collectible_Type::Knife: {
-            collectible->extra_collectible.picked_up = true;
             e.extra_enemy.has_knife = true;
         } break;
 
         case Collectible_Type::Gun: {
-            collectible->extra_collectible.picked_up = true;
             e.extra_enemy.has_gun = true;
+        } break;
+
+        case Collectible_Type::Food: {
+            unreachable("enemy cant pick up food");
         } break;
     }
 

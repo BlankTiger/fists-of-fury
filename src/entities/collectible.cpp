@@ -45,7 +45,7 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
 
         case Collectible_State::Dropped: {
             collectible.collision_box_offsets = collectible.hurtbox_offsets;
-            collectible.collision_box_offsets.y = -5.0f; 
+            collectible.collision_box_offsets.y = -5.0f;
             collectible.collision_box_offsets.h = 6.0f;
 
             switch (opts.type) {
@@ -66,6 +66,15 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
                     collectible.collision_box_offsets.w = 16.0f;
                     collectible.y += 3.0f; // experimentally found offset that looks best for now
                 } break;
+
+                case (Collectible_Type::Food): {
+                    collectible.shadow_offsets.y = 0;
+                    collectible.shadow_offsets.x = -7;
+                    collectible.shadow_offsets.w = 14;
+                    collectible.collision_box_offsets.x = -8.0f;
+                    collectible.collision_box_offsets.w = 16.0f;
+                    collectible.y += 3.0f; // experimentally found offset that looks best for now
+                }
             }
             collectible.z_vel = settings.collectible_drop_jump_velocity;
 
@@ -89,6 +98,10 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
         case Collectible_Type::Gun: {
             collectible.anim.sprite = &g.sprite_gun;
         } break;
+
+        case Collectible_Type::Food: {
+            collectible.anim.sprite = &g.sprite_food;
+        } break;
     }
 
     Anim_Start_Opts anim_opts = {};
@@ -106,6 +119,13 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
                     anim_opts.rotation = {
                         .enabled = true,
                         .deg_per_sec = 1200.0f,
+                    };
+                } break;
+
+                case Collectible_Type::Food: {
+                    anim_opts.rotation = {
+                        .enabled = true,
+                        .deg_per_sec = 1000.0f,
                     };
                 } break;
             }
@@ -129,6 +149,11 @@ Entity collectible_init(Game& g, Collectible_Init_Opts opts) {
                     range = {{0, 10}};
                     deg_per_sec = 1200.0f;
                 } break;
+
+                case Collectible_Type::Food: {
+                    range = {{0, 10}};
+                    deg_per_sec = 800.0f;
+                }
             }
 
             anim_opts.rotation = {
