@@ -7,7 +7,6 @@ struct Enemy_Init_Opts {
     Enemy_Type type;
     f32 health;
     f32 damage;
-    f32 speed;
     f32 x;
     f32 y;
     bool has_knife;

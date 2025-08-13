@@ -16,7 +16,6 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
     enemy.y                     = opts.y;
     enemy.health                = opts.health;
     enemy.damage                = opts.damage;
-    enemy.speed                 = opts.speed;
     enemy.type                  = Entity_Type::Enemy;
     enemy.extra_enemy.type      = opts.type;
     enemy.sprite_frame_w        = sprite_frame_w;
@@ -32,6 +31,8 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
 
     switch (opts.type) {
         case Enemy_Type::Goon: {
+            enemy.speed = settings.enemy_goon_speed;
+
             enemy.extra_enemy.has_knife = true;
             enemy.extra_enemy.can_spawn_knives = true;
             enemy.anim.sprite = &g.sprite_enemy_goon;
@@ -39,16 +40,26 @@ Entity enemy_init(Game& g, Enemy_Init_Opts opts) {
         } break;
 
         case Enemy_Type::Thug: {
+            enemy.speed = settings.enemy_thug_speed;
+
             enemy.anim.sprite = &g.sprite_enemy_thug;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Anim::Standing, .looping = true });
         } break;
 
         case Enemy_Type::Punk: {
+            enemy.speed = settings.enemy_punk_speed;
+
             enemy.anim.sprite = &g.sprite_enemy_punk;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Anim::Standing, .looping = true });
         } break;
 
         case Enemy_Type::Boss: {
+            assert(!opts.has_knife);
+            assert(!opts.can_spawn_knives);
+            assert(!opts.has_gun);
+
+            enemy.speed = settings.enemy_boss_speed;
+
             enemy.anim.sprite = &g.sprite_enemy_boss;
             animation_start(enemy.anim, { .anim_idx = (u32)Enemy_Boss_Anim::Standing, .looping = true });
         } break;
