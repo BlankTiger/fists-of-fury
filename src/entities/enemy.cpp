@@ -111,7 +111,7 @@ static Anim_Start_Opts enemy_get_anim_standing(const Entity& e) {
 static Anim_Start_Opts enemy_get_anim_running(const Entity& e) {
     auto anim_idx = (u32)Enemy_Anim::Running;
     if (e.extra_enemy.type == Enemy_Type::Boss) {
-        anim_idx = (u32)Enemy_Boss_Anim::Running;
+        anim_idx = (u32)Enemy_Boss_Anim::Guard_Running;
     }
     return { .anim_idx = anim_idx, .frame_duration_ms = 75, .looping = true };
 }
