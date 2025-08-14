@@ -406,7 +406,11 @@ static bool enemy_attack_timed_out(const Entity& e, const Game& g) {
 }
 
 static bool enemy_can_attack(const Entity& e, const Game& g) {
-    return enemy_is_close_to_target_pos(e) && enemy_attack_timed_out(e, g);
+    auto& s = e.extra_enemy.state;
+    return s != Enemy_State::Got_Hit
+        && s != Enemy_State::Running
+        && enemy_is_close_to_target_pos(e)
+        && enemy_attack_timed_out(e, g);
 }
 
 static void enemy_deal_damage(Entity& e, Game& g) {
