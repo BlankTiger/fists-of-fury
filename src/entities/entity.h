@@ -155,7 +155,7 @@ enum struct Enemy_Boss_Anim : u32 {
     COUNT // keep this last
 };
 
-static constexpr u32 sprite_enemy_boss_frames[] = { 1, 8, 4, 3, 5, 2, 3, 1, 1, 1, 8, 1 };
+static constexpr u32 sprite_enemy_boss_frames[] = { 1, 8, 4, 3, 4, 2, 3, 1, 1, 1, 8, 1 };
 static_assert(std::size(sprite_enemy_boss_frames) == (u32)Enemy_Boss_Anim::COUNT);
 
 enum struct Enemy_State {
