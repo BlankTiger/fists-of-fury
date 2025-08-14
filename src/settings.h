@@ -51,6 +51,7 @@ struct Settings {
     f32 enemy_goon_speed                     = 0.02f;
     f32 enemy_punk_speed                     = 0.02f;
 
+    f32 enemy_boss_distance_to_player_target = 35.0f;
     f32 enemy_knockback_velocity             = 0.04f;
     f32 enemy_knockdown_velocity             = 0.1f;
     f32 enemy_flying_back_velocity           = 0.1f;
