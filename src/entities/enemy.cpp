@@ -182,7 +182,7 @@ static void enemy_get_ready_to_attack(Entity& e, const Game& g) {
 
 static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g) {
     if (e.health <= 0) return;
-    if (e.extra_enemy.slot == Slot::None) return;
+    if (e.extra_enemy.type != Enemy_Type::Boss && e.extra_enemy.slot == Slot::None) return;
 
     const auto enemy_pos = entity_get_pos(e);
     const auto player_pos = entity_get_pos(player);
@@ -339,6 +339,20 @@ static void enemy_return_claimed_slot(Entity& e, Game& g) {
 }
 
 static void enemy_update_target_pos(Entity& e, const Entity& player, const Game& g) {
+    if (e.extra_enemy.type == Enemy_Type::Boss) {
+        auto e_pos = entity_get_pos(e);
+        auto p_pos = entity_get_pos(player);
+
+        if (e_pos.x > p_pos.x) {
+            p_pos.x += settings.enemy_boss_distance_to_player_target;
+        } else {
+            p_pos.x -= settings.enemy_boss_distance_to_player_target;
+        }
+
+        e.extra_enemy.target_pos = p_pos;
+        return;
+    }
+
     if (e.extra_enemy.has_knife || e.extra_enemy.has_gun) {
         Vec2<f32> target_pos = {};
         target_pos.y = player.y;
@@ -517,7 +531,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
                 enemy_return_claimed_slot(e, g);
             }
             enemy_pick_up_collectible(e, g);
-        } else if (e.extra_enemy.slot == Slot::None) {
+        } else if (e.extra_enemy.type != Enemy_Type::Boss && e.extra_enemy.slot == Slot::None) {
             enemy_claim_slot(e, player, g);
         }
 
