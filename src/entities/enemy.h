@@ -3,7 +3,7 @@
 #include "entity.h"
 #include "../game.h"
 
-struct Enemy_Init_Opts { 
+struct Enemy_Init_Opts {
     Enemy_Type type;
     f32 health;
     f32 damage;
@@ -18,6 +18,11 @@ static constexpr Entity_Type dont_collide_with[] = {Entity_Type::Enemy, Entity_T
 static const Collide_Opts collide_opts = {
     .dont_collide_with = std::span{dont_collide_with},
     .collide_with_walls = false,
+};
+static constexpr Entity_Type dont_collide_with_flying_boss[] = {Entity_Type::Enemy, Entity_Type::Collectible};
+static const Collide_Opts collide_opts_flying_boss = {
+    .dont_collide_with = std::span{dont_collide_with_flying_boss},
+    .collide_with_walls = true,
 };
 
 Entity enemy_init(Game& g, Enemy_Init_Opts opts);

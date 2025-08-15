@@ -132,6 +132,11 @@ static Anim_Start_Opts enemy_get_anim_punch_right(const Entity& e) {
     return { .anim_idx = anim_idx, .frame_duration_ms = 100 };
 }
 
+static Anim_Start_Opts enemy_get_anim_flying_kick(const Entity& e) {
+    assert(e.extra_enemy.type == Enemy_Type::Boss);
+    return { .anim_idx = (u32)Enemy_Boss_Anim::Kick, .frame_duration_ms = 100 };
+}
+
 static Anim_Start_Opts enemy_get_anim_picking_up(const Entity& e) {
     auto anim_idx = (u32)Enemy_Anim::Landing;
     if (e.extra_enemy.type == Enemy_Type::Boss) {
@@ -212,6 +217,20 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
     entity_handle_rotating_offsets(e);
 }
 
+static void enemy_get_knocked_down(Entity& e, Direction dmg_dir) {
+    e.z_vel = -settings.enemy_knockdown_velocity;
+
+    if (dmg_dir == Direction::Left) {
+        e.x_vel = -settings.enemy_knockdown_velocity;
+    } else if (dmg_dir == Direction::Right) {
+        e.x_vel = settings.enemy_knockdown_velocity;
+    }
+
+    e.extra_enemy.state = Enemy_State::Knocked_Down;
+    auto opts = enemy_get_anim_knocked_down(e);
+    animation_start(e.anim, opts);
+}
+
 // returns wheter got hit
 static bool enemy_receive_damage(Entity& e) {
     if (e.health <= 0.0f) return false;
@@ -245,17 +264,7 @@ static bool enemy_receive_damage(Entity& e) {
             } break;
 
             case Hit_Type::Knockdown: {
-                e.z_vel = -settings.enemy_knockdown_velocity;
-
-                if (most_significant_dmg.going_to == Direction::Left) {
-                    e.x_vel = -settings.enemy_knockdown_velocity;
-                } else if (most_significant_dmg.going_to == Direction::Right) {
-                    e.x_vel = settings.enemy_knockdown_velocity;
-                }
-
-                e.extra_enemy.state = Enemy_State::Knocked_Down;
-                auto opts = enemy_get_anim_knocked_down(e);
-                animation_start(e.anim, opts);
+                enemy_get_knocked_down(e, most_significant_dmg.going_to);
             } break;
 
             case Hit_Type::Power: {
@@ -340,8 +349,16 @@ static void enemy_return_claimed_slot(Entity& e, Game& g) {
 
 static void enemy_update_target_pos(Entity& e, const Entity& player, const Game& g) {
     if (e.extra_enemy.type == Enemy_Type::Boss) {
+        if (e.extra_enemy.state == Enemy_State::Attacking) return;
+
         auto e_pos = entity_get_pos(e);
         auto p_pos = entity_get_pos(player);
+
+        {
+            auto target_dir = p_pos - e_pos;
+            target_dir.normalize();
+            e.extra_enemy.target_dir = target_dir;
+        }
 
         if (e_pos.x > p_pos.x) {
             p_pos.x += settings.enemy_boss_distance_to_player_target;
@@ -387,6 +404,10 @@ static bool enemy_can_move(const Entity& e) {
 
 static bool enemy_can_receive_damage(const Entity& e) {
     const auto& s = e.extra_enemy.state;
+    if (e.extra_enemy.type == Enemy_Type::Boss) {
+        return s == Enemy_State::Standing_Up;
+    }
+
     return s == Enemy_State::Standing
         || s == Enemy_State::Running
         || s == Enemy_State::Landing
@@ -409,16 +430,17 @@ static bool enemy_can_attack(const Entity& e, const Game& g) {
     auto& s = e.extra_enemy.state;
     return s != Enemy_State::Got_Hit
         && s != Enemy_State::Running
+        && s != Enemy_State::Attacking
         && enemy_is_close_to_target_pos(e)
         && enemy_attack_timed_out(e, g);
 }
 
-static void enemy_deal_damage(Entity& e, Game& g) {
+static void enemy_deal_damage(Entity& e, Game& g, Hit_Type hit_type = Hit_Type::Normal) {
     auto& player = game_get_player_mutable(g);
     auto player_hitbox = entity_get_world_hitbox(player);
     auto enemy_hurtbox = entity_get_world_hurtbox(e);
     if (SDL_HasRectIntersectionFloat(&player_hitbox, &enemy_hurtbox)) {
-        player.damage_queue.push_back({e.damage, e.dir, Hit_Type::Normal});
+        player.damage_queue.push_back({e.damage, e.dir, hit_type});
     }
 }
 
@@ -452,6 +474,12 @@ static void enemy_attack(Entity& e, Game& g) {
         case 1: {
             opts = enemy_get_anim_punch_right(e);
         } break;
+    }
+
+    if (e.extra_enemy.type == Enemy_Type::Boss) {
+        opts = enemy_get_anim_flying_kick(e);
+        animation_start(e.anim, opts);
+        return;
     }
 
     enemy_deal_damage(e, g);
@@ -522,6 +550,25 @@ static void enemy_pick_up_collectible(Entity& e, Game& g) {
     e.extra_enemy.state = Enemy_State::Picking_Up_Collectible;
 }
 
+enum struct Collision_Type {
+    None,
+    Wall,
+    Player,
+};
+
+Collision_Type enemy_boss_handle_collisions_and_pos_change(Entity& e, const Game& g) {
+    using enum Collision_Type;
+
+    auto speed = e.extra_enemy.target_dir * settings.enemy_boss_flying_kick_speed;
+    e.x_vel = speed.x;
+    e.y_vel = speed.y;
+    bool could_go = entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts_flying_boss);
+    // make this more sophisticated
+    if (!could_go) return Wall;
+
+    return None;
+}
+
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
     assert(e.type == Entity_Type::Enemy);
 
@@ -556,8 +603,9 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
 
     enemy_respawn_knife(e, g);
 
+    using enum Enemy_State;
     switch (e.extra_enemy.state) {
-        case Enemy_State::Standing: {
+        case Standing: {
             if (enemy_is_moving(e)) {
                 enemy_run(e);
             } else if (enemy_can_attack(e, g)) {
@@ -565,20 +613,42 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             }
         } break;
 
-        case Enemy_State::Running: {
+        case Running: {
             if (!enemy_is_moving(e)) {
                 enemy_stand(e);
             }
         } break;
 
 
-        case Enemy_State::Attacking: {
-            if (animation_is_finished(e.anim)) {
-                enemy_stand(e);
+        case Attacking: {
+            if (e.extra_enemy.type == Enemy_Type::Boss) {
+                auto collision = enemy_boss_handle_collisions_and_pos_change(e, g);
+                using enum Collision_Type;
+                switch (collision) {
+                    case None: {
+                        // just keep flying
+                    } break;
+
+                    case Wall: {
+                        // bounce back (get knocked to the ground and start getting up)
+                        enemy_get_knocked_down(e, Direction::Left);
+                    } break;
+
+                    case Player: {
+                        auto p = game_get_player(g);
+                        p.damage_queue.push_back({e.damage, e.dir, Hit_Type::Knockdown});
+                        enemy_stand(e);
+                    } break;
+                }
+
+            } else {
+                if (animation_is_finished(e.anim)) {
+                    enemy_stand(e);
+                }
             }
         } break;
 
-        case Enemy_State::Got_Hit: {
+        case Got_Hit: {
             const auto knockback_finished = enemy_handle_knockback(e, g);
             const auto anim_finished = animation_is_finished(e.anim);
             if (knockback_finished && anim_finished && e.health <= 0.0f) {
@@ -591,7 +661,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             }
         } break;
 
-        case Enemy_State::Flying_Back: {
+        case Flying_Back: {
             enemy_handle_flying_back_collateral_dmg(e, g);
             const auto hit_wall = enemy_handle_flying_back(e, g);
             // make sure that this path doesnt let the enemy live even tho he has 0hp
@@ -604,7 +674,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             }
         } break;
 
-        case Enemy_State::Knocked_Down: {
+        case Knocked_Down: {
             auto anim_idx = (u32)Enemy_Anim::On_The_Ground;
             if (e.extra_enemy.type == Enemy_Type::Boss) {
                 anim_idx = (u32)Enemy_Boss_Anim::On_The_Ground;
@@ -638,7 +708,7 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             }
         } break;
 
-        case Enemy_State::On_The_Ground: {
+        case On_The_Ground: {
             if (animation_is_finished(e.anim)) {
                 e.extra_enemy.state = Enemy_State::Standing_Up;
                 auto anim_idx = (u32)Enemy_Anim::Landing;
@@ -655,34 +725,34 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
             }
         } break;
 
-        case Enemy_State::Picking_Up_Collectible: {
+        case Picking_Up_Collectible: {
             if (animation_is_finished(e.anim)) {
                 enemy_stand(e);
             }
         } break;
 
-        case Enemy_State::Standing_Up: {
+        case Standing_Up: {
             if (animation_is_finished(e.anim)) {
                 enemy_stand(e);
             }
         } break;
 
-        case Enemy_State::Dying: {
+        case Dying: {
             if (animation_is_finished(e.anim)) {
                 if (e.extra_enemy.slot != Slot::None) enemy_return_claimed_slot(e, g);
                 return Update_Result::Remove_Me;
             }
         } break;
 
-        case Enemy_State::In_Position_For_Attack: {
+        case In_Position_For_Attack: {
             if (g.time_ms - e.extra_enemy.ready_to_attack_timestamp > settings.enemy_attack_timeout_ms) {
                 enemy_attack(e, g);
             }
         } break;
 
-        case Enemy_State::Landing: break;
-        case Enemy_State::Guarding: break;
-        case Enemy_State::Guarding_Running: break;
+        case Landing: break;
+        case Guarding: break;
+        case Guarding_Running: break;
     }
 
     return Update_Result::None;

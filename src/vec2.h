@@ -27,6 +27,10 @@ struct Vec2 {
         return *this;
     }
 
+    Vec2<T> operator*(const T scalar) const {
+        return {x * scalar, y * scalar};
+    }
+
     void normalize() {
         const auto len = std::sqrt(x * x + y * y);
         x /= len;

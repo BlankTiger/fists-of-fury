@@ -47,6 +47,7 @@ struct Settings {
     f32 barrel_knockback_velocity            = 0.05f;
 
     f32 enemy_boss_speed                     = 0.012f;
+    f32 enemy_boss_flying_kick_speed         = 0.07f;
     f32 enemy_thug_speed                     = 0.015f;
     f32 enemy_goon_speed                     = 0.02f;
     f32 enemy_punk_speed                     = 0.02f;

@@ -281,7 +281,8 @@ struct Entity {
         struct {
             Enemy_Type  type;
             Enemy_State state;
-            Vec2<f32>   target_pos;
+            Vec2<f32>   target_pos; // for situations where the enemy is following a player
+            Vec2<f32>   target_dir; // for situations where the enemy boss is flying in the original direction of a player
             Slot        slot;
             u64         last_attack_timestamp;
             u64         ready_to_attack_timestamp;
