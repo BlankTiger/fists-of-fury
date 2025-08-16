@@ -195,8 +195,8 @@ static bool handle_dealing_damage(const Entity& e, Game& g) {
 }
 
 static bool handle_movement_while_thrown(Entity& e, const Game& g) {
-    auto in_bounds = entity_movement_handle_collisions_and_pos_change(e, &g, knife_collide_opts);
-    return in_bounds;
+    auto collided_with = entity_movement_handle_collisions_and_pos_change(e, &g, knife_collide_opts);
+    return collided_with == Collision_Type::None;
 }
 
 static bool handle_movement_while_dropped(Entity& e, const Game& g) {

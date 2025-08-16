@@ -161,8 +161,7 @@ void entity_draw_gun(SDL_Renderer* r, const Entity& e, Game* g) {
     if (!ok) SDL_Log("Failed to draw enemy sprite! SDL err: %s\n", SDL_GetError());
 }
 
-// returns whether the movement was in bounds or not
-bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts) {
+Collision_Type entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts) {
     assert(g != nullptr);
 
     f32 x_old = e.x;
@@ -170,13 +169,14 @@ bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, 
     e.x += e.x_vel * g->dt;
     e.y += e.y_vel * g->dt;
 
-    bool in_bounds = true;
+    using enum Collision_Type;
+    Collision_Type collided_with = None;
     SDL_FRect entity_collision_box = entity_get_world_collision_box(e);
 
     if (e.type == Entity_Type::Player) {
         for (const auto& box : level_info_get_collision_boxes(g->curr_level_info)) {
             if (SDL_HasRectIntersectionFloat(&box, &entity_collision_box)) {
-                in_bounds = false;
+                collided_with = Wall;
                 break;
             }
         }
@@ -185,7 +185,7 @@ bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, 
     if (e.type == Entity_Type::Enemy) {
         const auto& box = level_info_get_collision_box(g->curr_level_info, Border::Top);
         if (SDL_HasRectIntersectionFloat(&box, &entity_collision_box)) {
-            in_bounds = false;
+            collided_with = Wall;
         }
     }
 
@@ -194,20 +194,20 @@ bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, 
         const auto& box_left = level_info_get_collision_box(g->curr_level_info, Border::Left);
         if (SDL_HasRectIntersectionFloat(&box_right, &entity_collision_box)
             || SDL_HasRectIntersectionFloat(&box_left, &entity_collision_box)) {
-            in_bounds = false;
+            collided_with = Wall;
         }
     }
 
     if (opts.collide_with_walls) {
         for (const auto& box : level_info_get_collision_boxes(g->curr_level_info)) {
             if (SDL_HasRectIntersectionFloat(&box, &entity_collision_box)) {
-                in_bounds = false;
+                collided_with = Wall;
                 break;
             }
         }
     }
 
-    if (in_bounds) {
+    if (collided_with == None) {
         for (const auto& e_other : g->entities) {
             if (e.handle == e_other.handle) continue;
             auto skip = false;
@@ -221,18 +221,44 @@ bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, 
 
             const auto& e_box = entity_get_world_collision_box(e_other);
             if (SDL_HasRectIntersectionFloat(&e_box, &entity_collision_box)) {
-                in_bounds = false;
+                switch (e_other.type) {
+                    case Entity_Type::Player: {
+                        collided_with = Player;
+                    } break;
+
+                    case Entity_Type::Enemy: {
+                        collided_with = Enemy;
+                    } break;
+
+                    case Entity_Type::Collectible: {
+                        collided_with = Collectible;
+                    } break;
+
+                    case Entity_Type::Barrel: {
+                        collided_with = Barrel;
+                    } break;
+
+                    case Entity_Type::Bullet: {
+                        // ignore this one
+                    } break;
+
+                    default: {
+                        SDL_Log("Entity_Type: %d", e_other.type);
+                        unreachable("probably shouldnt happen, but idk");
+                    } break;
+                }
+
                 break;
             }
         }
     }
 
-    if (opts.reset_position_on_wall_impact && !in_bounds) {
+    if (opts.reset_position_on_wall_impact && collided_with != None) {
         e.x = x_old;
         e.y = y_old;
     }
 
-    return in_bounds;
+    return collided_with;
 }
 
 Vec2<f32> calc_world_coordinates_of_slot(Vec2<f32> player_world_pos, const Player_Attack_Slots& slots, Slot slot) {

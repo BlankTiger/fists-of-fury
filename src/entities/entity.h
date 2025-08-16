@@ -17,6 +17,15 @@ enum struct Direction {
     Right
 };
 
+enum struct Collision_Type {
+    None,
+    Wall,
+    Player,
+    Enemy,
+    Barrel,
+    Collectible
+};
+
 enum struct Entity_Type {
     Player,
     Enemy,
@@ -334,7 +343,7 @@ void entity_draw(SDL_Renderer* r, const Entity& e, const Game* g);
 void entity_draw_knife(SDL_Renderer* r, const Entity& e, Game* g);
 void entity_draw_gun(SDL_Renderer* r, const Entity& e, Game* g);
 
-bool entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts = {});
+Collision_Type entity_movement_handle_collisions_and_pos_change(Entity& e, const Game* g, Collide_Opts opts = {});
 void entity_handle_rotating_offsets(Entity& e);
 
 Slot find_empty_slot(const Player_Attack_Slots& slots);

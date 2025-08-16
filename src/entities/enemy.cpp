@@ -147,7 +147,7 @@ static Anim_Start_Opts enemy_get_anim_picking_up(const Entity& e) {
 
 static Anim_Start_Opts enemy_get_anim_standing_up(const Entity& e) {
     auto anim_idx          = (u32)Enemy_Anim::Landing;
-    auto frame_duration_ms = 500;
+    u64  frame_duration_ms = 500;
 
     if (e.extra_enemy.type == Enemy_Type::Boss) {
         anim_idx          = (u32)Enemy_Boss_Anim::Landing;
@@ -221,8 +221,8 @@ static void enemy_handle_movement(Entity& e, const Entity& player, const Game& g
         e.y_vel = dir.y * e.speed;
     }
 
-    bool could_go = entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts);
-    if (!could_go) {
+    auto collided_with = entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts);
+    if (collided_with != Collision_Type::None) {
         enemy_rotate_towards_player(e, enemy_pos, player_pos);
         enemy_stand(e);
     }
@@ -345,8 +345,8 @@ static void enemy_handle_flying_back_collateral_dmg(Entity& e, Game& g) {
 static bool enemy_handle_flying_back(Entity& e, const Game& g) {
     auto new_collide_opts = collide_opts;
     new_collide_opts.collide_with_walls = true;
-    auto in_bounds = entity_movement_handle_collisions_and_pos_change(e, &g, new_collide_opts);
-    return !in_bounds;
+    auto collided_with = entity_movement_handle_collisions_and_pos_change(e, &g, new_collide_opts);
+    return collided_with != Collision_Type::None;
 }
 
 static void enemy_claim_slot(Entity& e, const Entity& player, Game& g) {
@@ -568,23 +568,13 @@ static void enemy_pick_up_collectible(Entity& e, Game& g) {
     e.extra_enemy.state = Enemy_State::Picking_Up_Collectible;
 }
 
-enum struct Collision_Type {
-    None,
-    Wall,
-    Player,
-};
-
 Collision_Type enemy_boss_handle_collisions_and_pos_change(Entity& e, const Game& g) {
     using enum Collision_Type;
 
     auto speed = e.extra_enemy.target_dir * settings.enemy_boss_flying_kick_speed;
     e.x_vel = speed.x;
     e.y_vel = speed.y;
-    bool could_go = entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts_flying_boss);
-    // make this more sophisticated
-    if (!could_go) return Wall;
-
-    return None;
+    return entity_movement_handle_collisions_and_pos_change(e, &g, collide_opts_flying_boss);
 }
 
 Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
@@ -657,6 +647,8 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
                         p.damage_queue.push_back({e.damage, e.dir, Hit_Type::Knockdown});
                         enemy_stand(e);
                     } break;
+
+                    default: break;
                 }
 
             } else {
