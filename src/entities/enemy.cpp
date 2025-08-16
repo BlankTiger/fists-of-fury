@@ -145,6 +145,19 @@ static Anim_Start_Opts enemy_get_anim_picking_up(const Entity& e) {
     return { .anim_idx = anim_idx };
 }
 
+static Anim_Start_Opts enemy_get_anim_standing_up(const Entity& e) {
+    auto anim_idx          = (u32)Enemy_Anim::Landing;
+    auto frame_duration_ms = 500;
+
+    if (e.extra_enemy.type == Enemy_Type::Boss) {
+        anim_idx          = (u32)Enemy_Boss_Anim::Landing;
+        frame_duration_ms = 2000;
+    }
+
+    return { .anim_idx = anim_idx, .frame_duration_ms = frame_duration_ms };
+}
+
+
 static Direction dir_for_dir_vec(Vec2<f32> dir_vec) {
     if (dir_vec.x > 0) {
         return Direction::Right;
@@ -257,17 +270,22 @@ static bool enemy_receive_damage(Entity& e) {
         e.extra_enemy.state = Enemy_State::Got_Hit;
         e.extra_enemy.can_spawn_knives = false;
 
+        using enum Hit_Type;
         switch (most_significant_dmg.type) {
-            case Hit_Type::Normal: {
-                auto opts = enemy_get_anim_got_hit(e);
-                animation_start(e.anim, opts);
+            case Normal: {
+                if (e.extra_enemy.type != Enemy_Type::Boss) {
+                    auto opts = enemy_get_anim_got_hit(e);
+                    animation_start(e.anim, opts);
+                }
             } break;
 
-            case Hit_Type::Knockdown: {
-                enemy_get_knocked_down(e, most_significant_dmg.going_to);
+            case Knockdown: {
+                if (e.extra_enemy.type != Enemy_Type::Boss) {
+                    enemy_get_knocked_down(e, most_significant_dmg.going_to);
+                }
             } break;
 
-            case Hit_Type::Power: {
+            case Power: {
                 if (most_significant_dmg.going_to == Direction::Left) {
                     e.x_vel = -settings.enemy_flying_back_velocity;
                 } else if (most_significant_dmg.going_to == Direction::Right) {
@@ -711,17 +729,8 @@ Update_Result enemy_update(Entity& e, const Entity& player, Game& g) {
         case On_The_Ground: {
             if (animation_is_finished(e.anim)) {
                 e.extra_enemy.state = Enemy_State::Standing_Up;
-                auto anim_idx = (u32)Enemy_Anim::Landing;
-                if (e.extra_enemy.type == Enemy_Type::Boss) {
-                    anim_idx = (u32)Enemy_Boss_Anim::Landing;
-                }
-                animation_start(
-                    e.anim,
-                    {
-                        .anim_idx = anim_idx,
-                        .frame_duration_ms = 500,
-                    }
-                );
+                auto opts = enemy_get_anim_standing_up(e);
+                animation_start(e.anim, opts);
             }
         } break;
 
